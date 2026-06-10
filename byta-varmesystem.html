@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lönar det sig att byta värmesystem? — kanjagköpahus.se</title>
+<meta name="description" content="Räkna ut återbetalningstiden när du byter värmesystem: årlig besparing, nettoinvestering efter ROT-avdrag och payback i år.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--shadow:0 1px 2px rgba(28,37,32,.05),0 8px 24px -12px rgba(28,37,32,.18);--radius:14px}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.5;font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:680px;margin:0 auto;padding:36px 20px 70px}
+  a{color:var(--green)}
+  .back{display:inline-block;margin-bottom:18px;font-size:14px;font-weight:600;text-decoration:none}
+  .back:hover{text-decoration:underline}
+  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(26px,5vw,38px);letter-spacing:-.01em;margin:0 0 6px;line-height:1.05}
+  .lead{color:var(--ink-soft);font-size:15px;margin:0}
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-top:20px}
+  .card>h2{font-family:"Fraunces",serif;font-weight:600;font-size:18px;margin:0;padding:14px 20px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,var(--paper-2))}
+  .body{padding:8px 20px 16px}
+  .field{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+  .field:last-child{border-bottom:0}
+  .field label{font-size:14px;font-weight:500}
+  .field label small{display:block;color:var(--ink-soft);font-weight:400;font-size:11.5px;margin-top:1px}
+  .inp{width:150px;text-align:right;font-weight:600;font-size:15px;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:9px;padding:8px 11px;font-family:inherit;font-feature-settings:"tnum" 1}
+  .inp:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+  .inp.short{width:90px}
+  select.inp{cursor:pointer;text-align:left;width:auto;min-width:180px}
+  .unit{display:flex;align-items:center;gap:7px;justify-self:end}
+  .unit .u{font-size:12.5px;color:var(--ink-soft)}
+  .hero{background:var(--green);color:#fff;border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);margin-top:20px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.05)}
+  .hero .lbl{font-size:13px;opacity:.8}
+  .hero .big{font-family:"Fraunces",serif;font-size:clamp(30px,7vw,46px);font-weight:600;line-height:1.04;margin:4px 0}
+  .hero .big span{font-size:.42em;font-weight:500;opacity:.78}
+  .hero .note{font-size:12.5px;opacity:.82;margin-top:8px}
+  .rows{margin-top:14px;background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  .rrow{display:flex;justify-content:space-between;align-items:baseline;padding:12px 18px;border-bottom:1px solid var(--line);font-size:14px}
+  .rrow:last-child{border-bottom:0}
+  .rrow .k{color:var(--ink-soft)}
+  .rrow.accent{background:var(--green-soft)}
+  .rrow .v{font-weight:700;font-size:16px}
+  .rrow.accent .v{color:var(--green-dk)}
+  .hint{font-size:12px;color:var(--ink-soft);margin:12px 0 0;padding:9px 11px;background:var(--terra-soft);border-radius:9px;border-left:3px solid var(--terra)}
+  .morelinks{margin-top:24px;font-size:14.5px;font-weight:600}
+  .disc{margin-top:26px;font-size:12.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px;line-height:1.6}
+  @media(max-width:600px){.wrap{padding:28px 14px 60px}.field{grid-template-columns:1fr;gap:6px}.unit{justify-self:stretch;width:100%}.inp{width:100%;flex:1 1 0;min-width:0}.inp.short{width:auto;flex:1 1 0}select.inp{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Tillbaka till kalkylatorn</a>
+  <h1>Lönar det sig att byta värmesystem?</h1>
+  <p class="lead">För dig som redan har hus. Räkna ut hur snabbt ett nytt system betalar sig — efter ROT-avdrag.</p>
+
+  <div class="hero">
+    <div class="lbl">Återbetalningstid</div>
+    <div class="big" id="hero">–</div>
+    <div class="note" id="note"></div>
+  </div>
+
+  <div class="rows">
+    <div class="rrow"><div class="k">Ny uppvärmningskostnad</div><div class="v" id="ny">–</div></div>
+    <div class="rrow accent"><div class="k"><b>Årlig besparing</b></div><div class="v" id="saving">–</div></div>
+    <div class="rrow"><div class="k">Nettoinvestering<small>efter ROT</small></div><div class="v" id="netto">–</div></div>
+    <div class="rrow"><div class="k">Netto efter 10 år<small>besparing − investering</small></div><div class="v" id="tenyr">–</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Nuläge</h2>
+    <div class="body">
+      <div class="field"><label>Nuvarande uppvärmningskostnad<small>Det du betalar idag, per år</small></label><div class="unit"><input class="inp" id="cur" type="number" value="24000"><span class="u">kr/år</span></div></div>
+      <div class="field"><label>Husets värmebehov<small>Uppvärmning + varmvatten</small></label><div class="unit"><input class="inp" id="vb" type="number" value="20000"><span class="u">kWh/år</span></div></div>
+      <div class="field"><label>Elpris, allt inkl.<small>Spot + nät + skatt + moms</small></label><div class="unit"><input class="inp short" id="el" type="number" value="1.60" step="0.05"><span class="u">kr/kWh</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Nytt system</h2>
+    <div class="body">
+      <div class="field"><label>Typ av system</label>
+        <select class="inp" id="sys">
+          <option value="luftvatten">Luft/vatten-värmepump (SCOP 3,2)</option>
+          <option value="bergvarme">Bergvärme (SCOP 3,5)</option>
+          <option value="luftluft">Luft/luft-värmepump (SCOP 3,0)</option>
+        </select>
+      </div>
+      <div class="field"><label>Installationskostnad<small>Inkl. material och arbete</small></label><div class="unit"><input class="inp" id="install" type="number" value="130000"><span class="u">kr</span></div></div>
+      <div class="field"><label>ROT-avdrag<small>30 % av arbetet — förslag fylls i automatiskt</small></label><div class="unit"><input class="inp" id="rot" type="number" value="0"><span class="u">kr</span></div></div>
+      <div class="hint">ROT-avdraget är 30 % av arbetskostnaden, max 50 000 kr/person och år. Schablon: arbetet räknas som ca 30 % av totalpriset för luftpumpar och 35 % för bergvärme — alltså ungefär 9 % respektive 10,5 % av totalpriset i avdrag. Värmepumpar omfattas av ROT, <em>inte</em> det gröna avdraget (som gäller solceller, batteri och laddbox). Justera ROT-fältet om du har en exakt offert.</div>
+    </div>
+  </div>
+
+  <div class="morelinks">Läs också: <a href="driftkostnader.html">Vad kostar en villa att äga? →</a> &middot; <a href="energiklass.html">Energiklass förklarad →</a></div>
+  <div class="disc">Beräkningsverktyg för eget bruk — inte ekonomisk rådgivning. Värmefaktorer (SCOP) och priser är antaganden; verkligt utfall beror på hus, klimat och offert. Kontrollera ROT-reglerna hos Skatteverket.<br>© Snake Hessman 2026 · <a href="index.html">kanjagköpahus.se</a></div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const kr=n=>Math.round(n).toLocaleString('sv-SE')+' kr';
+function num(id){const v=parseFloat($(id).value);return isFinite(v)?v:0;}
+const SCOP={luftvatten:3.2,bergvarme:3.5,luftluft:3.0};
+const LABOUR={luftvatten:0.30,bergvarme:0.35,luftluft:0.30}; // schablon arbetsandel av total
+
+let rotEdited=false;
+$('rot').addEventListener('input',()=>{rotEdited=true;});
+['sys','install'].forEach(id=>$(id).addEventListener('input',()=>{rotEdited=false;})); // nytt system/pris -> uppdatera förslag
+
+function suggestRot(){
+  const labour=num('install')*LABOUR[$('sys').value];
+  return Math.min(labour*0.30, 50000);
+}
+function calc(){
+  const sys=$('sys').value;
+  const nyYr = num('vb')/SCOP[sys]*num('el');
+  if(!rotEdited){ $('rot').value=Math.round(suggestRot()); }
+  const netto=Math.max(0, num('install')-num('rot'));
+  const saving=num('cur')-nyYr;
+
+  $('ny').textContent=kr(nyYr)+'/år';
+  $('saving').textContent=kr(saving)+'/år';
+  $('netto').textContent=kr(netto);
+  const tenyr=saving*10-netto;
+  $('tenyr').textContent=(tenyr>=0?'+':'')+kr(tenyr);
+
+  let hero,note;
+  if(saving<=0){
+    hero='Ingen besparing'; note='Det nya systemet är inte billigare i drift än ditt nuvarande.';
+  } else {
+    const yrs=netto/saving;
+    hero=yrs.toFixed(1).replace('.',',')+' <span>år</span>';
+    note='Så lång tid innan den årliga besparingen täckt investeringen.';
+  }
+  $('hero').innerHTML=hero;
+  $('note').textContent=note;
+}
+document.querySelectorAll('input,select').forEach(e=>{e.addEventListener('input',calc);e.addEventListener('change',calc);});
+calc();
+</script>
+</body>
+</html>
