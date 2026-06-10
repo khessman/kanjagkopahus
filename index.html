@@ -173,6 +173,34 @@
 
   .foot{margin-top:34px;font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.6}
   .foot a{color:var(--green)}
+  .copyright{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-family:"Fraunces",serif;font-size:13px;color:var(--ink-soft)}
+
+  /* ---- Mobil ---- */
+  @media(max-width:600px){
+    .wrap{padding:22px 13px 56px}
+    header.top{align-items:flex-start;gap:14px;padding-bottom:14px}
+    .title .sub{font-size:13px}
+    .toolbar{width:100%}
+    .toolbar button.tool{flex:1 1 auto;text-align:center;padding:10px 6px}
+
+    .card>h2{padding:14px 16px;font-size:18px}
+    .card .body{padding:12px 15px 16px}
+
+    /* stapla fältrader: etikett ovanför, inmatning i full bredd under */
+    .field{grid-template-columns:1fr;gap:7px}
+    .unit{justify-self:stretch;width:100%}
+    .unit .u{min-width:auto;white-space:nowrap}
+    .inp{width:100%;flex:1 1 0;min-width:0}
+    .inp.short{width:auto;flex:1 1 0;min-width:0}
+    select.inp{width:100%;min-width:0}
+    .field .inp[type=text]{width:100% !important}
+    .seg{width:100%}
+    .seg button{flex:1 1 0;text-align:center}
+
+    .res-hero{padding:18px}
+    .rrow{padding:11px 14px}
+    .results{position:static}
+  }
 
   @media print{
     body{background:#fff}
@@ -218,7 +246,7 @@
           </div>
           <div class="field">
             <label>Befintliga pantbrev<small>Finns i pantbrevet/fastighetsutdraget</small></label>
-            <div class="unit"><input class="inp" id="pantbrev" type="number" value="1647705"><span class="u">kr</span></div>
+            <div class="unit"><input class="inp" id="pantbrev" type="number" value="1000000"><span class="u">kr</span></div>
           </div>
           <div class="field">
             <label>Besiktning<small>Överlåtelsebesiktning</small></label>
@@ -357,7 +385,7 @@
           <div class="field"><label>Badtunna / pool<small>Liter per fyllning × antal/år</small></label><div class="unit"><input class="inp short" id="w_tub_l" type="number" value="0"><span class="u">l</span><input class="inp short" id="w_tub_n" type="number" value="0"><span class="u">/år</span></div></div>
           <div class="field"><label>Övrig förbrukning</label><div class="unit"><input class="inp short" id="w_extra" type="number" value="0"><span class="u">m³/år</span></div></div>
           <div class="mod-out"><span class="k" id="w_out_k">Vatten & avlopp</span><span class="v" id="w_out">–</span></div>
-          <div class="hint">Köpings VA sköts av VME (Mälarenergi). Hämta rörligt pris och fast avgift från taxan på koping.se/vme. En badtunna på 1 500 l som fylls 30 ggr/år = 45 m³ ≈ en halv normalvillas årsförbrukning.</div>
+          <div class="hint">Hämta rörligt pris (kr/m³) och fast VA-avgift från din kommuns eller VA-bolags taxa. En badtunna på 1 500 l som fylls 30 ggr/år = 45 m³ ≈ en halv normalvillas årsförbrukning.</div>
         </div>
       </section>
 
@@ -390,7 +418,7 @@
           </div>
           <div class="field"><label>Justering<small>Skillnad mot kommunens exakta taxa</small></label><div class="unit"><input class="inp" id="trash_just" type="number" value="0"><span class="u">kr/år</span></div></div>
           <div class="mod-out"><span class="k">Sophämtning</span><span class="v" id="trash_out">–</span></div>
-          <div class="hint">Schablonpriser — exakta belopp varierar per kommun. Större kärl och tätare tömning kostar mer; mindre kärl och hemkompost ger oftast rabatt. Kolla VME:s avfallstaxa och justera vid behov.</div>
+          <div class="hint">Schablonpriser — exakta belopp varierar per kommun. Större kärl och tätare tömning kostar mer; mindre kärl och hemkompost ger oftast rabatt. Kolla kommunens avfallstaxa och justera vid behov.</div>
         </div>
       </section>
 
@@ -398,13 +426,9 @@
       <section class="card">
         <h2><span class="num">7</span>Pendling</h2>
         <div class="body">
-          <div class="field"><label>Hemadress</label><div class="unit"><input class="inp" id="c_home" type="text" value="" placeholder="Tallbacksvägen 21, Munktorp" style="width:200px;text-align:left"></div></div>
+          <div class="field"><label>Hemadress</label><div class="unit"><input class="inp" id="c_home" type="text" value="" placeholder="Din hemadress" style="width:200px;text-align:left"></div></div>
           <div class="field"><label>Jobbadress</label><div class="unit"><input class="inp" id="c_work" type="text" value="" placeholder="Arbetsplatsens adress" style="width:200px;text-align:left"></div></div>
-          <div style="margin:4px 0 10px;display:flex;gap:8px;flex-wrap:wrap">
-            <!-- <button class="lilbtn" onclick="autoRoute()">Beräkna avstånd & restid automatiskt</button> -->
-            <button class="lilbtn alt" onclick="openMaps()">Öppna i Google Maps</button>
-          </div>
-          <div class="hint" id="c_auto_status" style="display:none"></div>
+          <div style="margin:4px 0 10px"><button class="lilbtn" onclick="openMaps()">↗ Hämta avstånd & restid i Google Maps</button></div>
           <div class="field"><label>Enkel resa<small>Klistra in från Google Maps</small></label><div class="unit"><input class="inp short" id="c_km" type="number" value="0" step="0.1"><span class="u">km</span><input class="inp short" id="c_min" type="number" value="0"><span class="u">min</span></div></div>
           <div class="field"><label>Arbetsdagar / månad</label><div class="unit"><input class="inp short" id="c_days" type="number" value="21"><span class="u">dgr</span></div></div>
           <div class="field"><label>Fordon</label>
@@ -432,23 +456,21 @@
       <section class="card">
         <h2><span class="num">8</span>Överprisanalys</h2>
         <div class="body">
-          <div class="field"><label>Adress / område</label><div class="unit"><input class="inp" id="op_addr" type="text" value="" placeholder="Munktorp, Köping" style="width:200px;text-align:left"></div></div>
+          <div class="field"><label>Adress / område</label><div class="unit"><input class="inp" id="op_addr" type="text" value="" placeholder="Område eller adress" style="width:200px;text-align:left"></div></div>
           <div style="margin:4px 0 10px;display:flex;gap:8px;flex-wrap:wrap">
-            <!-- <button class="lilbtn" onclick="autoBooli()">Hämta sålda automatiskt (lokal proxy)</button> -->
-            <button class="lilbtn alt" onclick="openBooli()">Booli slutpriser</button>
-            <button class="lilbtn alt" onclick="openHemnet()">Hemnet sålda</button>
+            <button class="lilbtn" onclick="openBooli()">↗ Booli slutpriser</button>
+            <button class="lilbtn alt" onclick="openHemnet()">↗ Hemnet sålda</button>
           </div>
-          <div class="hint" id="op_status" style="display:none"></div>
           <div class="field"><label>Prisutveckling i området<small>Justerar äldre försäljningar till idag</small></label><div class="unit"><input class="inp short" id="op_trend" type="number" value="3" step="0.5"><span class="u">%/år</span></div></div>
           <p style="font-size:12.5px;color:var(--ink-soft);margin:10px 0 4px">Jämförbara sålda objekt (slå upp på Booli/Hemnet sålda):</p>
           <table class="compt">
-            <thead><tr><th>Adress</th><th>Pris (kr)</th><th>Boarea</th><th>År sedan</th></tr></thead>
+            <thead><tr><th>Objekt</th><th>Pris (kr)</th><th>Boarea</th><th>År sedan</th></tr></thead>
             <tbody>
-              <tr><td><input id="op_g1" type="text" placeholder="Gata 1" style="text-align:left"></td><td><input id="op_p1" type="number" placeholder="2100000"></td><td><input id="op_a1" type="number" placeholder="120"></td><td><input id="op_y1" type="number" placeholder="0.5" step="0.5"></td></tr>
-              <tr><td><input id="op_g2" type="text" style="text-align:left"></td><td><input id="op_p2" type="number"></td><td><input id="op_a2" type="number"></td><td><input id="op_y2" type="number" step="0.5"></td></tr>
-              <tr><td><input id="op_g3" type="text" style="text-align:left"></td><td><input id="op_p3" type="number"></td><td><input id="op_a3" type="number"></td><td><input id="op_y3" type="number" step="0.5"></td></tr>
-              <tr><td><input id="op_g4" type="text" style="text-align:left"></td><td><input id="op_p4" type="number"></td><td><input id="op_a4" type="number"></td><td><input id="op_y4" type="number" step="0.5"></td></tr>
-              <tr><td><input id="op_g5" type="text" style="text-align:left"></td><td><input id="op_p5" type="number"></td><td><input id="op_a5" type="number"></td><td><input id="op_y5" type="number" step="0.5"></td></tr>
+              <tr><td>1</td><td><input id="op_p1" type="number" placeholder="2100000"></td><td><input id="op_a1" type="number" placeholder="120"></td><td><input id="op_y1" type="number" placeholder="0.5" step="0.5"></td></tr>
+              <tr><td>2</td><td><input id="op_p2" type="number"></td><td><input id="op_a2" type="number"></td><td><input id="op_y2" type="number" step="0.5"></td></tr>
+              <tr><td>3</td><td><input id="op_p3" type="number"></td><td><input id="op_a3" type="number"></td><td><input id="op_y3" type="number" step="0.5"></td></tr>
+              <tr><td>4</td><td><input id="op_p4" type="number"></td><td><input id="op_a4" type="number"></td><td><input id="op_y4" type="number" step="0.5"></td></tr>
+              <tr><td>5</td><td><input id="op_p5" type="number"></td><td><input id="op_a5" type="number"></td><td><input id="op_y5" type="number" step="0.5"></td></tr>
             </tbody>
           </table>
           <div class="verdict line" id="op_verdict">Fyll i minst ett jämförelseobjekt för att se en bedömning.</div>
@@ -508,7 +530,8 @@
 
   <div class="foot">
     Beräkningsverktyg för eget bruk — inte rådgivning. Regler: bolånetak 90 % &middot; amorteringskrav 2 % (&gt;70 %), 1 % (50–70 %) &middot; skärpt krav slopat 1 apr 2026 &middot; ränteavdrag 30 % upp till 100 000 kr/person, 21 % däröver &middot; fastighetsavgift 0,75 %, tak 10 425 kr (inkomstår 2026) &middot; reseavdrag 25 kr/mil.
-    Standardpriser (el, pellets, ved, drivmedel) avser 2026 och elområde SE3 — kontrollera mot bank, Skatteverket, VME och dagsaktuella priser.
+    Standardpriser (el, pellets, ved, drivmedel) avser 2026 och elområde SE3 — kontrollera mot bank, Skatteverket, din kommun och dagsaktuella priser.
+    <div class="copyright">© Snake Hessman 2026</div>
   </div>
 </div>
 
@@ -646,71 +669,6 @@ function commute(){
 function openMaps(){
   const o=encodeURIComponent($('c_home').value||''), d=encodeURIComponent($('c_work').value||'');
   window.open(`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=driving`,'_blank');
-}
-
-// ---- auto-rutt: Nominatim (geokodning) + OSRM (routing) — gratis, ingen nyckel ----
-async function geocode(q){
-  const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=se&q=${encodeURIComponent(q)}`);
-  const j = await r.json();
-  if(!j[0]) throw new Error('Hittade inte adressen: '+q);
-  return [j[0].lon, j[0].lat];
-}
-async function osrm(base, a, b){
-  const r = await fetch(`${base}/route/v1/driving/${a[0]},${a[1]};${b[0]},${b[1]}?overview=false`);
-  const j = await r.json();
-  if(j.code!=='Ok' || !j.routes?.[0]) throw new Error('Ingen rutt hittades');
-  return j.routes[0];   // { distance (m), duration (s) }
-}
-async function autoRoute(){
-  const home=$('c_home').value.trim(), work=$('c_work').value.trim();
-  const st=$('c_auto_status'); st.style.display='block';
-  if(!home || !work){ st.textContent='Fyll i både hem- och jobbadress först.'; return; }
-  st.textContent='Hämtar koordinater och rutt…';
-  try{
-    const a=await geocode(home), b=await geocode(work);
-    const car = await osrm('https://routing.openstreetmap.de/routed-car', a, b);
-    $('c_km').value  = (car.distance/1000).toFixed(1);
-    $('c_min').value = Math.round(car.duration/60);
-    st.style.display='none';
-    calc();
-  }catch(err){ st.textContent='Kunde inte hämta: '+err.message+' (kräver internet; fungerar i den lokala filen)'; }
-}
-
-// ---- auto-slutpriser via lokal proxy (husproxy.py) ----
-const PROXY_URL = 'http://127.0.0.1:8765';
-async function autoBooli(){
-  const q=$('op_addr').value.trim();
-  const st=$('op_status'); st.style.display='block';
-  if(!q){ st.textContent='Fyll i adress/område först.'; return; }
-  st.textContent='Hämtar sålda objekt via lokal proxy…';
-  try{
-    let r;
-    try{ r = await fetch(`${PROXY_URL}/booli?q=${encodeURIComponent(q)}&type=Villa`); }
-    catch(netErr){
-      st.innerHTML = `Når inte proxyn på ${PROXY_URL}.<br>Starta den med <code>python3 husproxy.py</code> i en terminal (filen ligger bredvid denna), låt den stå igång och tryck igen.`;
-      return;
-    }
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const j = await r.json();
-    const objs = (j.objects||[]).filter(o=>o.price>0 && o.area>0).slice(0,5);
-    if(!objs.length){
-      st.innerHTML = `Proxyn svarar men hittade inga sålda villor med pris+boarea för <b>"${q}"</b> (${j.count||0} råträffar, areaIds ${j.areaIds||'?'}).`
-        + `<br>Prova bredare sökord, eller klistra in Booli-URL:en för rätt område (öppna "Booli slutpriser", sök, kopiera adressraden hit). Felsökning: <code>${PROXY_URL}/debug?q=${encodeURIComponent(q)}</code>`;
-      return;
-    }
-    for(let i=1;i<=5;i++){ $('op_g'+i).value=''; $('op_p'+i).value=''; $('op_a'+i).value=''; $('op_y'+i).value=''; }
-    objs.forEach((o,i)=>{
-      const ort = o.place ? ', '+o.place.split('·')[0].trim() : '';
-      $('op_g'+(i+1)).value = (o.address||'') + ort;
-      $('op_p'+(i+1)).value = o.price;
-      $('op_a'+(i+1)).value = o.area;
-      $('op_y'+(i+1)).value = o.years;
-    });
-    st.style.display='none';
-    calc();
-  }catch(err){
-    st.innerHTML = `Proxyn gav fel: <b>${err.message}</b> — öppna <code>${PROXY_URL}/debug?q=${encodeURIComponent(q)}</code> för detaljer.`;
-  }
 }
 
 // ---- överprisanalys ----
