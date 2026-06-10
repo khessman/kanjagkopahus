@@ -58,6 +58,14 @@
   .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:28px;align-items:start}
   @media(max-width:920px){.grid{grid-template-columns:1fr}}
 
+  /* Top-navigering */
+  .topnav{display:flex;gap:8px;overflow-x:auto;padding:16px 0 6px;margin-top:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .topnav::-webkit-scrollbar{height:6px}
+  .topnav::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  .topnav a{flex:none;font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--paper-2);border:1.5px solid var(--line);border-radius:20px;padding:7px 13px;white-space:nowrap;transition:.15s}
+  .topnav a:hover{border-color:var(--ink);transform:translateY(-1px)}
+  .topnav a.active{background:var(--green);color:#fff;border-color:var(--green)}
+
   .stack{display:flex;flex-direction:column;gap:20px}
 
   /* Cards */
@@ -175,8 +183,9 @@
 
   .foot{margin-top:34px;font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.6}
   .foot a{color:var(--green)}
-  .guidelinks{margin-bottom:16px;font-size:14px;font-weight:600}
-  .guidelinks a{margin:0 4px}
+  .guidelinks{margin-bottom:16px;font-size:13.5px;line-height:1.9}
+  .guidelinks a{margin:0 2px}
+  .guidelinks strong{color:var(--ink)}
   .copyright{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-family:"Fraunces",serif;font-size:13px;color:var(--ink-soft)}
 
   /* Annonszon — döljs tills AdSense aktiverats i scriptet längst ned */
@@ -241,6 +250,20 @@
       <button class="tool" onclick="resetAll()">↺ Nollställ</button>
     </div>
   </header>
+
+  <nav class="topnav">
+    <a href="index.html" class="active">Kalkylator</a>
+    <a href="spara-kontantinsats.html">Kontantinsats</a>
+    <a href="byta-varmesystem.html">Byta värmesystem</a>
+    <a href="budgivning.html">Budgivning</a>
+    <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a>
+    <a href="besiktning.html">Besiktning</a>
+    <a href="dolda-fel.html">Dolda fel</a>
+    <a href="energiklass.html">Energiklass</a>
+    <a href="visningschecklista.html">Visningschecklista</a>
+    <a href="driftkostnader.html">Driftkostnader</a>
+    <a href="om.html">Om sidan</a>
+  </nav>
 
   <div class="grid">
 
@@ -556,7 +579,11 @@
   <div id="adZone"><div class="adlbl">Annons</div></div>
 
   <div class="foot">
-    <div class="guidelinks"><a href="budgivning.html">Så funkar budgivning</a> &middot; <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev förklarat</a></div>
+    <div class="guidelinks">
+      <div style="margin-bottom:8px"><strong>Kalkylatorer:</strong> <a href="spara-kontantinsats.html">Spara ihop kontantinsatsen</a> &middot; <a href="byta-varmesystem.html">Byta värmesystem</a> &middot; <a href="solceller.html">Solceller (kommer snart)</a></div>
+      <div style="margin-bottom:8px"><strong>Guider:</strong> <a href="budgivning.html">Budgivning</a> &middot; <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a> &middot; <a href="besiktning.html">Besiktning</a> &middot; <a href="dolda-fel.html">Dolda fel</a> &middot; <a href="energiklass.html">Energiklass</a> &middot; <a href="visningschecklista.html">Visningschecklista</a> &middot; <a href="driftkostnader.html">Driftkostnader</a></div>
+      <div><a href="om.html">Om sidan</a></div>
+    </div>
     Beräkningsverktyg för eget bruk — inte rådgivning. Regler: bolånetak 90 % &middot; amorteringskrav 2 % (&gt;70 %), 1 % (50–70 %) &middot; skärpt krav slopat 1 apr 2026 &middot; ränteavdrag 30 % upp till 100 000 kr/person, 21 % däröver &middot; fastighetsavgift 0,75 %, tak 10 425 kr (inkomstår 2026) &middot; reseavdrag 25 kr/mil.
     Standardpriser (el, pellets, ved, drivmedel) avser 2026 och elområde SE3 — kontrollera mot bank, Skatteverket, din kommun och dagsaktuella priser.
     <div class="copyright">© Snake Hessman 2026 &middot; <a href="integritetspolicy.html">Integritetspolicy</a></div>
