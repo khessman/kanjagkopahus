@@ -182,6 +182,12 @@
   #adZone .adlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);opacity:.7;margin-bottom:5px}
   #adZone .adsbygoogle{display:block;min-height:90px}
 
+  /* Affiliate-kort */
+  .annonsmark{margin-left:auto;font-family:"Hanken Grotesk";font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2px 7px}
+  .affintro{font-size:13px;color:var(--ink-soft);margin:0 0 12px}
+  .affbtn{display:block;text-align:center;text-decoration:none;font-weight:600;font-size:14px;color:#fff;background:var(--green);border-radius:10px;padding:12px 14px;margin-top:8px;transition:.15s}
+  .affbtn:hover{background:var(--green-dk);transform:translateY(-1px)}
+
   /* ---- Mobil ---- */
   @media(max-width:600px){
     .wrap{padding:22px 13px 56px}
@@ -530,6 +536,16 @@
           <thead><tr><th>Bindning</th><th class="r">Ränta</th><th class="r">Efter avdrag/mån</th></tr></thead>
           <tbody id="cmp"></tbody>
         </table>
+      </section>
+
+      <!-- AFFILIATE (dolt tills länkar fyllts i längst ned i scriptet) -->
+      <section class="card" id="affCard" style="margin-top:16px;display:none">
+        <h2 style="font-size:17px"><span class="num">↗</span>Jämför & spara <span class="annonsmark">Annonslänk</span></h2>
+        <div class="body">
+          <p class="affintro">Innan du lägger bud — jämför vad olika långivare och försäkringsbolag faktiskt erbjuder.</p>
+          <a class="affbtn" id="aff_bolan" href="#" target="_blank" rel="sponsored noopener" style="display:none">Jämför bolåneräntor →</a>
+          <a class="affbtn" id="aff_forsakring" href="#" target="_blank" rel="sponsored noopener" style="display:none">Jämför villaförsäkring →</a>
+        </div>
       </section>
     </div>
 
@@ -908,6 +924,30 @@ calc();
   zone.appendChild(ins);
   zone.style.display = 'block';
   (window.adsbygoogle = window.adsbygoogle || []).push({});
+})();
+</script>
+
+<!-- ============================================================
+     AFFILIATE-LÄNKAR
+     Klistra in dina spårningslänkar från Adtraction/Adrecord nedan
+     (tom sträng = knappen visas inte). Hela kortet döljs tills minst
+     en länk är ifylld. Länkarna är märkta "Annonslänk" och använder
+     rel="sponsored" enligt regelverket.
+     ============================================================ -->
+<script>
+(function initAffiliate(){
+  const AFFILIATE = {
+    bolan:      "",   // <-- länk till bolåne-/lånejämförelse
+    forsakring: "",   // <-- länk till villaförsäkringsjämförelse
+  };
+  let any = false;
+  const wire = (id, url) => {
+    const a = document.getElementById(id);
+    if(a && url){ a.href = url; a.style.display = 'block'; any = true; }
+  };
+  wire('aff_bolan', AFFILIATE.bolan);
+  wire('aff_forsakring', AFFILIATE.forsakring);
+  if(any){ const c = document.getElementById('affCard'); if(c) c.style.display = 'block'; }
 })();
 </script>
 </body>
