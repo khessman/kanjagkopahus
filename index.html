@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5066963191735028" crossorigin="anonymous"></script>
 <style>
   :root{
     --paper:#f5f2ea;
@@ -878,49 +880,34 @@ calc();
 </script>
 
 <!-- ============================================================
-     GOOGLE ADSENSE — aktivering
-     Fyll i dina två ID nedan EFTER att du blivit godkänd hos AdSense.
-     Är fälten tomma händer ingenting och annonsrutan förblir dold.
+     GOOGLE ADSENSE — annonsenhet
+     Loadern ligger redan i <head> med ditt publisher-ID, så sidan är
+     redo för granskning. När du blivit godkänd: skapa en annonsenhet i
+     AdSense, kopiera dess annons-ID och klistra in i ADSENSE_SLOT nedan.
+     Tomt slot = ingen annons visas och rutan förblir dold.
 
-       1. ADSENSE_CLIENT  = ditt publisher-ID (får du direkt vid registrering),
-                            t.ex. "ca-pub-1234567890123456"
-       2. ADSENSE_SLOT    = annons-ID för en annonsenhet du skapar i AdSense
-                            EFTER godkännande, t.ex. "1234567890"
-                            (lämna tom under ansökan — bara klienten behövs då)
-
-     Glöm inte: aktivera GDPR-meddelandet (samtycke) i AdSense under
-     "Sekretess och meddelanden" — det krävs för besökare inom EU/EES.
+     Glöm inte: aktivera GDPR-meddelandet i AdSense under
+     "Sekretess och meddelanden" — krävs för besökare inom EU/EES.
      ============================================================ -->
 <script>
 (function initAds(){
   const ADSENSE_CLIENT = "ca-pub-5066963191735028";
-  const ADSENSE_SLOT   = "";   // <-- klistra in annons-ID (efter godkännande)
+  const ADSENSE_SLOT   = "";   // <-- klistra in annons-ID efter godkännande
 
-  if(!ADSENSE_CLIENT) return;  // inget ifyllt -> ingen annons, rutan döljs
+  if(!ADSENSE_SLOT) return;    // ingen annonsenhet än -> rutan döljs
+  const zone = document.getElementById('adZone');
+  if(!zone) return;
 
-  // ladda AdSense-loadern (behövs både för granskning och visning)
-  const s = document.createElement('script');
-  s.async = true;
-  s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + ADSENSE_CLIENT;
-  s.crossOrigin = "anonymous";
-  document.head.appendChild(s);
-
-  // rendera annonsenheten först när vi även har ett slot-ID
-  if(ADSENSE_SLOT){
-    const zone = document.getElementById('adZone');
-    if(zone){
-      const ins = document.createElement('ins');
-      ins.className = 'adsbygoogle';
-      ins.style.display = 'block';
-      ins.setAttribute('data-ad-client', ADSENSE_CLIENT);
-      ins.setAttribute('data-ad-slot', ADSENSE_SLOT);
-      ins.setAttribute('data-ad-format', 'auto');
-      ins.setAttribute('data-full-width-responsive', 'true');
-      zone.appendChild(ins);
-      zone.style.display = 'block';
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    }
-  }
+  const ins = document.createElement('ins');
+  ins.className = 'adsbygoogle';
+  ins.style.display = 'block';
+  ins.setAttribute('data-ad-client', ADSENSE_CLIENT);
+  ins.setAttribute('data-ad-slot', ADSENSE_SLOT);
+  ins.setAttribute('data-ad-format', 'auto');
+  ins.setAttribute('data-full-width-responsive', 'true');
+  zone.appendChild(ins);
+  zone.style.display = 'block';
+  (window.adsbygoogle = window.adsbygoogle || []).push({});
 })();
 </script>
 </body>
