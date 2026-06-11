@@ -28,6 +28,10 @@
   .callout b{display:block;margin-bottom:3px}
   .morelinks{margin-top:26px;font-size:14.5px;font-weight:600}
   .disc{margin-top:30px;font-size:12.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px;line-height:1.6}
+  .ctxad{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:18px 0;padding:9px 12px;background:#fff;border:1px solid var(--line);border-radius:10px}
+  .ctxad .ctxlbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--ink-soft);opacity:.6}
+  .ctxad a{font-size:13.5px;font-weight:600;text-decoration:none;color:var(--green-dk);background:var(--green-soft);border-radius:14px;padding:6px 12px;transition:.15s}
+  .ctxad a:hover{filter:brightness(.97)}
   @media(max-width:600px){.wrap{padding:30px 14px 60px}.card{padding:20px 17px}}
 </style>
 </head>
@@ -68,10 +72,22 @@
       <li>Gör besiktningen <strong>innan du skriver på</strong>, eller skriv in en besiktningsklausul i kontraktet.</li>
     </ul>
     <p>Kostnaden ligger ofta runt 5 000–15 000 kr beroende på husets storlek och om du väljer tillägg.</p>
+    <div class="ctxad" id="ctxAd" style="display:none">
+      <span class="ctxlbl">Annons</span>
+      <a id="ctx_link" href="#" target="_blank" rel="sponsored noopener">Hitta besiktningsföretag →</a>
+    </div>
 
     <div class="morelinks">Läs också: <a href="dolda-fel.html">Dolda fel och undersökningsplikt →</a> &middot; <a href="visningschecklista.html">Checklista inför visning →</a></div>
     <div class="disc">Allmän information, inte juridisk eller teknisk rådgivning. Anlita alltid en certifierad besiktningsman.<br>© Snake Hessman 2026 · <a href="index.html">kanjagköpahus.se</a></div>
   </div>
 </div>
+<script>
+(function(){
+  const URL = "";   // <-- klistra in din affiliate-länk för besiktning (tom = dold)
+  if(!URL) return;
+  const a=document.getElementById('ctx_link'), box=document.getElementById('ctxAd');
+  if(a&&box){ a.href=URL; box.style.display='flex'; }
+})();
+</script>
 </body>
 </html>
