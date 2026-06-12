@@ -191,10 +191,11 @@
   .glrow a:hover{border-color:var(--ink)}
   .copyright{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-family:"Fraunces",serif;font-size:13px;color:var(--ink-soft)}
 
-  /* Annonszon — döljs tills AdSense aktiverats i scriptet längst ned */
-  #adZone{display:none;max-width:728px;margin:30px auto 0;text-align:center}
-  #adZone .adlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);opacity:.7;margin-bottom:5px}
-  #adZone .adsbygoogle{display:block;min-height:90px}
+  /* Annonszoner — döljs tills AdSense aktiverats i scriptet längst ned */
+  .adzone{display:none;max-width:728px;margin:16px auto 0;text-align:center}
+  .adzone .adlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);opacity:.7;margin-bottom:5px}
+  .adzone .adsbygoogle{display:block;min-height:90px}
+  #adZone{margin:30px auto 0}
 
   /* Affiliate-kort */
   .annonsmark{margin-left:auto;font-family:"Hanken Grotesk";font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2px 7px}
@@ -362,6 +363,7 @@
             <span class="ctxlbl">Annons</span>
             <a id="ctx_bolan" href="#" target="_blank" rel="sponsored noopener">Jämför bolåneräntor →</a>
           </div>
+          <div id="adZoneRanta" class="adzone"><div class="adlbl">Annons</div></div>
         </div>
       </section>
 
@@ -420,6 +422,7 @@
             <a id="ctx_ved" href="#" target="_blank" rel="sponsored noopener" style="display:none">Ved</a>
             <a id="ctx_el" href="#" target="_blank" rel="sponsored noopener" style="display:none">Elavtal</a>
           </div>
+          <div id="adZoneVarme" class="adzone"><div class="adlbl">Annons</div></div>
         </div>
       </section>
 
@@ -517,6 +520,7 @@
           </details>
           <div class="mod-out"><span class="k">Drivmedel</span><span class="v" id="c_out">–</span></div>
           <div class="hint" id="c_detail"></div>
+          <div id="adZonePendling" class="adzone"><div class="adlbl">Annons</div></div>
         </div>
       </section>
 
@@ -606,7 +610,7 @@
 
   </div>
 
-  <div id="adZone"><div class="adlbl">Annons</div></div>
+  <div id="adZone" class="adzone"><div class="adlbl">Annons</div></div>
 
   <div class="foot">
     <div class="guidelinks">
@@ -804,7 +808,7 @@ async function autoRoute(){
 }
 
 // ---- hämta uppgifter från en Booli-annons via egen proxy ----
-const PARSER_API = "https://booliparser.onrender.com/parse";
+const PARSER_API = "";   // <-- klistra in din Render-URL, t.ex. "https://booliparser.onrender.com/parse"
 async function hamtaFranBooli(){
   const status = $('booliStatus');
   status.style.display = 'block';
@@ -1042,11 +1046,17 @@ calc();
 </script>
 
 <!-- ============================================================
-     GOOGLE ADSENSE — annonsenhet
+     GOOGLE ADSENSE — annonsenheter
      Loadern ligger redan i <head> med ditt publisher-ID, så sidan är
-     redo för granskning. När du blivit godkänd: skapa en annonsenhet i
-     AdSense, kopiera dess annons-ID och klistra in i ADSENSE_SLOT nedan.
-     Tomt slot = ingen annons visas och rutan förblir dold.
+     redo för granskning. När du blivit godkänd: skapa EN annonsenhet per
+     placering i AdSense-dashboarden, kopiera vart annons-ID och klistra in
+     nedan. Tom sträng = den platsen visas inte (rutan döljs).
+
+     Placeringar:
+       fot      -> sidans nederkant (allmän)
+       ranta    -> kort 2, Lån/ränta & amortering
+       varme    -> kort 3, Uppvärmning
+       pendling -> kort 7, Pendling
 
      Glöm inte: aktivera GDPR-meddelandet i AdSense under
      "Sekretess och meddelanden" — krävs för besökare inom EU/EES.
@@ -1054,22 +1064,33 @@ calc();
 <script>
 (function initAds(){
   const ADSENSE_CLIENT = "ca-pub-5066963191735028";
-  const ADSENSE_SLOT   = "";   // <-- klistra in annons-ID efter godkännande
+  const SLOTS = {
+    fot:      "",   // <-- annons-ID för foten
+    ranta:    "",   // <-- annons-ID för ränteavsnittet
+    varme:    "",   // <-- annons-ID för uppvärmningsavsnittet
+    pendling: "",   // <-- annons-ID för pendlingsavsnittet
+  };
+  const ZONES = {
+    fot: "adZone", ranta: "adZoneRanta", varme: "adZoneVarme", pendling: "adZonePendling",
+  };
 
-  if(!ADSENSE_SLOT) return;    // ingen annonsenhet än -> rutan döljs
-  const zone = document.getElementById('adZone');
-  if(!zone) return;
+  Object.keys(SLOTS).forEach(key => {
+    const slot = SLOTS[key];
+    if(!slot) return;             // inget ID -> rutan förblir dold
+    const zone = document.getElementById(ZONES[key]);
+    if(!zone) return;
 
-  const ins = document.createElement('ins');
-  ins.className = 'adsbygoogle';
-  ins.style.display = 'block';
-  ins.setAttribute('data-ad-client', ADSENSE_CLIENT);
-  ins.setAttribute('data-ad-slot', ADSENSE_SLOT);
-  ins.setAttribute('data-ad-format', 'auto');
-  ins.setAttribute('data-full-width-responsive', 'true');
-  zone.appendChild(ins);
-  zone.style.display = 'block';
-  (window.adsbygoogle = window.adsbygoogle || []).push({});
+    const ins = document.createElement('ins');
+    ins.className = 'adsbygoogle';
+    ins.style.display = 'block';
+    ins.setAttribute('data-ad-client', ADSENSE_CLIENT);
+    ins.setAttribute('data-ad-slot', slot);
+    ins.setAttribute('data-ad-format', 'auto');
+    ins.setAttribute('data-full-width-responsive', 'true');
+    zone.appendChild(ins);
+    zone.style.display = 'block';
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  });
 })();
 </script>
 
