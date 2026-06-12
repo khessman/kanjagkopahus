@@ -779,7 +779,7 @@ function openMaps(){
 }
 
 // ---- automatisk ruttberäkning via egen proxy (döljer API-nyckeln) ----
-const ROUTE_API = "";   // <-- klistra in din Render-URL, t.ex. "https://booliparser.onrender.com/route"
+const ROUTE_API = "https://booliparser.onrender.com/route";
 async function autoRoute(){
   const status = $('c_routeStatus');
   status.style.display = 'block';
@@ -808,7 +808,7 @@ async function autoRoute(){
 }
 
 // ---- hämta uppgifter från en Booli-annons via egen proxy ----
-const PARSER_API = "";   // <-- klistra in din Render-URL, t.ex. "https://booliparser.onrender.com/parse"
+const PARSER_API = "https://booliparser.onrender.com/parse";
 async function hamtaFranBooli(){
   const status = $('booliStatus');
   status.style.display = 'block';
