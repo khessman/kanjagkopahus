@@ -769,8 +769,8 @@ function openMaps(){
   window.open(`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=driving`,'_blank');
 }
 
-// ---- automatisk ruttberäkning via egen proxy (döljer API-nyckeln) ----
-const ROUTE_API = "";   // <-- klistra in din Render-URL, t.ex. "https://booliparser.onrender.com/route"
+
+const ROUTE_API = "https://booliparser.onrender.com/route";
 async function autoRoute(){
   const status = $('c_routeStatus');
   status.style.display = 'block';
