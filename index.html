@@ -487,7 +487,11 @@
         <div class="body">
           <div class="field"><label>Hemadress</label><div class="unit"><input class="inp" id="c_home" type="text" value="" placeholder="Din hemadress" style="width:200px;text-align:left"></div></div>
           <div class="field"><label>Jobbadress</label><div class="unit"><input class="inp" id="c_work" type="text" value="" placeholder="Arbetsplatsens adress" style="width:200px;text-align:left"></div></div>
-          <div style="margin:4px 0 10px"><button class="lilbtn" onclick="openMaps()">↗ Hämta avstånd & restid i Google Maps</button></div>
+          <div style="margin:4px 0 10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="lilbtn" onclick="autoRoute()">⚡ Beräkna automatiskt</button>
+            <button class="lilbtn alt" onclick="openMaps()">↗ Öppna i Google Maps</button>
+          </div>
+          <div class="hint" id="c_routeStatus" style="display:none"></div>
           <div class="field"><label>Enkel resa<small>Klistra in från Google Maps</small></label><div class="unit"><input class="inp short" id="c_km" type="number" value="0" step="0.1"><span class="u">km</span><input class="inp short" id="c_min" type="number" value="0"><span class="u">min</span></div></div>
           <div class="field"><label>Arbetsdagar / månad</label><div class="unit"><input class="inp short" id="c_days" type="number" value="21"><span class="u">dgr</span></div></div>
           <div class="field"><label>Fordon</label>
@@ -763,6 +767,35 @@ function commute(){
 function openMaps(){
   const o=encodeURIComponent($('c_home').value||''), d=encodeURIComponent($('c_work').value||'');
   window.open(`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=driving`,'_blank');
+}
+
+// ---- automatisk ruttberäkning via egen proxy (döljer API-nyckeln) ----
+const ROUTE_API = "";   // <-- klistra in din Render-URL, t.ex. "https://booliparser.onrender.com/route"
+async function autoRoute(){
+  const status = $('c_routeStatus');
+  status.style.display = 'block';
+  if(!ROUTE_API){
+    status.textContent = 'Automatisk ruttberäkning är inte konfigurerad ännu. Använd "Öppna i Google Maps" och fyll i manuellt.';
+    return;
+  }
+  const home = $('c_home').value.trim(), work = $('c_work').value.trim();
+  if(!home || !work){
+    status.textContent = 'Fyll i både hemadress och jobbadress först.';
+    return;
+  }
+  status.textContent = 'Beräknar...';
+  try{
+    const url = `${ROUTE_API}?from=${encodeURIComponent(home)}&to=${encodeURIComponent(work)}`;
+    const r = await fetch(url);
+    if(!r.ok){ throw new Error((await r.json()).detail || r.statusText); }
+    const d = await r.json();
+    $('c_km').value = d.km;
+    $('c_min').value = d.min;
+    status.textContent = `${d.km} km · ${d.min} min (enkel resa, bilväg). Kontrollera mot Google Maps om något ser fel ut.`;
+    calc();
+  }catch(e){
+    status.textContent = 'Kunde inte beräkna automatiskt: ' + e.message + '. Använd "Öppna i Google Maps" och fyll i manuellt.';
+  }
 }
 
 // ---- överprisanalys ----
