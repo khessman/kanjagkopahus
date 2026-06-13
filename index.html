@@ -524,17 +524,23 @@
         </div>
       </section>
 
-      <!-- ÖVERPRISANALYS -->
+      <!-- PRISANALYS -->
       <section class="card">
-        <h2><span class="num">8</span>Överprisanalys</h2>
+        <h2><span class="num">8</span>Prisanalys</h2>
         <div class="body">
-          <div class="field"><label>Adress / område</label><div class="unit"><input class="inp" id="op_addr" type="text" value="" placeholder="Område eller adress" style="width:200px;text-align:left"></div></div>
-          <div style="margin:4px 0 10px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="lilbtn" onclick="openBooli()">↗ Booli slutpriser</button>
-            <button class="lilbtn alt" onclick="openHemnet()">↗ Hemnet sålda</button>
+          <div class="field"><label>Adress / område<small>Bara för din egen referens</small></label><div class="unit"><input class="inp" id="op_addr" type="text" value="" placeholder="t.ex. Storgatan 12, Köping" style="width:200px;text-align:left"></div></div>
+          <div style="margin:6px 0 4px">
+            <label style="font-size:14px;font-weight:500;display:block;margin-bottom:4px">Booli-länkar till sålda objekt <small style="color:var(--ink-soft);font-weight:400">— en per rad, max 5</small></label>
+            <textarea id="op_urls" rows="5" placeholder="https://www.booli.se/bostad/1234567&#10;https://www.booli.se/bostad/2345678&#10;..."
+              style="width:100%;font-family:'Hanken Grotesk',sans-serif;font-size:13.5px;border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink);resize:vertical;box-sizing:border-box"></textarea>
+          </div>
+          <div style="margin:8px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="lilbtn" onclick="hamtaJamforelser()">⚡ Hämta sålda från länkar</button>
+            <button class="lilbtn alt" onclick="openBooli()">↗ Öppna Booli slutpriser</button>
+            <span class="hint" id="compStatus" style="display:none;margin:0;flex:1 1 200px"></span>
           </div>
           <div class="field"><label>Prisutveckling i området<small>Justerar äldre försäljningar till idag</small></label><div class="unit"><input class="inp short" id="op_trend" type="number" value="3" step="0.5"><span class="u">%/år</span></div></div>
-          <p style="font-size:12.5px;color:var(--ink-soft);margin:10px 0 4px">Jämförbara sålda objekt (slå upp på Booli/Hemnet sålda):</p>
+          <p style="font-size:12.5px;color:var(--ink-soft);margin:10px 0 4px">Jämförbara sålda objekt:</p>
           <table class="compt">
             <thead><tr><th>Objekt</th><th>Pris (kr)</th><th>Boarea</th><th>År sedan</th></tr></thead>
             <tbody>
@@ -545,8 +551,8 @@
               <tr><td>5</td><td><input id="op_p5" type="number"></td><td><input id="op_a5" type="number"></td><td><input id="op_y5" type="number" step="0.5"></td></tr>
             </tbody>
           </table>
-          <div class="verdict line" id="op_verdict">Fyll i minst ett jämförelseobjekt för att se en bedömning.</div>
-          <div class="hint">Jämför mot husets begärda pris (<span id="op_subj">–</span>) och boarea (kort 2). Median-kr/kvm tidsjusteras med prisutvecklingen ovan och multipliceras med husets boarea för ett marknadsvärde-estimat. Endast en indikation — läge, skick och tomt kan motivera avvikelser.</div>
+          <div class="verdict line" id="op_verdict">Klistra in 1–5 Booli-länkar ovan och klicka "Hämta sålda från länkar", eller fyll i tabellen manuellt.</div>
+          <div class="hint">Sök fram jämförbara sålda på <a href="https://www.booli.se/sok/slutpriser" target="_blank" rel="noopener">booli.se/sok/slutpriser</a>, kopiera länkarna och klistra in en per rad. Servern hämtar pris, boarea och försäljningsdatum för varje. Jämför sedan mot husets begärda pris (<span id="op_subj">–</span>) och boarea (kort 2) — median-kr/kvm tidsjusteras med prisutvecklingen och multipliceras med husets boarea för ett marknadsvärde-estimat. Endast en indikation — läge, skick och tomt kan motivera avvikelser.</div>
         </div>
       </section>
     </div>
@@ -846,9 +852,74 @@ async function hamtaFranBooli(){
   }
 }
 
-// ---- överprisanalys ----
-function openBooli(){ window.open(`https://www.booli.se/sok/slutpriser?q=${encodeURIComponent($('op_addr').value||'')}`,'_blank'); }
-function openHemnet(){ window.open(`https://www.hemnet.se/salda/bostader?q=${encodeURIComponent($('op_addr').value||'')}`,'_blank'); }
+// ---- prisanalys: hämta jämförbara sålda från inklistrade Booli-länkar ----
+async function hamtaJamforelser(){
+  const status = $('compStatus');
+  status.style.display = 'block';
+  if(!PARSER_API){
+    status.textContent = 'Parser-API är inte konfigurerat. Fyll i tabellen manuellt.';
+    return;
+  }
+  const urls = $('op_urls').value.split(/\s+/).map(s=>s.trim())
+    .filter(s => /^https?:\/\/(www\.)?booli\.se\//i.test(s));
+  if(!urls.length){
+    status.textContent = 'Klistra in minst en Booli-länk (t.ex. https://www.booli.se/bostad/1234567).';
+    return;
+  }
+  if(urls.length > 5){
+    status.textContent = `Max 5 länkar — du klistrade in ${urls.length}. Tar bara de fem första.`;
+    urls.length = 5;
+  }
+  const base = PARSER_API.replace(/\/parse$/, '');
+  const qs = urls.map(u => 'urls=' + encodeURIComponent(u)).join('&');
+  status.textContent = `Hämtar ${urls.length} annons${urls.length===1?'':'er'}...`;
+  try{
+    const r = await fetch(`${base}/parse-many?${qs}`);
+    if(!r.ok){ throw new Error((await r.json()).detail || r.statusText); }
+    const d = await r.json();
+    // töm raderna först så gamla värden inte blandas med nya
+    for(let i=1;i<=5;i++){ $('op_p'+i).value=''; $('op_a'+i).value=''; $('op_y'+i).value=''; }
+    let ok = 0, fel = [];
+    (d.results || []).slice(0,5).forEach((row, i) => {
+      const n = i + 1;
+      if(!row.ok || !row.result || !row.result.fields){
+        fel.push(`#${n}: ${row.error || 'okänt fel'}`);
+        return;
+      }
+      const f = row.result.fields;
+      // Sålda annonser har slutpris; pågående har utgångspris. Ta det som finns.
+      const pris = f.slutpris || f.pris;
+      if(pris)        $('op_p'+n).value = pris;
+      if(f.boarea)    $('op_a'+n).value = f.boarea;
+      // Booli ger oftast försäljningsdatum -> räkna år sedan
+      const datum = f.slutdatum || f.forsaljningsdatum || f.datum;
+      if(datum){
+        const d0 = new Date(datum);
+        if(!isNaN(d0)){
+          const ar = (Date.now() - d0.getTime()) / (365.25 * 24 * 3600 * 1000);
+          $('op_y'+n).value = ar.toFixed(1);
+        }
+      }
+      if(pris) ok++;
+    });
+    let msg = `Hämtade ${ok} av ${urls.length}.`;
+    if(fel.length) msg += ' Fel: ' + fel.join('; ');
+    msg += ' Kontrollera värdena innan du litar på resultatet.';
+    status.textContent = msg;
+    calc();
+  }catch(e){
+    status.textContent = 'Kunde inte hämta: ' + e.message;
+  }
+}
+
+// ---- prisanalys: öppna Booli slutpriser i ny flik ----
+function openBooli(){
+  const q = $('op_addr').value.trim();
+  const url = q
+    ? `https://www.booli.se/sok/slutpriser?q=${encodeURIComponent(q)}`
+    : 'https://www.booli.se/sok/slutpriser';
+  window.open(url,'_blank');
+}
 function median(arr){
   if(!arr.length) return 0;
   const s=[...arr].sort((a,b)=>a-b), m=Math.floor(s.length/2);
@@ -985,7 +1056,7 @@ function calc(){
   }
   $('cmp').innerHTML = c;
 
-  // ---- överprisanalys ----
+  // ---- prisanalys ----
   $('op_subj').textContent = pris>0 ? kr(pris) : '–';
   const op = overpris();
   const vEl = $('op_verdict');
