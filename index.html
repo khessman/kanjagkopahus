@@ -7,8 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- Google AdSense -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5066963191735028" crossorigin="anonymous"></script>
 <style>
   :root{
     --paper:#f5f2ea;
@@ -38,8 +36,7 @@
     line-height:1.45;
     -webkit-font-smoothing:antialiased;
   }
-  img{max-width:100%;height:auto}
-  .wrap{max-width:1180px;margin:0 auto;padding:32px 20px 80px;width:100%}
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 20px 80px}
 
   /* Header */
   header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:8px}
@@ -59,12 +56,6 @@
   .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:28px;align-items:start}
   @media(max-width:920px){.grid{grid-template-columns:1fr}}
 
-  /* Top-navigering */
-  .topnav{display:flex;flex-wrap:wrap;gap:8px;padding:16px 0 6px;margin-top:4px}
-  .topnav a{font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--paper-2);border:1.5px solid var(--line);border-radius:20px;padding:7px 13px;white-space:nowrap;transition:.15s}
-  .topnav a:hover{border-color:var(--ink);transform:translateY(-1px)}
-  .topnav a.active{background:var(--green);color:#fff;border-color:var(--green)}
-
   .stack{display:flex;flex-direction:column;gap:20px}
 
   /* Cards */
@@ -83,18 +74,17 @@
 
   /* Field rows */
   .field{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
-  .field>label,.field>.unit{min-width:0}
   .field:last-child{border-bottom:0}
   .field label{font-size:14px;font-weight:500}
   .field label small{display:block;color:var(--ink-soft);font-weight:400;font-size:11.5px;margin-top:1px}
   .inp{
     width:148px;text-align:right;font-family:"Hanken Grotesk";font-weight:600;font-size:15px;
     color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:9px;
-    padding:8px 11px;font-feature-settings:"tnum" 1;transition:.12s;max-width:100%;min-width:0
+    padding:8px 11px;font-feature-settings:"tnum" 1;transition:.12s
   }
   .inp:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
   .inp.short{width:96px}
-  .unit{display:flex;align-items:center;gap:7px;justify-self:end;flex-wrap:wrap;min-width:0}
+  .unit{display:flex;align-items:center;gap:7px;justify-self:end}
   .unit .u{font-size:12.5px;color:var(--ink-soft);min-width:26px}
   select.inp{cursor:pointer;text-align:left;width:auto;min-width:150px}
 
@@ -150,6 +140,8 @@
   .mtable td.r{font-weight:700;font-feature-settings:"tnum" 1}
   .mtable tr.hl td{background:var(--green-soft)}
   .delta-up{color:var(--terra);font-weight:700}
+  .mixpct{width:56px;text-align:right;font-weight:600;font-size:14px;border:1.5px solid var(--line);border-radius:7px;padding:6px 7px;font-family:inherit;background:#fff}
+  .mixpct:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
 
   /* Heating price panel */
   details.prices{margin:10px 0 4px;border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden}
@@ -183,59 +175,6 @@
 
   .foot{margin-top:34px;font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.6}
   .foot a{color:var(--green)}
-  .guidelinks{margin-bottom:18px}
-  .glgroup{margin-bottom:12px}
-  .gltitle{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--ink-soft);margin-bottom:7px}
-  .glrow{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}
-  .glrow a{font-size:12.5px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:5px 11px;transition:.15s}
-  .glrow a:hover{border-color:var(--ink)}
-  .copyright{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-family:"Fraunces",serif;font-size:13px;color:var(--ink-soft)}
-
-  /* Annonszoner — döljs tills AdSense aktiverats i scriptet längst ned */
-  .adzone{display:none;max-width:728px;margin:16px auto 0;text-align:center}
-  .adzone .adlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);opacity:.7;margin-bottom:5px}
-  .adzone .adsbygoogle{display:block;min-height:90px}
-  #adZone{margin:30px auto 0}
-
-  /* Affiliate-kort */
-  .annonsmark{margin-left:auto;font-family:"Hanken Grotesk";font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2px 7px}
-  .affintro{font-size:13px;color:var(--ink-soft);margin:0 0 12px}
-  .affbtn{display:block;text-align:center;text-decoration:none;font-weight:600;font-size:14px;color:#fff;background:var(--green);border-radius:10px;padding:12px 14px;margin-top:8px;transition:.15s}
-  .affbtn:hover{background:var(--green-dk);transform:translateY(-1px)}
-
-  /* Kontextuella annonsrader (vid ränte- och värmerutan) */
-  .ctxad{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px;padding:9px 12px;background:#fff;border:1px solid var(--line);border-radius:10px}
-  .ctxad .ctxlbl{font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--ink-soft);opacity:.6}
-  .ctxad a{font-size:13px;font-weight:600;text-decoration:none;color:var(--green-dk);background:var(--green-soft);border-radius:14px;padding:5px 11px;white-space:nowrap;transition:.15s}
-  .ctxad a:hover{filter:brightness(.97);transform:translateY(-1px)}
-
-  /* ---- Mobil ---- */
-  @media(max-width:600px){
-    .wrap{padding:22px 13px 56px}
-    header.top{align-items:flex-start;gap:14px;padding-bottom:14px}
-    .title .sub{font-size:13px;max-width:100%}
-    .toolbar{width:100%}
-    .toolbar button.tool{flex:1 1 auto;text-align:center;padding:10px 6px}
-    .topnav{justify-content:center}
-
-    .card>h2{padding:14px 16px;font-size:18px}
-    .card .body{padding:12px 15px 16px}
-
-    /* stapla fältrader: etikett ovanför, inmatning i full bredd under */
-    .field{grid-template-columns:1fr;gap:7px}
-    .unit{justify-self:stretch;width:100%}
-    .unit .u{min-width:auto;white-space:nowrap}
-    .inp{width:100%;flex:1 1 0;min-width:0}
-    .inp.short{width:auto;flex:1 1 0;min-width:0}
-    select.inp{width:100%;min-width:0}
-    .field .inp[type=text]{width:100% !important}
-    .seg{width:100%}
-    .seg button{flex:1 1 0;text-align:center}
-
-    .res-hero{padding:18px}
-    .rrow{padding:11px 14px}
-    .results{position:static}
-  }
 
   @media print{
     body{background:#fff}
@@ -262,20 +201,6 @@
     </div>
   </header>
 
-  <nav class="topnav">
-    <a href="index.html" class="active">Kalkylator</a>
-    <a href="spara-kontantinsats.html">Kontantinsats</a>
-    <a href="byta-varmesystem.html">Byta värmesystem</a>
-    <a href="budgivning.html">Budgivning</a>
-    <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a>
-    <a href="besiktning.html">Besiktning</a>
-    <a href="dolda-fel.html">Dolda fel</a>
-    <a href="energiklass.html">Energiklass</a>
-    <a href="visningschecklista.html">Visningschecklista</a>
-    <a href="driftkostnader.html">Driftkostnader</a>
-    <a href="om.html">Om sidan</a>
-  </nav>
-
   <div class="grid">
 
     <!-- LEFT: INPUTS -->
@@ -285,11 +210,6 @@
       <section class="card">
         <h2><span class="num">1</span>Köp & engångskostnader</h2>
         <div class="body">
-          <div class="field"><label>Hämta från Booli<small>Klistra in en annonslänk</small></label><div class="unit"><input class="inp" id="booliUrl" type="url" placeholder="https://www.booli.se/bostad/..." style="width:200px;text-align:left"></div></div>
-          <div style="margin:4px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="lilbtn" onclick="hamtaFranBooli()">↓ Hämta uppgifter</button>
-            <span class="hint" id="booliStatus" style="display:none;margin:0;flex:1 1 200px"></span>
-          </div>
           <div class="field">
             <label>Pris för huset</label>
             <div class="unit"><input class="inp" id="pris" type="number" value="2300000"><span class="u">kr</span></div>
@@ -300,7 +220,7 @@
           </div>
           <div class="field">
             <label>Befintliga pantbrev<small>Finns i pantbrevet/fastighetsutdraget</small></label>
-            <div class="unit"><input class="inp" id="pantbrev" type="number" value="1000000"><span class="u">kr</span></div>
+            <div class="unit"><input class="inp" id="pantbrev" type="number" value="1647705"><span class="u">kr</span></div>
           </div>
           <div class="field">
             <label>Besiktning<small>Överlåtelsebesiktning</small></label>
@@ -359,11 +279,6 @@
             <label>Boarea<small>Endast för nyckeltal kr/kvm</small></label>
             <div class="unit"><input class="inp short" id="boarea" type="number" value="128"><span class="u">kvm</span></div>
           </div>
-          <div class="ctxad" id="ctxBolan" style="display:none">
-            <span class="ctxlbl">Annons</span>
-            <a id="ctx_bolan" href="#" target="_blank" rel="sponsored noopener">Jämför bolåneräntor →</a>
-          </div>
-          <div id="adZoneRanta" class="adzone"><div class="adlbl">Annons</div></div>
         </div>
       </section>
 
@@ -375,28 +290,29 @@
             <label>Husets värmebehov<small>Uppvärmning + varmvatten per år</small></label>
             <div class="unit"><input class="inp" id="varmebehov" type="number" value="20000"><span class="u">kWh/år</span></div>
           </div>
-          <div class="field">
-            <label>Uppvärmningsform<small>Den valda matar driftkostnaden</small></label>
-            <select class="inp" id="varmeForm">
-              <option value="luftvatten">Luft/vatten-värmepump</option>
-              <option value="bergvarme">Bergvärme</option>
-              <option value="luftluft">Luft/luft-värmepump</option>
-              <option value="elpanna">Direktel / elpanna</option>
-              <option value="pellets">Pellets</option>
-              <option value="ved">Ved</option>
-              <option value="fjarrvarme">Fjärrvärme</option>
-              <option value="manual">Egen siffra (kr/mån)</option>
-            </select>
-          </div>
-          <div class="field" id="varmeManualRow" style="display:none">
-            <label>Egen uppvärmningskostnad</label>
-            <div class="unit"><input class="inp" id="varmeManual" type="number" value="1500"><span class="u">kr/mån</span></div>
+          <p style="font-size:12.5px;color:var(--ink-soft);margin:10px 0 2px">Fördela värmebehovet på en eller flera källor (andel i %). Ett hus kan ha t.ex. <b>direktel + luft/luft + ved</b> samtidigt — precis som i energideklarationen. Andelarna bör summera till 100 %.</p>
+          <table class="mtable" style="margin-top:4px">
+            <thead><tr><th>Uppvärmningsform</th><th class="r">Andel</th><th class="r">kr/år</th></tr></thead>
+            <tbody>
+              <tr><td>Luft/vatten-värmepump</td><td class="r"><input class="mixpct" id="mix_luftvatten" type="number" value="100" step="5"> %</td><td class="r" id="mixyr_luftvatten">–</td></tr>
+              <tr><td>Bergvärme</td><td class="r"><input class="mixpct" id="mix_bergvarme" type="number" value="0" step="5"> %</td><td class="r" id="mixyr_bergvarme">–</td></tr>
+              <tr><td>Luft/luft-värmepump</td><td class="r"><input class="mixpct" id="mix_luftluft" type="number" value="0" step="5"> %</td><td class="r" id="mixyr_luftluft">–</td></tr>
+              <tr><td>Direktel / elpanna</td><td class="r"><input class="mixpct" id="mix_elpanna" type="number" value="0" step="5"> %</td><td class="r" id="mixyr_elpanna">–</td></tr>
+              <tr><td>Pellets</td><td class="r"><input class="mixpct" id="mix_pellets" type="number" value="0" step="5"> %</td><td class="r" id="mixyr_pellets">–</td></tr>
+              <tr><td>Ved</td><td class="r"><input class="mixpct" id="mix_ved" type="number" value="0" step="5"> %</td><td class="r" id="mixyr_ved">–</td></tr>
+              <tr><td>Fjärrvärme</td><td class="r"><input class="mixpct" id="mix_fjarrvarme" type="number" value="0" step="5"> %</td><td class="r" id="mixyr_fjarrvarme">–</td></tr>
+            </tbody>
+            <tfoot><tr style="border-top:2px solid var(--line)"><td style="font-weight:600;padding-top:8px">Summa andel · värme totalt</td><td class="r" id="mixSumCell" style="padding-top:8px">–</td><td class="r" id="mixTotCell" style="padding-top:8px">–</td></tr></tfoot>
+          </table>
+          <div class="field" style="margin-top:6px">
+            <label>Övrig fast värmekostnad<small>Ev. tillägg ovanpå andelarna (kr/mån)</small></label>
+            <div class="unit"><input class="inp" id="varme_ovrig" type="number" value="0"><span class="u">kr/mån</span></div>
           </div>
 
           <details class="prices">
             <summary>Prisantaganden (2026, elområde SE3) — justera vid behov</summary>
             <div class="pricegrid">
-              <div class="field"><label>Elpris, allt inkl.<small>Spot + nät + skatt + moms</small></label><div class="unit"><input class="inp short" id="p_el" type="number" value="1.60" step="0.05"><span class="u">kr/kWh</span></div></div>
+              <div class="field"><label>Elpris, allt inkl.<small>Spot + nät + skatt + moms</small></label><div class="unit"><input class="inp short" id="p_el" type="number" value="1.80" step="0.05"><span class="u">kr/kWh</span></div></div>
               <div class="field"><label>Värmefaktor luft/vatten<small>SCOP — årsvärmefaktor</small></label><div class="unit"><input class="inp short" id="scop_lv" type="number" value="3.2" step="0.1"></div></div>
               <div class="field"><label>Värmefaktor bergvärme</label><div class="unit"><input class="inp short" id="scop_bv" type="number" value="3.5" step="0.1"></div></div>
               <div class="field"><label>Värmefaktor luft/luft</label><div class="unit"><input class="inp short" id="scop_ll" type="number" value="3.0" step="0.1"></div></div>
@@ -414,15 +330,7 @@
             <thead><tr><th>Jämför alla former</th><th class="r">kr/år</th><th class="r">kr/mån</th></tr></thead>
             <tbody id="varmeCmp"></tbody>
           </table>
-          <div class="hint">Vet du värmepumpens faktiska elförbrukning? Multiplicera med värmefaktorn för att uppskatta värmebehovet. Ex: 6 000 kWh el × 3,2 ≈ 19 000 kWh värmebehov. Be mäklaren om förbrukningen efter ett eventuellt värmepumpsbyte.</div>
-          <div class="ctxad" id="ctxVarme" style="display:none">
-            <span class="ctxlbl">Annons</span>
-            <a id="ctx_varmepump" href="#" target="_blank" rel="sponsored noopener" style="display:none">Värmepumpar</a>
-            <a id="ctx_pellets" href="#" target="_blank" rel="sponsored noopener" style="display:none">Pellets</a>
-            <a id="ctx_ved" href="#" target="_blank" rel="sponsored noopener" style="display:none">Ved</a>
-            <a id="ctx_el" href="#" target="_blank" rel="sponsored noopener" style="display:none">Elavtal</a>
-          </div>
-          <div id="adZoneVarme" class="adzone"><div class="adlbl">Annons</div></div>
+          <div class="hint">Vet du värmepumpens faktiska elförbrukning? Multiplicera med värmefaktorn för att uppskatta värmebehovet. Ex: 6 000 kWh el × 3,2 ≈ 19 000 kWh värmebehov. Be mäklaren om förbrukningen <em>efter</em> värmepumpsbytet 2024.</div>
         </div>
       </section>
 
@@ -431,6 +339,7 @@
         <h2><span class="num">4</span>Övriga driftkostnader / månad</h2>
         <div class="body" id="driftBody">
           <div class="field"><label>Hushållsel<small>El utöver uppvärmning</small></label><div class="unit"><input class="inp drift" id="d_el" type="number" value="600"><span class="u">kr</span></div></div>
+          <div class="field"><label>Fast elnätsavgift<small>Abonnemang/säkring — oberoende av förbrukning</small></label><div class="unit"><input class="inp drift" id="d_natfast" type="number" value="600"><span class="u">kr</span></div></div>
           <div class="field"><label>Villaförsäkring</label><div class="unit"><input class="inp drift" id="d_fors" type="number" value="500"><span class="u">kr</span></div></div>
           <div class="field"><label>Sotning & brandskydd</label><div class="unit"><input class="inp drift" id="d_sotning" type="number" value="60"><span class="u">kr</span></div></div>
           <div class="field"><label>Bredband & TV</label><div class="unit"><input class="inp drift" id="d_bredband" type="number" value="450"><span class="u">kr</span></div></div>
@@ -452,7 +361,7 @@
           <div class="field"><label>Badtunna / pool<small>Liter per fyllning × antal/år</small></label><div class="unit"><input class="inp short" id="w_tub_l" type="number" value="0"><span class="u">l</span><input class="inp short" id="w_tub_n" type="number" value="0"><span class="u">/år</span></div></div>
           <div class="field"><label>Övrig förbrukning</label><div class="unit"><input class="inp short" id="w_extra" type="number" value="0"><span class="u">m³/år</span></div></div>
           <div class="mod-out"><span class="k" id="w_out_k">Vatten & avlopp</span><span class="v" id="w_out">–</span></div>
-          <div class="hint">Hämta rörligt pris (kr/m³) och fast VA-avgift från din kommuns eller VA-bolags taxa. En badtunna på 1 500 l som fylls 30 ggr/år = 45 m³ ≈ en halv normalvillas årsförbrukning.</div>
+          <div class="hint">Köpings VA sköts av VME (Mälarenergi). Hämta rörligt pris och fast avgift från taxan på koping.se/vme. En badtunna på 1 500 l som fylls 30 ggr/år = 45 m³ ≈ en halv normalvillas årsförbrukning.</div>
         </div>
       </section>
 
@@ -485,7 +394,7 @@
           </div>
           <div class="field"><label>Justering<small>Skillnad mot kommunens exakta taxa</small></label><div class="unit"><input class="inp" id="trash_just" type="number" value="0"><span class="u">kr/år</span></div></div>
           <div class="mod-out"><span class="k">Sophämtning</span><span class="v" id="trash_out">–</span></div>
-          <div class="hint">Schablonpriser — exakta belopp varierar per kommun. Större kärl och tätare tömning kostar mer; mindre kärl och hemkompost ger oftast rabatt. Kolla kommunens avfallstaxa och justera vid behov.</div>
+          <div class="hint">Schablonpriser — exakta belopp varierar per kommun. Större kärl och tätare tömning kostar mer; mindre kärl och hemkompost ger oftast rabatt. Kolla VME:s avfallstaxa och justera vid behov.</div>
         </div>
       </section>
 
@@ -493,13 +402,9 @@
       <section class="card">
         <h2><span class="num">7</span>Pendling</h2>
         <div class="body">
-          <div class="field"><label>Hemadress</label><div class="unit"><input class="inp" id="c_home" type="text" value="" placeholder="Din hemadress" style="width:200px;text-align:left"></div></div>
+          <div class="field"><label>Hemadress</label><div class="unit"><input class="inp" id="c_home" type="text" value="" placeholder="Tallbacksvägen 21, Munktorp" style="width:200px;text-align:left"></div></div>
           <div class="field"><label>Jobbadress</label><div class="unit"><input class="inp" id="c_work" type="text" value="" placeholder="Arbetsplatsens adress" style="width:200px;text-align:left"></div></div>
-          <div style="margin:4px 0 10px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="lilbtn" onclick="autoRoute()">⚡ Beräkna automatiskt</button>
-            <button class="lilbtn alt" onclick="openMaps()">↗ Öppna i Google Maps</button>
-          </div>
-          <div class="hint" id="c_routeStatus" style="display:none"></div>
+          <div style="margin:4px 0 10px"><button class="lilbtn" onclick="openMaps()">↗ Hämta avstånd & restid i Google Maps</button></div>
           <div class="field"><label>Enkel resa<small>Klistra in från Google Maps</small></label><div class="unit"><input class="inp short" id="c_km" type="number" value="0" step="0.1"><span class="u">km</span><input class="inp short" id="c_min" type="number" value="0"><span class="u">min</span></div></div>
           <div class="field"><label>Arbetsdagar / månad</label><div class="unit"><input class="inp short" id="c_days" type="number" value="21"><span class="u">dgr</span></div></div>
           <div class="field"><label>Fordon</label>
@@ -520,27 +425,20 @@
           </details>
           <div class="mod-out"><span class="k">Drivmedel</span><span class="v" id="c_out">–</span></div>
           <div class="hint" id="c_detail"></div>
-          <div id="adZonePendling" class="adzone"><div class="adlbl">Annons</div></div>
         </div>
       </section>
 
-      <!-- PRISANALYS -->
+      <!-- ÖVERPRISANALYS -->
       <section class="card">
-        <h2><span class="num">8</span>Prisanalys</h2>
+        <h2><span class="num">8</span>Överprisanalys</h2>
         <div class="body">
-          <div class="field"><label>Adress / område<small>Bara för din egen referens</small></label><div class="unit"><input class="inp" id="op_addr" type="text" value="" placeholder="t.ex. Storgatan 12, Köping" style="width:200px;text-align:left"></div></div>
-          <div style="margin:6px 0 4px">
-            <label style="font-size:14px;font-weight:500;display:block;margin-bottom:4px">Booli-länkar till sålda objekt <small style="color:var(--ink-soft);font-weight:400">— en per rad, max 5</small></label>
-            <textarea id="op_urls" rows="5" placeholder="https://www.booli.se/bostad/1234567&#10;https://www.booli.se/bostad/2345678&#10;..."
-              style="width:100%;font-family:'Hanken Grotesk',sans-serif;font-size:13.5px;border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink);resize:vertical;box-sizing:border-box"></textarea>
-          </div>
-          <div style="margin:8px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="lilbtn" onclick="hamtaJamforelser()">⚡ Hämta sålda från länkar</button>
-            <button class="lilbtn alt" onclick="openBooli()">↗ Öppna Booli slutpriser</button>
-            <span class="hint" id="compStatus" style="display:none;margin:0;flex:1 1 200px"></span>
+          <div class="field"><label>Adress / område</label><div class="unit"><input class="inp" id="op_addr" type="text" value="" placeholder="Munktorp, Köping" style="width:200px;text-align:left"></div></div>
+          <div style="margin:4px 0 10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="lilbtn" onclick="openBooli()">↗ Booli slutpriser</button>
+            <button class="lilbtn alt" onclick="openHemnet()">↗ Hemnet sålda</button>
           </div>
           <div class="field"><label>Prisutveckling i området<small>Justerar äldre försäljningar till idag</small></label><div class="unit"><input class="inp short" id="op_trend" type="number" value="3" step="0.5"><span class="u">%/år</span></div></div>
-          <p style="font-size:12.5px;color:var(--ink-soft);margin:10px 0 4px">Jämförbara sålda objekt:</p>
+          <p style="font-size:12.5px;color:var(--ink-soft);margin:10px 0 4px">Jämförbara sålda objekt (slå upp på Booli/Hemnet sålda):</p>
           <table class="compt">
             <thead><tr><th>Objekt</th><th>Pris (kr)</th><th>Boarea</th><th>År sedan</th></tr></thead>
             <tbody>
@@ -551,8 +449,8 @@
               <tr><td>5</td><td><input id="op_p5" type="number"></td><td><input id="op_a5" type="number"></td><td><input id="op_y5" type="number" step="0.5"></td></tr>
             </tbody>
           </table>
-          <div class="verdict line" id="op_verdict">Klistra in 1–5 Booli-länkar ovan och klicka "Hämta sålda från länkar", eller fyll i tabellen manuellt.</div>
-          <div class="hint">Sök fram jämförbara sålda på <a href="https://www.booli.se/sok/slutpriser" target="_blank" rel="noopener">booli.se/sok/slutpriser</a>, kopiera länkarna och klistra in en per rad. Servern hämtar pris, boarea och försäljningsdatum för varje. Jämför sedan mot husets begärda pris (<span id="op_subj">–</span>) och boarea (kort 2) — median-kr/kvm tidsjusteras med prisutvecklingen och multipliceras med husets boarea för ett marknadsvärde-estimat. Endast en indikation — läge, skick och tomt kan motivera avvikelser.</div>
+          <div class="verdict line" id="op_verdict">Fyll i minst ett jämförelseobjekt för att se en bedömning.</div>
+          <div class="hint">Jämför mot husets begärda pris (<span id="op_subj">–</span>) och boarea (kort 2). Median-kr/kvm tidsjusteras med prisutvecklingen ovan och multipliceras med husets boarea för ett marknadsvärde-estimat. Endast en indikation — läge, skick och tomt kan motivera avvikelser.</div>
         </div>
       </section>
     </div>
@@ -602,49 +500,13 @@
           <tbody id="cmp"></tbody>
         </table>
       </section>
-
-      <!-- AFFILIATE (dolt tills länkar fyllts i längst ned i scriptet) -->
-      <section class="card" id="affCard" style="margin-top:16px;display:none">
-        <h2 style="font-size:17px"><span class="num">↗</span>Jämför & spara <span class="annonsmark">Annonslänk</span></h2>
-        <div class="body">
-          <p class="affintro">Innan du lägger bud — jämför vad olika långivare och försäkringsbolag faktiskt erbjuder.</p>
-          <a class="affbtn" id="aff_bolan" href="#" target="_blank" rel="sponsored noopener" style="display:none">Jämför bolåneräntor →</a>
-          <a class="affbtn" id="aff_forsakring" href="#" target="_blank" rel="sponsored noopener" style="display:none">Jämför villaförsäkring →</a>
-        </div>
-      </section>
     </div>
 
   </div>
 
-  <div id="adZone" class="adzone"><div class="adlbl">Annons</div></div>
-
   <div class="foot">
-    <div class="guidelinks">
-      <div class="glgroup">
-        <span class="gltitle">Kalkylatorer</span>
-        <div class="glrow">
-          <a href="spara-kontantinsats.html">Spara ihop kontantinsatsen</a>
-          <a href="byta-varmesystem.html">Byta värmesystem</a>
-          <a href="solceller.html">Solceller (snart)</a>
-        </div>
-      </div>
-      <div class="glgroup">
-        <span class="gltitle">Guider</span>
-        <div class="glrow">
-          <a href="budgivning.html">Budgivning</a>
-          <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a>
-          <a href="besiktning.html">Besiktning</a>
-          <a href="dolda-fel.html">Dolda fel</a>
-          <a href="energiklass.html">Energiklass</a>
-          <a href="visningschecklista.html">Visningschecklista</a>
-          <a href="driftkostnader.html">Driftkostnader</a>
-        </div>
-      </div>
-      <div class="glrow"><a href="om.html">Om sidan</a></div>
-    </div>
     Beräkningsverktyg för eget bruk — inte rådgivning. Regler: bolånetak 90 % &middot; amorteringskrav 2 % (&gt;70 %), 1 % (50–70 %) &middot; skärpt krav slopat 1 apr 2026 &middot; ränteavdrag 30 % upp till 100 000 kr/person, 21 % däröver &middot; fastighetsavgift 0,75 %, tak 10 425 kr (inkomstår 2026) &middot; reseavdrag 25 kr/mil.
-    Standardpriser (el, pellets, ved, drivmedel) avser 2026 och elområde SE3 — kontrollera mot bank, Skatteverket, din kommun och dagsaktuella priser.
-    <div class="copyright">© Snake Hessman 2026 &middot; <a href="integritetspolicy.html">Integritetspolicy</a></div>
+    Standardpriser (el, pellets, ved, drivmedel) avser 2026 och elområde SE3 — kontrollera mot bank, Skatteverket, VME och dagsaktuella priser.
   </div>
 </div>
 
@@ -732,15 +594,17 @@ function heatingYr(form){
     case 'pellets':    return (vb/(pos('v_pellets',85)/100))/pos('e_pellets',4800)*num('p_pellets');
     case 'ved':        return (vb/(pos('v_ved',80)/100))/pos('e_ved',1900)*num('p_ved');
     case 'fjarrvarme': return vb*num('p_fjarr');
-    case 'manual':     return num('varmeManual')*12;
     default: return 0;
   }
 }
 
-// visa/dölj manuell värmerad
-$('varmeForm').addEventListener('change', ()=>{
-  $('varmeManualRow').style.display = $('varmeForm').value==='manual' ? 'grid' : 'none';
-});
+// kombinerar flera uppvärmningsformer enligt deras andel av värmebehovet
+function heatingMixYr(){
+  let yr = 0;
+  VARME.forEach(([key])=>{ const s = num('mix_'+key)/100; if(s>0) yr += heatingYr(key)*s; });
+  yr += num('varme_ovrig')*12;   // ev. fast tillägg
+  return yr;
+}
 
 // ---- vatten ----
 function waterYr(){
@@ -784,142 +648,9 @@ function openMaps(){
   window.open(`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=driving`,'_blank');
 }
 
-// ---- automatisk ruttberäkning via egen proxy (döljer API-nyckeln) ----
-const ROUTE_API = "https://booliparser.onrender.com/route";
-async function autoRoute(){
-  const status = $('c_routeStatus');
-  status.style.display = 'block';
-  if(!ROUTE_API){
-    status.textContent = 'Automatisk ruttberäkning är inte konfigurerad ännu. Använd "Öppna i Google Maps" och fyll i manuellt.';
-    return;
-  }
-  const home = $('c_home').value.trim(), work = $('c_work').value.trim();
-  if(!home || !work){
-    status.textContent = 'Fyll i både hemadress och jobbadress först.';
-    return;
-  }
-  status.textContent = 'Beräknar...';
-  try{
-    const url = `${ROUTE_API}?from=${encodeURIComponent(home)}&to=${encodeURIComponent(work)}`;
-    const r = await fetch(url);
-    if(!r.ok){ throw new Error((await r.json()).detail || r.statusText); }
-    const d = await r.json();
-    $('c_km').value = d.km;
-    $('c_min').value = d.min;
-    status.textContent = `${d.km} km · ${d.min} min (enkel resa, bilväg). Kontrollera mot Google Maps om något ser fel ut.`;
-    calc();
-  }catch(e){
-    status.textContent = 'Kunde inte beräkna automatiskt: ' + e.message + '. Använd "Öppna i Google Maps" och fyll i manuellt.';
-  }
-}
-
-// ---- hämta uppgifter från en Booli-annons via egen proxy ----
-const PARSER_API = "https://booliparser.onrender.com/parse";
-async function hamtaFranBooli(){
-  const status = $('booliStatus');
-  status.style.display = 'block';
-  if(!PARSER_API){
-    status.textContent = 'Hämtning från Booli är inte konfigurerad ännu.';
-    return;
-  }
-  const url = $('booliUrl').value.trim();
-  if(!url){
-    status.textContent = 'Klistra in en Booli-länk först.';
-    return;
-  }
-  status.textContent = 'Hämtar...';
-  try{
-    const r = await fetch(`${PARSER_API}?url=${encodeURIComponent(url)}`);
-    if(!r.ok){ throw new Error((await r.json()).detail || r.statusText); }
-    const d = await r.json();
-    const f = d.fields || {};
-    const filled = [];
-    if(f.pris)        { $('pris').value = f.pris; $('pris').dispatchEvent(new Event('input')); filled.push('pris'); }
-    if(f.boarea)      { $('boarea').value = f.boarea; filled.push('boarea'); }
-    if(f.adress)      { $('c_home').value = f.adress; filled.push('adress'); }
-    if(f.uppvarmning) { const s=$('varmeForm'); if(s){ s.value=f.uppvarmning; s.dispatchEvent(new Event('change')); filled.push('uppvärmning'); } }
-
-    const missing = [];
-    if(!f.uppvarmning) missing.push('uppvärmning');
-    missing.push('kontantinsats', 'pantbrev', 'taxeringsvärde');
-
-    status.textContent = filled.length
-      ? `Hämtade: ${filled.join(', ')}. Kontrollera och fyll i resten manuellt (${missing.join(', ')}).`
-      : 'Hittade inga fält att fylla i. Fyll i manuellt.';
-    calc();
-  }catch(e){
-    status.textContent = 'Kunde inte hämta annonsen: ' + e.message + '. Fyll i manuellt.';
-  }
-}
-
-// ---- prisanalys: hämta jämförbara sålda från inklistrade Booli-länkar ----
-async function hamtaJamforelser(){
-  const status = $('compStatus');
-  status.style.display = 'block';
-  if(!PARSER_API){
-    status.textContent = 'Parser-API är inte konfigurerat. Fyll i tabellen manuellt.';
-    return;
-  }
-  const urls = $('op_urls').value.split(/\s+/).map(s=>s.trim())
-    .filter(s => /^https?:\/\/(www\.)?booli\.se\//i.test(s));
-  if(!urls.length){
-    status.textContent = 'Klistra in minst en Booli-länk (t.ex. https://www.booli.se/bostad/1234567).';
-    return;
-  }
-  if(urls.length > 5){
-    status.textContent = `Max 5 länkar — du klistrade in ${urls.length}. Tar bara de fem första.`;
-    urls.length = 5;
-  }
-  const base = PARSER_API.replace(/\/parse$/, '');
-  const qs = urls.map(u => 'urls=' + encodeURIComponent(u)).join('&');
-  status.textContent = `Hämtar ${urls.length} annons${urls.length===1?'':'er'}...`;
-  try{
-    const r = await fetch(`${base}/parse-many?${qs}`);
-    if(!r.ok){ throw new Error((await r.json()).detail || r.statusText); }
-    const d = await r.json();
-    // töm raderna först så gamla värden inte blandas med nya
-    for(let i=1;i<=5;i++){ $('op_p'+i).value=''; $('op_a'+i).value=''; $('op_y'+i).value=''; }
-    let ok = 0, fel = [];
-    (d.results || []).slice(0,5).forEach((row, i) => {
-      const n = i + 1;
-      if(!row.ok || !row.result || !row.result.fields){
-        fel.push(`#${n}: ${row.error || 'okänt fel'}`);
-        return;
-      }
-      const f = row.result.fields;
-      // Sålda annonser har slutpris; pågående har utgångspris. Ta det som finns.
-      const pris = f.slutpris || f.pris;
-      if(pris)        $('op_p'+n).value = pris;
-      if(f.boarea)    $('op_a'+n).value = f.boarea;
-      // Booli ger oftast försäljningsdatum -> räkna år sedan
-      const datum = f.slutdatum || f.forsaljningsdatum || f.datum;
-      if(datum){
-        const d0 = new Date(datum);
-        if(!isNaN(d0)){
-          const ar = (Date.now() - d0.getTime()) / (365.25 * 24 * 3600 * 1000);
-          $('op_y'+n).value = ar.toFixed(1);
-        }
-      }
-      if(pris) ok++;
-    });
-    let msg = `Hämtade ${ok} av ${urls.length}.`;
-    if(fel.length) msg += ' Fel: ' + fel.join('; ');
-    msg += ' Kontrollera värdena innan du litar på resultatet.';
-    status.textContent = msg;
-    calc();
-  }catch(e){
-    status.textContent = 'Kunde inte hämta: ' + e.message;
-  }
-}
-
-// ---- prisanalys: öppna Booli slutpriser i ny flik ----
-function openBooli(){
-  const q = $('op_addr').value.trim();
-  const url = q
-    ? `https://www.booli.se/sok/slutpriser?q=${encodeURIComponent(q)}`
-    : 'https://www.booli.se/sok/slutpriser';
-  window.open(url,'_blank');
-}
+// ---- överprisanalys ----
+function openBooli(){ window.open(`https://www.booli.se/sok/slutpriser?q=${encodeURIComponent($('op_addr').value||'')}`,'_blank'); }
+function openHemnet(){ window.open(`https://www.hemnet.se/salda/bostader?q=${encodeURIComponent($('op_addr').value||'')}`,'_blank'); }
 function median(arr){
   if(!arr.length) return 0;
   const s=[...arr].sort((a,b)=>a-b), m=Math.floor(s.length/2);
@@ -956,8 +687,7 @@ function calc(){
   const favgYr = Math.min(num('taxvarde')*0.0075, FAST_TAK);
 
   // drift/månad (uppvärmning + vatten + sopor + summa övriga fält + fastighetsavgift)
-  const varmeForm = $('varmeForm').value;
-  const varmeMan = heatingYr(varmeForm)/12;
+  const varmeMan = heatingMixYr()/12;
   const wat = waterYr();
   const watMan = wat.kr/12;
   const trashMan = trashYr()/12;
@@ -1019,16 +749,28 @@ function calc(){
   pills.push(`<span class="pill">Ränteavdrag ${kr0(avdragYr/12)}/mån</span>`);
   $('pills').innerHTML = pills.join('');
 
-  // ---- uppvärmning: vald + jämförelse ----
+  // ---- uppvärmning: mix + jämförelse ----
   $('varme_pick').textContent = `${kr(varmeMan)}/mån  ·  ${kr(varmeMan*12)}/år`;
-  let vrows='';
+  let vrows='', mixSumPct=0, mixTotYr=0;
   VARME.forEach(([key,label])=>{
-    const yr = heatingYr(key);
-    const on = key===varmeForm;
-    vrows += `<tr class="${on?'hl':''}"><td>${label}${on?' ★':''}</td>`
-          + `<td class="r">${kr(yr)}</td><td class="r">${kr(yr/12)}</td></tr>`;
+    const pct = num('mix_'+key);
+    const yrFull = heatingYr(key);          // kostnad om källan täckte 100 % av behovet
+    const yrShare = yrFull*pct/100;
+    mixSumPct += pct; mixTotYr += yrShare;
+    const cell = $('mixyr_'+key); if(cell) cell.textContent = pct>0 ? kr(yrShare) : '–';
+    const on = pct>0;
+    vrows += `<tr class="${on?'hl':''}"><td>${label}${on?` ★ ${pct} %`:''}</td>`
+          + `<td class="r">${kr(yrFull)}</td><td class="r">${kr(yrFull/12)}</td></tr>`;
   });
+  mixTotYr += num('varme_ovrig')*12;
   $('varmeCmp').innerHTML = vrows;
+  const sumCell=$('mixSumCell'), totCell=$('mixTotCell');
+  if(sumCell){
+    sumCell.textContent = mixSumPct.toFixed(0)+' %';
+    sumCell.style.color = Math.abs(mixSumPct-100)<=1 ? 'var(--green-dk)' : 'var(--terra)';
+    sumCell.title = Math.abs(mixSumPct-100)<=1 ? '' : 'Andelarna summerar inte till 100 %';
+  }
+  if(totCell) totCell.textContent = kr(mixTotYr);
 
   // ---- känslighet (ränta +0/+1/+2/+3 pp) ----
   let s='';
@@ -1056,7 +798,7 @@ function calc(){
   }
   $('cmp').innerHTML = c;
 
-  // ---- prisanalys ----
+  // ---- överprisanalys ----
   $('op_subj').textContent = pris>0 ? kr(pris) : '–';
   const op = overpris();
   const vEl = $('op_verdict');
@@ -1082,7 +824,7 @@ function calc(){
 
 // ---- save / load / reset ----
 function collect(){
-  const o={_meta:'husbudget',_v:3};
+  const o={_meta:'husbudget',_v:4};
   document.querySelectorAll('input').forEach(el=>{ if(el.id) o[el.id]= el.type==='radio'? el.checked : el.value; });
   document.querySelectorAll('select').forEach(el=>{ if(el.id) o[el.id]=el.value; });
   o.rpick = activeRateIdx(); o.nLantagare = nLantagare; o.amortMode = amortMode;
@@ -1105,7 +847,12 @@ function doImport(e){
     if(o.rpick!=null){ const rb=document.querySelector(`input[name=rpick][value="${o.rpick}"]`); if(rb) rb.checked=true; }
     if(o.nLantagare){ nLantagare=o.nLantagare; document.querySelectorAll('#lantagare button').forEach(b=>b.classList.toggle('on', +b.dataset.n===nLantagare)); }
     if(o.amortMode){ amortMode=o.amortMode; document.querySelectorAll('#amortMode button').forEach(b=>b.classList.toggle('on', b.dataset.m===amortMode)); $('amortManualRow').style.display = amortMode==='manual'?'grid':'none'; }
-    if(o.varmeForm){ $('varmeManualRow').style.display = o.varmeForm==='manual'?'grid':'none'; }
+    // bakåtkompatibilitet: äldre sparfiler hade en enda uppvärmningsform
+    if(o.varmeForm && o.mix_luftvatten==null){
+      VARME.forEach(([k])=>{ const el=$('mix_'+k); if(el) el.value=0; });
+      if(o.varmeForm==='manual'){ const ov=$('varme_ovrig'); if(ov) ov.value=o.varmeManual||0; }
+      else { const el=$('mix_'+o.varmeForm); if(el) el.value=100; }
+    }
     if(o.c_type){ const u=$('c_cons_u'), p=$('c_price_u'); if(o.c_type==='el'){u.textContent='kWh/100km';p.textContent='kr/kWh';}else{u.textContent='l/100km';p.textContent='kr/l';} }
     calc();
   }catch(err){ alert('Kunde inte läsa filen: '+err.message); } };
@@ -1114,100 +861,6 @@ function doImport(e){
 function resetAll(){ if(confirm('Nollställa alla fält till noll?')){ document.querySelectorAll('input[type=number]').forEach(el=>el.value=0); calc(); } }
 
 calc();
-</script>
-
-<!-- ============================================================
-     GOOGLE ADSENSE — annonsenheter
-     Loadern ligger redan i <head> med ditt publisher-ID, så sidan är
-     redo för granskning. När du blivit godkänd: skapa EN annonsenhet per
-     placering i AdSense-dashboarden, kopiera vart annons-ID och klistra in
-     nedan. Tom sträng = den platsen visas inte (rutan döljs).
-
-     Placeringar:
-       fot      -> sidans nederkant (allmän)
-       ranta    -> kort 2, Lån/ränta & amortering
-       varme    -> kort 3, Uppvärmning
-       pendling -> kort 7, Pendling
-
-     Glöm inte: aktivera GDPR-meddelandet i AdSense under
-     "Sekretess och meddelanden" — krävs för besökare inom EU/EES.
-     ============================================================ -->
-<script>
-(function initAds(){
-  const ADSENSE_CLIENT = "ca-pub-5066963191735028";
-  const SLOTS = {
-    fot:      "",   // <-- annons-ID för foten
-    ranta:    "",   // <-- annons-ID för ränteavsnittet
-    varme:    "",   // <-- annons-ID för uppvärmningsavsnittet
-    pendling: "",   // <-- annons-ID för pendlingsavsnittet
-  };
-  const ZONES = {
-    fot: "adZone", ranta: "adZoneRanta", varme: "adZoneVarme", pendling: "adZonePendling",
-  };
-
-  Object.keys(SLOTS).forEach(key => {
-    const slot = SLOTS[key];
-    if(!slot) return;             // inget ID -> rutan förblir dold
-    const zone = document.getElementById(ZONES[key]);
-    if(!zone) return;
-
-    const ins = document.createElement('ins');
-    ins.className = 'adsbygoogle';
-    ins.style.display = 'block';
-    ins.setAttribute('data-ad-client', ADSENSE_CLIENT);
-    ins.setAttribute('data-ad-slot', slot);
-    ins.setAttribute('data-ad-format', 'auto');
-    ins.setAttribute('data-full-width-responsive', 'true');
-    zone.appendChild(ins);
-    zone.style.display = 'block';
-    (window.adsbygoogle = window.adsbygoogle || []).push({});
-  });
-})();
-</script>
-
-<!-- ============================================================
-     AFFILIATE-LÄNKAR
-     Klistra in dina spårningslänkar från Adtraction/Adrecord nedan
-     (tom sträng = länken visas inte). Varje annonsplats döljs tills
-     den fått en länk. Allt är märkt "Annons/Annonslänk" och använder
-     rel="sponsored" enligt regelverket.
-
-       bolan      -> "Jämför & spara"-kortet OCH raden vid ränterutan
-       forsakring -> "Jämför & spara"-kortet
-       varmepump/pellets/ved/el -> raden vid värmerutan
-     ============================================================ -->
-<script>
-(function initAffiliate(){
-  const AFFILIATE = {
-    bolan:      "",   // <-- bolåne-/lånejämförelse
-    forsakring: "",   // <-- villaförsäkringsjämförelse
-    varmepump:  "",   // <-- värmepumpar
-    pellets:    "",   // <-- pellets
-    ved:        "",   // <-- ved
-    el:         "",   // <-- elavtal/elleverantör
-  };
-  const wire = (id, url) => {
-    const a = document.getElementById(id);
-    if(a && url){ a.href = url; a.style.display = 'block'; return true; }
-    return false;
-  };
-  // "Jämför & spara"-kortet i högerkolumnen
-  let cardAny = false;
-  cardAny = wire('aff_bolan', AFFILIATE.bolan) || cardAny;
-  cardAny = wire('aff_forsakring', AFFILIATE.forsakring) || cardAny;
-  if(cardAny){ const c = document.getElementById('affCard'); if(c) c.style.display = 'block'; }
-
-  // Kontextuell annons vid ränterutan (samma bolånelänk)
-  if(wire('ctx_bolan', AFFILIATE.bolan)){ const b=document.getElementById('ctxBolan'); if(b) b.style.display='flex'; }
-
-  // Kontextuell annons vid värmerutan
-  let varmeAny = false;
-  varmeAny = wire('ctx_varmepump', AFFILIATE.varmepump) || varmeAny;
-  varmeAny = wire('ctx_pellets', AFFILIATE.pellets) || varmeAny;
-  varmeAny = wire('ctx_ved', AFFILIATE.ved) || varmeAny;
-  varmeAny = wire('ctx_el', AFFILIATE.el) || varmeAny;
-  if(varmeAny){ const v=document.getElementById('ctxVarme'); if(v) v.style.display='flex'; }
-})();
 </script>
 </body>
 </html>
