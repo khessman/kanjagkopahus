@@ -252,6 +252,10 @@
             </tr></tbody>
           </table>
           <div class="hint" style="background:var(--green-soft);border-left-color:var(--green)">Klistra in bankens aktuella listräntor (eller din offererade ränta). Pricka för den bindningstid du vill räkna på — den används i alla resultat.</div>
+          <div style="margin:8px 0 2px;display:flex;gap:8px;flex-wrap:wrap">
+            <button class="lilbtn" onclick="openRantor()">↗ Listräntor (Konsumenternas)</button>
+            <button class="lilbtn alt" onclick="openSnitt()">↗ Snitträntor (Finansportalen)</button>
+          </div>
 
           <div class="field" style="margin-top:6px">
             <label>Antal låntagare<small>Avgör ränteavdragets tröskel (100 000 kr ränta var)</small></label>
@@ -647,6 +651,8 @@ function openMaps(){
   const o=encodeURIComponent($('c_home').value||''), d=encodeURIComponent($('c_work').value||'');
   window.open(`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=driving`,'_blank');
 }
+function openRantor(){ window.open('https://www.konsumenternas.se/konsumentstod/jamforelser/lan--betalningar/lan/jamfor-borantor/','_blank'); }
+function openSnitt(){ window.open('https://www.finansportalen.se/snittrantor/','_blank'); }
 
 // ---- överprisanalys ----
 function openBooli(){ window.open(`https://www.booli.se/sok/slutpriser?q=${encodeURIComponent($('op_addr').value||'')}`,'_blank'); }
