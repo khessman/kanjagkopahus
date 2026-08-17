@@ -15,3 +15,9 @@ ALLOWED_ORIGINS = "https://xn--kanjagkpahus-bjb.se,https://www.xn--kanjagkpahus-
 
 # API-nyckeln sätts INTE här (den ska aldrig checkas in). Kör istället:
 #   npx wrangler secret put AI_API_KEY
+
+# --- Rate limit via KV: max 6 skarpa AI-analyser per 60 s och IP ---
+# Bromsar hur snabbt någon kan bränna krediter. Cache-träffar räknas inte.
+[[kv_namespaces]]
+binding = "RL_KV"
+id = "25a1eb86dcf249edad2949deccf57b20"
