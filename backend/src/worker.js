@@ -117,6 +117,14 @@ export default {
       return json({ error: "Analysen misslyckades.", detalj: String(err) }, 502, cors);
     }
   },
+
+  // Schemalagd "keep-warm": pingar Booli-parsern på Render så gratisnivån inte
+  // somnar (kallstart tar ~30 s, varm ~0,1 s). Cron i wrangler.toml.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(
+      fetch("https://booliparser.onrender.com/").catch(() => {})
+    );
+  },
 };
 
 // --- Stripe ---------------------------------------------------------------

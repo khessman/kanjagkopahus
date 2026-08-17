@@ -21,3 +21,8 @@ ALLOWED_ORIGINS = "https://xn--kanjagkpahus-bjb.se,https://www.xn--kanjagkpahus-
 [[kv_namespaces]]
 binding = "RL_KV"
 id = "25a1eb86dcf249edad2949deccf57b20"
+
+# Håll Booli-parsern (Render gratis) vaken: pinga var 10:e min kl 05–22 UTC
+# (~06–24 svensk tid). Håller sig under Renders 750 gratis-timmar/månad.
+[triggers]
+crons = ["*/10 5-22 * * *"]
