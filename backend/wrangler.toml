@@ -9,7 +9,9 @@ compatibility_date = "2026-01-01"
 MOCK = "false"
 
 # Tillåtna ursprung (CORS). Lägg till din lokala testadress vid behov.
-ALLOWED_ORIGINS = "https://kanjagkopahus.se,https://www.kanjagkopahus.se,http://localhost:8788"
+# Domänen kanjagköpahus.se (med ö) skickas av webbläsaren i punycode-form
+# (xn--kanjagkpahus-bjb.se). Den ASCII-lösa varianten finns med som reserv.
+ALLOWED_ORIGINS = "https://xn--kanjagkpahus-bjb.se,https://www.xn--kanjagkpahus-bjb.se,https://kanjagkopahus.se,https://www.kanjagkopahus.se,http://localhost:8788"
 
 # API-nyckeln sätts INTE här (den ska aldrig checkas in). Kör istället:
 #   npx wrangler secret put AI_API_KEY
