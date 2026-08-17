@@ -98,7 +98,7 @@
 
   <div class="card">
     <h2>1 · Ladda upp dokument</h2>
-    <p class="sub">PDF-filer. Minst ett dokument krävs - fler ger bättre analys. Filerna läses i din webbläsare.</p>
+    <p class="sub">PDF-filer. Minst ett dokument krävs - fler ger bättre analys. Filerna läses i din webbläsare.<span id="priceNote" style="display:none"> <b>Första analysen är gratis</b>, därefter 5 kr per objekt.</span></p>
 
     <div class="drop" data-key="besiktning">
       <div class="ic">📋</div>
@@ -134,6 +134,13 @@
     </div>
   </div>
 
+  <div class="card" id="paywall" style="display:none">
+    <h2>Lås upp analysen – 5 kr</h2>
+    <p class="sub">Din gratisanalys är använd. Betala 5 kr för att analysera det här objektet (kort, Apple Pay eller Google Pay). Ett köp = en analys. Resultatet sparas i din webbläsare.</p>
+    <div id="checkout"></div>
+    <div class="actions"><button class="pick" type="button" id="cancelPay">Avbryt</button></div>
+  </div>
+
   <div class="card" id="result">
     <h2>2 · Resultat</h2>
     <div class="kallor" id="kallor"></div>
@@ -167,6 +174,8 @@
 
 <!-- pdf.js för att läsa ut text ur PDF:er i webbläsaren -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- Stripe för betalning -->
+<script src="https://js.stripe.com/v3/"></script>
 <script>
 (function(){
   "use strict";
@@ -285,6 +294,18 @@
     });
   }
 
+  // === Gratis-först + betalning ===========================================
+  var STRIPE_PK = "pk_test_51U5UfZPsmYJLZWVwyXGbd1KFMvYAYcyNYwIJppYKG1kkBPErWzzCqZxpcyW0LiXZLihUXKrlJUdiZyKydFlNYFMU00aQ8ESfMZ";
+  var stripe = window.Stripe ? Stripe(STRIPE_PK) : null;
+  var PRICE_KR = 5;
+  var _checkout = null;
+  // Betalning aktiveras bara med ?pay=1 så länge Stripe är i testläge.
+  // När skarpa nycklar är på plats: sätt PAY_ENABLED = true permanent.
+  var PAY_ENABLED = new URLSearchParams(location.search).get("pay") === "1";
+
+  function freeUsed(){ try { return localStorage.getItem("kjkh:freeUsed") === "1"; } catch (e) { return false; } }
+  function setFreeUsed(){ try { localStorage.setItem("kjkh:freeUsed", "1"); } catch (e) {} }
+
   // === Analysera ==========================================================
   goBtn.addEventListener("click", async function(){
     goBtn.disabled = true;
@@ -294,9 +315,9 @@
       for (var key in files){
         payload[key] = await pdfToText(files[key]);
       }
-
-      // 1) Har vi redan analyserat exakt detta underlag? Visa sparat svar.
       var hash = await docsHash(payload);
+
+      // Redan analyserat exakt detta underlag? Visa sparat (alltid gratis).
       var saved = cacheGet(hash);
       if (saved){
         render(saved);
@@ -304,26 +325,83 @@
         return;
       }
 
-      // 2) Annars – kör analysen och spara resultatet.
-      setStatus("Analyserar…", false, true);
-      var res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      var data = await res.json();
-      if (!res.ok) throw new Error((data.error || ("HTTP " + res.status)) + (data.detalj ? " (" + data.detalj + ")" : ""));
-
-      cacheSet(hash, data);
-      indexAdd(hash, data);
-      renderHistory();
-      render(data);
-      setStatus("Klart.", false, false);
+      if (!PAY_ENABLED){
+        await runAnalysis(payload, hash, null);        // betalning avstängd – allt gratis
+        setStatus("Klart.", false, false);
+      } else if (!freeUsed()){
+        await runAnalysis(payload, hash, null);        // gratis första
+        setFreeUsed();
+        setStatus("Klart – detta var din gratisanalys. Nästa objekt kostar " + PRICE_KR + " kr.", false, false);
+      } else {
+        await startPayment(payload, hash);             // betalvägg
+      }
     } catch (err) {
       setStatus("Kunde inte analysera: " + err.message, true, false);
     } finally {
       goBtn.disabled = Object.keys(files).length === 0;
     }
+  });
+
+  // Kör analysen mot Workern (paidSession = null för gratis) och sparar den.
+  async function runAnalysis(payload, hash, paidSession){
+    setStatus("Analyserar…", false, true);
+    var body = {};
+    for (var k in payload){ body[k] = payload[k]; }
+    if (paidSession){ body.paid_session = paidSession; }
+    var res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error((data.error || ("HTTP " + res.status)) + (data.detalj ? " (" + data.detalj + ")" : ""));
+    cacheSet(hash, data);
+    indexAdd(hash, data);
+    renderHistory();
+    render(data);
+  }
+
+  // Öppnar Stripes inbäddade betalning; kör betald analys när betalningen är klar.
+  async function startPayment(payload, hash){
+    if (!stripe){ setStatus("Betalning kunde inte laddas. Ladda om sidan.", true, false); return; }
+    setStatus("Öppnar betalning…", false, true);
+    var r = await fetch(API_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "create-checkout" })
+    });
+    var s = await r.json();
+    if (!r.ok || !s.client_secret){ throw new Error(s.error || "Kunde inte starta betalning."); }
+
+    showPaywall();
+    _checkout = await stripe.initEmbeddedCheckout({
+      clientSecret: s.client_secret,
+      onComplete: async function(){
+        try {
+          hidePaywall();
+          await runAnalysis(payload, hash, s.session_id);
+          setStatus("Betalt och klart.", false, false);
+        } catch (e){
+          setStatus("Betalt, men analysen misslyckades: " + e.message + " Prova igen.", true, false);
+        }
+      }
+    });
+    _checkout.mount("#checkout");
+    setStatus("", false, false);
+  }
+
+  function showPaywall(){
+    var pw = document.getElementById("paywall");
+    pw.style.display = "block";
+    pw.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function hidePaywall(){
+    document.getElementById("paywall").style.display = "none";
+    if (_checkout){ try { _checkout.destroy(); } catch (e) {} _checkout = null; }
+  }
+  document.getElementById("cancelPay").addEventListener("click", function(){
+    hidePaywall();
+    setStatus("Betalning avbruten.", false, false);
   });
 
   function setStatus(text, isErr, busy){
@@ -394,6 +472,7 @@
 
   // Visa tidigare sparade analyser direkt vid sidladdning.
   renderHistory();
+  if (PAY_ENABLED){ document.getElementById("priceNote").style.display = "inline"; }
 })();
 </script>
 </body>
