@@ -60,7 +60,7 @@ async function runAI(docs, env) {
     },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001", // billig, räcker gott för detta
-      max_tokens: 2000,
+      max_tokens: 8000,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: buildUserMessage(docs) }],
     }),
@@ -68,8 +68,16 @@ async function runAI(docs, env) {
 
   if (!res.ok) throw new Error(`AI ${res.status}: ${await res.text()}`);
   const data = await res.json();
+  // Om svaret kapades av token-taket blir JSON:en trasig – ge ett tydligt fel.
+  if (data?.stop_reason === "max_tokens") {
+    throw new Error("Svaret blev för långt (max_tokens). Höj taket.");
+  }
   const text = data?.content?.[0]?.text ?? "";
-  return JSON.parse(extractJson(text));
+  try {
+    return JSON.parse(extractJson(text));
+  } catch (e) {
+    throw new Error(`Kunde inte tolka AI-svaret som JSON: ${String(e)}`);
+  }
 }
 
 // Plockar ut JSON även om modellen råkar linda in det i ```json ... ``` eller

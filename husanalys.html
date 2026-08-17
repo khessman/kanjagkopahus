@@ -226,7 +226,7 @@
         body: JSON.stringify(payload)
       });
       var data = await res.json();
-      if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+      if (!res.ok) throw new Error((data.error || ("HTTP " + res.status)) + (data.detalj ? " (" + data.detalj + ")" : ""));
 
       render(data);
       setStatus("Klart.", false, false);
