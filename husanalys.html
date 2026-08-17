@@ -29,8 +29,6 @@
   .drop{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px dashed var(--line);border-radius:11px;background:#fff;margin-bottom:12px;transition:.15s}
   .drop:last-of-type{margin-bottom:0}
   .drop.filled{border-style:solid;border-color:var(--green);background:var(--green-soft)}
-  .drop .ic{width:34px;height:34px;border-radius:9px;background:var(--green-soft);display:grid;place-items:center;flex:none;font-size:17px}
-  .drop.filled .ic{background:#fff}
   .drop .meta{flex:1;min-width:0}
   .drop .meta .nm{font-weight:600;font-size:14.5px}
   .drop .meta .st{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -48,7 +46,6 @@
   .kallor{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
   .kpill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--ink-soft)}
   .kpill.on{background:var(--green-soft);border-color:var(--green);color:var(--green-dk)}
-  .kpill.on::before{content:"✓ ";}
   .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:20px}
   .facts .f{background:var(--paper-2);padding:11px 14px}
   .facts .f .fl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:600}
@@ -92,7 +89,7 @@
   <p class="lead">Ladda upp husets dokument så sammanställs en saklig överslagskalkyl över vilka åtgärder objektet kan behöva och grova kostnadsintervall - mellan tummen och pekfingret.</p>
 
   <div class="betanote">
-    <b>⚠ Experimentell funktion (beta)</b>
+    <b>Experimentell funktion (beta)</b>
     Detta är en tidig testversion. Analysen är automatiskt genererad, kan innehålla fel eller missa saker, och ersätter inte en egen besiktning eller offert från fackman. Kontrollera alltid uppgifterna själv. Dina dokument bearbetas för att skapa analysen och sparas inte.
   </div>
 
@@ -101,28 +98,24 @@
     <p class="sub">PDF-filer. Minst ett dokument krävs - fler ger bättre analys. Filerna läses i din webbläsare.<span id="priceNote" style="display:none"> <b>Första analysen är gratis</b>, därefter 5 kr per objekt.</span></p>
 
     <div class="drop" data-key="besiktning">
-      <div class="ic">📋</div>
       <div class="meta"><div class="nm">Besiktningsprotokoll</div><div class="st">Ingen fil vald</div></div>
       <button class="pick" type="button">Välj PDF</button>
       <input type="file" accept="application/pdf" hidden>
     </div>
 
     <div class="drop" data-key="energirapport">
-      <div class="ic">🔥</div>
       <div class="meta"><div class="nm">Energirapport</div><div class="st">Ingen fil vald</div></div>
       <button class="pick" type="button">Välj PDF</button>
       <input type="file" accept="application/pdf" hidden>
     </div>
 
     <div class="drop" data-key="energideklaration">
-      <div class="ic">⚡</div>
       <div class="meta"><div class="nm">Energideklaration</div><div class="st">Ingen fil vald</div></div>
       <button class="pick" type="button">Välj PDF</button>
       <input type="file" accept="application/pdf" hidden>
     </div>
 
     <div class="drop" data-key="fragelista">
-      <div class="ic">❓</div>
       <div class="meta"><div class="nm">Frågelista</div><div class="st">Ingen fil vald</div></div>
       <button class="pick" type="button">Välj PDF</button>
       <input type="file" accept="application/pdf" hidden>
@@ -163,7 +156,7 @@
 
   <div class="card" id="history" style="display:none">
     <h2>Dina sparade analyser</h2>
-    <p class="sub">Sparas bara i den här webbläsaren – ingen inloggning behövs. ⚠ Rensar du webbläsardata (cookies/historik) försvinner de. Vill du behålla en analys, spara den separat.</p>
+    <p class="sub">Sparas bara i den här webbläsaren – ingen inloggning behövs. Obs: rensar du webbläsardata (cookies/historik) försvinner de. Vill du behålla en analys, spara den separat.</p>
     <div id="historyList"></div>
   </div>
 
