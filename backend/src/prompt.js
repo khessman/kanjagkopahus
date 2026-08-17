@@ -40,10 +40,10 @@ export const RESPONSE_SCHEMA = {
 // kostnaden HÄRIFRÅN utifrån AI:ns valda kategori, så samma åtgärd alltid får
 // samma pris. Justera fritt – detta är den enda källan för kostnaderna.
 export const PRICE_TABLE = {
-  dranering:              [60000, 120000],
+  dranering:              [150000, 200000],
   fuktsanering_kallare:   [25000, 70000],
   tak_omlaggning:         [70000, 150000],
-  tak_rengoring:          [4000, 12000],
+  tak_rengoring:          [2000, 10000],
   elcentral:              [10000, 22000],
   el_omdragning:          [35000, 90000],
   tillaggsisolering_vind: [15000, 40000],
