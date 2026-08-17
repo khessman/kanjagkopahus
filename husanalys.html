@@ -294,6 +294,19 @@
   // När skarpa nycklar är på plats: sätt PAY_ENABLED = true permanent.
   var PAY_ENABLED = new URLSearchParams(location.search).get("pay") === "1";
 
+  // Ägar-läge: alltid gratis (för dig som äger sidan), aldrig någon betalvägg.
+  // Aktivera EN gång per enhet med länken  husanalys.html?owner=DITT_KODORD
+  // Stäng av med  ?owner=off . Byt kodordet nedan till något bara du vet.
+  var OWNER_CODE = "snokhus-7412";
+  (function(){
+    var q = new URLSearchParams(location.search).get("owner");
+    try {
+      if (q === OWNER_CODE) localStorage.setItem("kjkh:owner", "1");
+      else if (q === "off") localStorage.removeItem("kjkh:owner");
+    } catch (e) {}
+  })();
+  function ownerMode(){ try { return localStorage.getItem("kjkh:owner") === "1"; } catch (e) { return false; } }
+
   function freeUsed(){ try { return localStorage.getItem("kjkh:freeUsed") === "1"; } catch (e) { return false; } }
   function setFreeUsed(){ try { localStorage.setItem("kjkh:freeUsed", "1"); } catch (e) {} }
 
@@ -316,8 +329,8 @@
         return;
       }
 
-      if (!PAY_ENABLED){
-        await runAnalysis(payload, hash, null);        // betalning avstängd – allt gratis
+      if (!PAY_ENABLED || ownerMode()){
+        await runAnalysis(payload, hash, null);        // avstängd betalning ELLER ägar-läge – gratis
         setStatus("Klart.", false, false);
       } else if (!freeUsed()){
         await runAnalysis(payload, hash, null);        // gratis första
