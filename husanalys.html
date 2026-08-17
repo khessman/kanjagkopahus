@@ -71,6 +71,13 @@
   .sumbar .v{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(22px,4vw,30px)}
   .disc{margin-top:22px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
   .footdisc{margin-top:30px;font-size:12.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px}
+  .histrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer;transition:.15s}
+  .histrow:last-child{margin-bottom:0}
+  .histrow:hover{border-color:var(--green);transform:translateY(-1px)}
+  .histrow .hmeta{min-width:0}
+  .histrow .ht{font-weight:600;font-size:14px}
+  .histrow .hs{font-size:12px;color:var(--ink-soft);margin-top:1px}
+  .histrow .hopen{flex:none;font-size:12.5px;font-weight:600;color:var(--green);white-space:nowrap}
   @media(max-width:600px){.wrap{padding:28px 14px 60px}.card{padding:18px 16px}.drop{flex-wrap:wrap}table.at .hidesm{display:none}}
 </style>
 </head>
@@ -145,6 +152,12 @@
       <span class="v" id="summa">-</span>
     </div>
     <div class="disc" id="friskrivning"></div>
+  </div>
+
+  <div class="card" id="history" style="display:none">
+    <h2>Dina sparade analyser</h2>
+    <p class="sub">Sparas bara i den här webbläsaren – ingen inloggning behövs. ⚠ Rensar du webbläsardata (cookies/historik) försvinner de. Vill du behålla en analys, spara den separat.</p>
+    <div id="historyList"></div>
   </div>
 
   <div class="footdisc">
@@ -228,6 +241,50 @@
     try { localStorage.setItem("kjkh:" + hash, JSON.stringify(data)); } catch (e) { /* full kvot – strunt i det */ }
   }
 
+  // === Historik: index över sparade analyser ==============================
+  function indexGet(){
+    try { return JSON.parse(localStorage.getItem("kjkh:index") || "[]"); } catch (e) { return []; }
+  }
+  function indexAdd(hash, data){
+    var list = indexGet().filter(function(e){ return e.hash !== hash; });
+    var s = data.summering || {};
+    list.unshift({
+      hash: hash,
+      ts: Date.now(),
+      count: (data.atgarder || []).length,
+      lo: s.total_lag_sek,
+      hi: s.total_hog_sek,
+    });
+    try { localStorage.setItem("kjkh:index", JSON.stringify(list.slice(0, 50))); } catch (e) {}
+  }
+  function renderHistory(){
+    var list = indexGet();
+    var card = document.getElementById("history");
+    var box = document.getElementById("historyList");
+    if (!list.length){ card.style.display = "none"; return; }
+    card.style.display = "block";
+    box.innerHTML = list.map(function(e){
+      var when = new Date(e.ts).toLocaleDateString("sv-SE", { year:"numeric", month:"short", day:"numeric" });
+      var kostnad = (typeof e.lo === "number" && typeof e.hi === "number")
+        ? new Intl.NumberFormat("sv-SE").format(e.lo) + "–" + new Intl.NumberFormat("sv-SE").format(e.hi) + " kr"
+        : "kostnad n/a";
+      return '<div class="histrow" data-hash="' + e.hash + '">' +
+        '<div class="hmeta"><div class="ht">' + e.count + ' åtgärder · ' + kostnad + '</div>' +
+        '<div class="hs">Analyserad ' + when + '</div></div>' +
+        '<span class="hopen">Öppna →</span></div>';
+    }).join("");
+    box.querySelectorAll(".histrow").forEach(function(row){
+      row.addEventListener("click", function(){
+        var saved = cacheGet(row.dataset.hash);
+        if (saved){
+          render(saved);
+          setStatus("Visar sparad analys.", false, false);
+          document.getElementById("result").scrollIntoView({ behavior:"smooth", block:"start" });
+        }
+      });
+    });
+  }
+
   // === Analysera ==========================================================
   goBtn.addEventListener("click", async function(){
     goBtn.disabled = true;
@@ -258,6 +315,8 @@
       if (!res.ok) throw new Error((data.error || ("HTTP " + res.status)) + (data.detalj ? " (" + data.detalj + ")" : ""));
 
       cacheSet(hash, data);
+      indexAdd(hash, data);
+      renderHistory();
       render(data);
       setStatus("Klart.", false, false);
     } catch (err) {
@@ -332,6 +391,9 @@
     document.getElementById("result").style.display = "block";
     document.getElementById("result").scrollIntoView({ behavior:"smooth", block:"start" });
   }
+
+  // Visa tidigare sparade analyser direkt vid sidladdning.
+  renderHistory();
 })();
 </script>
 </body>
