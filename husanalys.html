@@ -209,6 +209,25 @@
     return out.join("\n").replace(/\s+\n/g, "\n").trim();
   }
 
+  // === Cache i webbläsaren (localStorage) =================================
+  // Samma dokument => visa sparat resultat direkt, utan nytt AI-anrop.
+  var DOCKEYS = ["besiktning", "energirapport", "energideklaration", "fragelista"];
+
+  async function docsHash(payload){
+    var canonical = DOCKEYS.map(function(k){ return payload[k] || ""; }).join(" ");
+    var buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonical));
+    return [].map.call(new Uint8Array(buf), function(b){
+      return b.toString(16).padStart(2, "0");
+    }).join("");
+  }
+  function cacheGet(hash){
+    try { var v = localStorage.getItem("kjkh:" + hash); return v ? JSON.parse(v) : null; }
+    catch (e) { return null; }
+  }
+  function cacheSet(hash, data){
+    try { localStorage.setItem("kjkh:" + hash, JSON.stringify(data)); } catch (e) { /* full kvot – strunt i det */ }
+  }
+
   // === Analysera ==========================================================
   goBtn.addEventListener("click", async function(){
     goBtn.disabled = true;
@@ -218,8 +237,18 @@
       for (var key in files){
         payload[key] = await pdfToText(files[key]);
       }
-      setStatus("Analyserar…", false, true);
 
+      // 1) Har vi redan analyserat exakt detta underlag? Visa sparat svar.
+      var hash = await docsHash(payload);
+      var saved = cacheGet(hash);
+      if (saved){
+        render(saved);
+        setStatus("Visar sparat resultat (samma dokument analyserades tidigare).", false, false);
+        return;
+      }
+
+      // 2) Annars – kör analysen och spara resultatet.
+      setStatus("Analyserar…", false, true);
       var res = await fetch(API_URL, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -228,6 +257,7 @@
       var data = await res.json();
       if (!res.ok) throw new Error((data.error || ("HTTP " + res.status)) + (data.detalj ? " (" + data.detalj + ")" : ""));
 
+      cacheSet(hash, data);
       render(data);
       setStatus("Klart.", false, false);
     } catch (err) {
