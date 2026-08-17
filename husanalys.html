@@ -284,13 +284,12 @@
   }
 
   // === Gratis-först + betalning ===========================================
-  var STRIPE_PK = "pk_test_51U5UfZPsmYJLZWVwyXGbd1KFMvYAYcyNYwIJppYKG1kkBPErWzzCqZxpcyW0LiXZLihUXKrlJUdiZyKydFlNYFMU00aQ8ESfMZ";
+  var STRIPE_PK = "pk_live_51U5UfJLk9GS9w3CI2oqsiyQOsxgRBfJBmMhVR8dyblAiYKusp2e6H8OH701jb0IDOxGVdO7j2hZ9tR9qhbSzlAOK00apwDJYOc";
   var stripe = window.Stripe ? Stripe(STRIPE_PK) : null;
   var PRICE_KR = 5;
   var _checkout = null;
-  // Betalning aktiveras bara med ?pay=1 så länge Stripe är i testläge.
-  // När skarpa nycklar är på plats: sätt PAY_ENABLED = true permanent.
-  var PAY_ENABLED = new URLSearchParams(location.search).get("pay") === "1";
+  // Skarpt läge: betalning på för alla (gratis första, sen 5 kr).
+  var PAY_ENABLED = true;
 
   // Ägar-läge: alltid gratis (för dig som äger sidan), aldrig någon betalvägg.
   // Aktivera EN gång per enhet med länken  husanalys.html?owner=DITT_KODORD
