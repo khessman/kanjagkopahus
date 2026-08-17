@@ -1,0 +1,15 @@
+name = "kjkh-analys"
+main = "src/worker.js"
+compatibility_date = "2026-01-01"
+
+# --- Miljövariabler / hemligheter ---
+# MOCK-läge är på så länge ingen AI-nyckel finns. Sätt till "false" när du
+# lagt in en riktig nyckel (se README) för att göra skarpa anrop.
+[vars]
+MOCK = "false"
+
+# Tillåtna ursprung (CORS). Lägg till din lokala testadress vid behov.
+ALLOWED_ORIGINS = "https://kanjagkopahus.se,https://www.kanjagkopahus.se,http://localhost:8788"
+
+# API-nyckeln sätts INTE här (den ska aldrig checkas in). Kör istället:
+#   npx wrangler secret put AI_API_KEY

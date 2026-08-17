@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Husbudget — köp & löpande kostnader</title>
+<title>Husbudget - köp & löpande kostnader</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -34,6 +34,13 @@
   .topnav a{font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--paper-2);border:1.5px solid var(--line);border-radius:20px;padding:7px 13px;white-space:nowrap;transition:.15s}
   .topnav a:hover{border-color:var(--ink);transform:translateY(-1px)}
   .topnav a.active{background:var(--green);color:#fff;border-color:var(--green)}
+  .betatip{display:flex;align-items:center;gap:12px;margin:14px 0 2px;padding:12px 16px;text-decoration:none;background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--terra);border-radius:12px;box-shadow:var(--shadow);transition:.15s}
+  .betatip:hover{border-color:var(--terra);transform:translateY(-1px)}
+  .betatip .bt-tag{flex:none;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--terra);padding:4px 10px;border-radius:20px}
+  .betatip .bt-text{flex:1;font-size:13.5px;color:var(--ink);line-height:1.4}
+  .betatip .bt-text b{font-family:"Fraunces",serif;font-weight:600}
+  .betatip .bt-arrow{flex:none;font-size:18px;color:var(--terra);font-weight:700}
+  @media(max-width:600px){.betatip .bt-arrow{display:none}}
   .stack{display:flex;flex-direction:column;gap:20px}
   .card{background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
   .card>h2{font-family:"Fraunces",serif;font-weight:600;font-size:19px;margin:0;padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#fff,var(--paper-2))}
@@ -133,9 +140,10 @@
   .glrow a{font-size:12.5px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:5px 11px;transition:.15s}
   .glrow a:hover{border-color:var(--ink)}
   .copyright{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-family:"Fraunces",serif;font-size:13px;color:var(--ink-soft)}
-  .crosslink{margin-top:22px;padding:11px 16px;display:inline-flex;align-items:center;flex-wrap:wrap;gap:7px;justify-content:center;font-size:13px;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line);border-radius:20px}
+  .crosslink{margin:22px auto 0;padding:12px 18px;display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px;justify-content:center;font-size:13px;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--terra);border-radius:12px;box-shadow:var(--shadow);transition:.15s}
+  .crosslink:hover{border-color:var(--terra);transform:translateY(-1px)}
   .crosslink .psst{font-family:"Fraunces",serif;font-style:italic;font-size:14px;color:var(--terra);font-weight:600}
-  .crosslink a{color:var(--green);font-weight:600;text-decoration:none; border-bottom:1.5px solid var(--green-soft)}
+  .crosslink a{color:var(--green);font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--green-soft)}
   .crosslink a:hover{border-bottom-color:var(--green)}
   .adzone{display:none;max-width:728px;margin:16px auto 0;text-align:center}
   .adzone .adlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);opacity:.7;margin-bottom:5px}
@@ -195,6 +203,7 @@
 
   <nav class="topnav">
     <a href="index.html" class="active">Kalkylator</a>
+    <a href="husanalys.html">Husanalys · beta</a>
     <a href="spara-kontantinsats.html">Kontantinsats</a>
     <a href="byta-varmesystem.html">Byta värmesystem</a>
     <a href="budgivning.html">Budgivning</a>
@@ -206,6 +215,12 @@
     <a href="driftkostnader.html">Driftkostnader</a>
     <a href="om.html">Om sidan</a>
   </nav>
+
+  <a class="betatip" href="husanalys.html">
+    <span class="bt-tag">Nytt · beta</span>
+    <span class="bt-text">Testa <b>Husanalys</b>: ladda upp besiktning och energideklaration och få en saklig överslagskalkyl på vad huset kan behöva åtgärdas för.</span>
+    <span class="bt-arrow">→</span>
+  </a>
 
   <div class="grid">
 
@@ -241,7 +256,7 @@
               <td><input class="rinp" id="r3" type="number" value="3.59" step="0.01"><input class="pick" type="radio" name="rpick" value="3"></td>
             </tr></tbody>
           </table>
-          <div class="hint" style="background:var(--green-soft);border-left-color:var(--green)">Klistra in bankens aktuella listräntor (eller din offererade ränta). Pricka för den bindningstid du vill räkna på — den används i alla resultat.</div>
+          <div class="hint" style="background:var(--green-soft);border-left-color:var(--green)">Klistra in bankens aktuella listräntor (eller din offererade ränta). Pricka för den bindningstid du vill räkna på - den används i alla resultat.</div>
           <div class="field" style="margin-top:6px"><label>Antal låntagare<small>Avgör ränteavdragets tröskel (100 000 kr ränta var)</small></label><div class="seg" id="lantagare"><button data-n="1">1 person</button><button class="on" data-n="2">2 personer</button></div></div>
           <div class="field"><label>Amortering</label><div class="seg" id="amortMode"><button class="on" data-m="auto">Enligt krav</button><button data-m="manual">Egen nivå</button></div></div>
           <div class="field" id="amortManualRow" style="display:none"><label>Frivillig amortering<small>Procent av lånet per år</small></label><div class="unit"><input class="inp short" id="amortPct" type="number" value="2" step="0.5"><span class="u">%</span></div></div>
@@ -280,20 +295,20 @@
               <tbody id="mixTable"></tbody>
               <tfoot><tr><td>Summa</td><td class="r" id="mixSumA">–</td><td class="r" id="mixSumK">–</td><td class="r" id="mixSumKr">–</td></tr></tfoot>
             </table>
-            <div class="hint" id="mixHint">I energideklarationen står oftast uppvärmningens energibärare i kWh/år — klistra in dem direkt. Eller välj "% av total" för en grov uppdelning där husets värmebehov ovan fördelas.</div>
+            <div class="hint" id="mixHint">I energideklarationen står oftast uppvärmningens energibärare i kWh/år - klistra in dem direkt. Eller välj "% av total" för en grov uppdelning där husets värmebehov ovan fördelas.</div>
           </div>
 
           <details class="prices">
-            <summary>Prisantaganden (2026, elområde SE3) — justera vid behov</summary>
+            <summary>Prisantaganden (2026, elområde SE3) - justera vid behov</summary>
             <div class="pricegrid">
               <div class="field"><label>Elpris, allt inkl.<small>Spot + nät + skatt + moms</small></label><div class="unit"><input class="inp short" id="p_el" type="number" value="1.60" step="0.05"><span class="u">kr/kWh</span></div></div>
-              <div class="field"><label>Värmefaktor luft/vatten<small>SCOP — årsvärmefaktor</small></label><div class="unit"><input class="inp short" id="scop_lv" type="number" value="3.2" step="0.1"></div></div>
+              <div class="field"><label>Värmefaktor luft/vatten<small>SCOP - årsvärmefaktor</small></label><div class="unit"><input class="inp short" id="scop_lv" type="number" value="3.2" step="0.1"></div></div>
               <div class="field"><label>Värmefaktor bergvärme</label><div class="unit"><input class="inp short" id="scop_bv" type="number" value="3.5" step="0.1"></div></div>
               <div class="field"><label>Värmefaktor luft/luft</label><div class="unit"><input class="inp short" id="scop_ll" type="number" value="3.0" step="0.1"></div></div>
               <div class="field"><label>Pelletspris</label><div class="unit"><input class="inp short" id="p_pellets" type="number" value="5000" step="100"><span class="u">kr/ton</span></div></div>
-              <div class="field"><label>Pellets — energi / verkningsgrad</label><div class="unit"><input class="inp short" id="e_pellets" type="number" value="4800"><span class="u">kWh/t</span><input class="inp short" id="v_pellets" type="number" value="85"><span class="u">%</span></div></div>
+              <div class="field"><label>Pellets - energi / verkningsgrad</label><div class="unit"><input class="inp short" id="e_pellets" type="number" value="4800"><span class="u">kWh/t</span><input class="inp short" id="v_pellets" type="number" value="85"><span class="u">%</span></div></div>
               <div class="field"><label>Vedpris, travad</label><div class="unit"><input class="inp short" id="p_ved" type="number" value="2000" step="50"><span class="u">kr/m³t</span></div></div>
-              <div class="field"><label>Ved — energi / verkningsgrad</label><div class="unit"><input class="inp short" id="e_ved" type="number" value="1900"><span class="u">kWh/m³</span><input class="inp short" id="v_ved" type="number" value="80"><span class="u">%</span></div></div>
+              <div class="field"><label>Ved - energi / verkningsgrad</label><div class="unit"><input class="inp short" id="e_ved" type="number" value="1900"><span class="u">kWh/m³</span><input class="inp short" id="v_ved" type="number" value="80"><span class="u">%</span></div></div>
               <div class="field"><label>Fjärrvärmepris<small>Levererad värme</small></label><div class="unit"><input class="inp short" id="p_fjarr" type="number" value="1.00" step="0.05"><span class="u">kr/kWh</span></div></div>
             </div>
           </details>
@@ -359,7 +374,7 @@
           </div>
           <div class="field"><label>Justering<small>Skillnad mot kommunens exakta taxa</small></label><div class="unit"><input class="inp" id="trash_just" type="number" value="0"><span class="u">kr/år</span></div></div>
           <div class="mod-out"><span class="k">Sophämtning</span><span class="v" id="trash_out">–</span></div>
-          <div class="hint">Schablonpriser — exakta belopp varierar per kommun. Större kärl och tätare tömning kostar mer; mindre kärl och hemkompost ger oftast rabatt. Kolla kommunens avfallstaxa och justera vid behov.</div>
+          <div class="hint">Schablonpriser - exakta belopp varierar per kommun. Större kärl och tätare tömning kostar mer; mindre kärl och hemkompost ger oftast rabatt. Kolla kommunens avfallstaxa och justera vid behov.</div>
         </div>
       </section>
 
@@ -380,7 +395,7 @@
           </div>
           <div class="field"><label>Förbrukning / pris</label><div class="unit"><input class="inp short" id="c_cons" type="number" value="7" step="0.1"><span class="u" id="c_cons_u">l/100km</span><input class="inp short" id="c_price" type="number" value="19" step="0.1"><span class="u" id="c_price_u">kr/l</span></div></div>
           <details class="prices">
-            <summary>Reseavdrag (skatteeffekt) — 2026</summary>
+            <summary>Reseavdrag (skatteeffekt) - 2026</summary>
             <div class="pricegrid">
               <div class="field"><label>Schablon bil</label><div class="unit"><input class="inp short" id="c_schablon" type="number" value="25"><span class="u">kr/mil</span></div></div>
               <div class="field"><label>Tröskel<small>Avdrag endast över detta</small></label><div class="unit"><input class="inp short" id="c_trosk" type="number" value="11000"><span class="u">kr/år</span></div></div>
@@ -398,7 +413,7 @@
         <div class="body">
           <div class="field"><label>Adress / område<small>Bara för din egen referens</small></label><div class="unit"><input class="inp" id="op_addr" type="text" value="" placeholder="t.ex. Storgatan 12, Köping" style="width:200px;text-align:left"></div></div>
           <div style="margin:6px 0 4px">
-            <label style="font-size:14px;font-weight:500;display:block;margin-bottom:4px">Booli-länkar till sålda objekt <small style="color:var(--ink-soft);font-weight:400">— en per rad, max 5</small></label>
+            <label style="font-size:14px;font-weight:500;display:block;margin-bottom:4px">Booli-länkar till sålda objekt <small style="color:var(--ink-soft);font-weight:400">- en per rad, max 5</small></label>
             <textarea id="op_urls" rows="5" placeholder="https://www.booli.se/bostad/1234567&#10;https://www.booli.se/bostad/2345678&#10;..." style="width:100%;font-family:'Hanken Grotesk',sans-serif;font-size:13.5px;border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink);resize:vertical;box-sizing:border-box"></textarea>
           </div>
           <div style="margin:8px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -459,7 +474,7 @@
       <section class="card" id="affCard" style="margin-top:16px;display:none">
         <h2 style="font-size:17px"><span class="num">↗</span>Jämför & spara <span class="annonsmark">Annonslänk</span></h2>
         <div class="body">
-          <p class="affintro">Innan du lägger bud — jämför vad olika långivare och försäkringsbolag faktiskt erbjuder.</p>
+          <p class="affintro">Innan du lägger bud - jämför vad olika långivare och försäkringsbolag faktiskt erbjuder.</p>
           <a class="affbtn" id="aff_bolan" href="#" target="_blank" rel="sponsored noopener" style="display:none">Jämför bolåneräntor →</a>
           <a class="affbtn" id="aff_forsakring" href="#" target="_blank" rel="sponsored noopener" style="display:none">Jämför villaförsäkring →</a>
         </div>
@@ -476,13 +491,13 @@
       <div class="glgroup"><span class="gltitle">Guider</span><div class="glrow"><a href="budgivning.html">Budgivning</a><a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a><a href="besiktning.html">Besiktning</a><a href="dolda-fel.html">Dolda fel</a><a href="energiklass.html">Energiklass</a><a href="visningschecklista.html">Visningschecklista</a><a href="driftkostnader.html">Driftkostnader</a></div></div>
       <div class="glrow"><a href="om.html">Om sidan</a></div>
     </div>
-    Beräkningsverktyg för eget bruk — inte rådgivning. Regler: bolånetak 90 % &middot; amorteringskrav 2 % (&gt;70 %), 1 % (50–70 %) &middot; skärpt krav slopat 1 apr 2026 &middot; ränteavdrag 30 % upp till 100 000 kr/person, 21 % däröver &middot; fastighetsavgift 0,75 %, tak 10 425 kr (inkomstår 2026) &middot; reseavdrag 25 kr/mil.
-    Standardpriser (el, pellets, ved, drivmedel) avser 2026 och elområde SE3 — kontrollera mot bank, Skatteverket, din kommun och dagsaktuella priser.
+    Beräkningsverktyg för eget bruk - inte rådgivning. Regler: bolånetak 90 % &middot; amorteringskrav 2 % (&gt;70 %), 1 % (50–70 %) &middot; skärpt krav slopat 1 apr 2026 &middot; ränteavdrag 30 % upp till 100 000 kr/person, 21 % däröver &middot; fastighetsavgift 0,75 %, tak 10 425 kr (inkomstår 2026) &middot; reseavdrag 25 kr/mil.
+    Standardpriser (el, pellets, ved, drivmedel) avser 2026 och elområde SE3 - kontrollera mot bank, Skatteverket, din kommun och dagsaktuella priser.
     <div class="crosslink">
    <span class="psst">Psst</span>
     Gillar du den här sidan gillar du kanske
     <a href="https://skajagköpaelbil.nu" target="_blank" rel="noopener">skajagköpaelbil.nu</a>
-    — liknande kalkyl fast för elbil.
+    - liknande kalkyl fast för elbil.
     </div>
     <div class="copyright">© Snake Hessman 2026 &middot; <a href="integritetspolicy.html">Integritetspolicy</a></div>
   </div>
@@ -572,7 +587,7 @@ function heatingMixYr(){
       $('mixHint').textContent = 'Andelarna summerar till ' + sumPct.toFixed(0) + ' %, inte 100 %. ' + (sumPct < 100 ? 'En del av värmebehovet räknas inte med.' : 'Du har angett mer än 100 %.');
       $('mixHint').style.background = 'var(--terra-soft)';
     } else {
-      $('mixHint').textContent = 'I energideklarationen står oftast uppvärmningens energibärare i kWh/år — klistra in dem direkt. Eller välj "% av total" för en grov uppdelning där husets värmebehov ovan fördelas.';
+      $('mixHint').textContent = 'I energideklarationen står oftast uppvärmningens energibärare i kWh/år - klistra in dem direkt. Eller välj "% av total" för en grov uppdelning där husets värmebehov ovan fördelas.';
       $('mixHint').style.background = '';
     }
   }
@@ -687,7 +702,7 @@ async function hamtaJamforelser(){
   const status = $('compStatus'); status.style.display = 'block';
   const urls = $('op_urls').value.split(/\s+/).map(s=>s.trim()).filter(s => /^https?:\/\/(www\.)?booli\.se\//i.test(s));
   if(!urls.length){ status.textContent = 'Klistra in minst en Booli-länk.'; return; }
-  if(urls.length > 5){ status.textContent = 'Max 5 länkar — tar bara de fem första.'; urls.length = 5; }
+  if(urls.length > 5){ status.textContent = 'Max 5 länkar - tar bara de fem första.'; urls.length = 5; }
   const base = PARSER_API.replace(/\/parse$/, '');
   const qs = urls.map(u => 'urls=' + encodeURIComponent(u)).join('&');
   status.textContent = 'Hämtar ' + urls.length + ' annons' + (urls.length===1?'':'er') + '...';
@@ -826,7 +841,7 @@ function calc(){
     if(pct > 5){ cls='over'; verdict='över marknadsvärde'; }
     else if(pct < -5){ cls='under'; verdict='under marknadsvärde'; }
     vEl.className='verdict '+cls;
-    vEl.innerHTML = 'Median: <b>' + kr0(op.med) + ' kr/kvm</b> (' + op.n + ' objekt, tidsjusterat). Husets pris motsvarar ' + kr0(subjKkvm) + ' kr/kvm.<br>Marknadsvärde-estimat: <b>' + kr(est) + '</b> · begärt ' + kr(pris) + ' → <b>' + (diff>=0?'+':'') + kr0(diff) + ' kr (' + (pct>=0?'+':'') + pct.toFixed(0) + ' %)</b> — ' + verdict + '.';
+    vEl.innerHTML = 'Median: <b>' + kr0(op.med) + ' kr/kvm</b> (' + op.n + ' objekt, tidsjusterat). Husets pris motsvarar ' + kr0(subjKkvm) + ' kr/kvm.<br>Marknadsvärde-estimat: <b>' + kr(est) + '</b> · begärt ' + kr(pris) + ' → <b>' + (diff>=0?'+':'') + kr0(diff) + ' kr (' + (pct>=0?'+':'') + pct.toFixed(0) + ' %)</b> - ' + verdict + '.';
   }
 }
 

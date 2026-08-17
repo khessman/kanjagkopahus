@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Husanalys (beta) - kanjagköpahus.se</title>
+<meta name="description" content="Ladda upp besiktning, energirapport, energideklaration och frågelista. Få en saklig överslagskalkyl över åtgärder och grova kostnader. Experimentell funktion.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--gold:#9a7b22}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:40px 20px 80px}
+  a{color:var(--green)}
+  .back{display:inline-block;margin-bottom:22px;font-size:14px;font-weight:600;text-decoration:none}
+  .back:hover{text-decoration:underline}
+  .titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,5vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05}
+  .beta{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--terra);padding:5px 11px;border-radius:20px;white-space:nowrap}
+  .lead{color:var(--ink-soft);font-size:15px;margin:10px 0 0;max-width:60ch}
+  .betanote{background:var(--terra-soft);border-left:4px solid var(--terra);border-radius:10px;padding:13px 17px;margin:20px 0 26px;font-size:13.5px}
+  .betanote b{display:block;margin-bottom:3px}
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:24px 26px;box-shadow:0 8px 24px -12px rgba(28,37,32,.18);margin-bottom:22px}
+  .card h2{font-family:"Fraunces",serif;font-weight:600;font-size:20px;margin:0 0 4px}
+  .card .sub{color:var(--ink-soft);font-size:13px;margin:0 0 16px}
+  .drop{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px dashed var(--line);border-radius:11px;background:#fff;margin-bottom:12px;transition:.15s}
+  .drop:last-of-type{margin-bottom:0}
+  .drop.filled{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+  .drop .ic{width:34px;height:34px;border-radius:9px;background:var(--green-soft);display:grid;place-items:center;flex:none;font-size:17px}
+  .drop.filled .ic{background:#fff}
+  .drop .meta{flex:1;min-width:0}
+  .drop .meta .nm{font-weight:600;font-size:14.5px}
+  .drop .meta .st{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .drop .pick{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--paper-2);border:1.5px solid var(--line);color:var(--ink);padding:8px 13px;border-radius:9px;transition:.15s;white-space:nowrap}
+  .drop .pick:hover{border-color:var(--ink)}
+  .actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .go{font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;background:var(--green);color:#fff;border:0;padding:13px 26px;border-radius:11px;transition:.15s}
+  .go:hover:not(:disabled){background:var(--green-dk);transform:translateY(-1px)}
+  .go:disabled{opacity:.5;cursor:not-allowed}
+  .status{font-size:13.5px;color:var(--ink-soft)}
+  .status.err{color:var(--terra);font-weight:600}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  #result{display:none}
+  .kallor{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .kpill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--ink-soft)}
+  .kpill.on{background:var(--green-soft);border-color:var(--green);color:var(--green-dk)}
+  .kpill.on::before{content:"✓ ";}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:20px}
+  .facts .f{background:var(--paper-2);padding:11px 14px}
+  .facts .f .fl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:600}
+  .facts .f .fv{font-size:16px;font-weight:600;margin-top:2px}
+  table.at{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.at th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;padding:8px 10px;border-bottom:2px solid var(--line)}
+  table.at th.r,table.at td.r{text-align:right;white-space:nowrap}
+  table.at td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.at tr:last-child td{border-bottom:0}
+  table.at .rub{font-weight:600}
+  table.at .desc{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;white-space:nowrap}
+  .tag.akut{background:var(--terra-soft);color:var(--terra)}
+  .tag.inom_nagra_ar{background:#f3ecd4;color:var(--gold)}
+  .tag.pa_sikt{background:var(--green-soft);color:var(--green-dk)}
+  .tag.na{background:#eee;color:var(--ink-soft)}
+  .sak{font-size:11px;color:var(--ink-soft)}
+  .sumbar{display:flex;justify-content:space-between;align-items:baseline;background:var(--green);color:#fff;padding:16px 20px;border-radius:12px;margin-top:20px;gap:14px;flex-wrap:wrap}
+  .sumbar .k{font-size:13px;opacity:.85}
+  .sumbar .v{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(22px,4vw,30px)}
+  .disc{margin-top:22px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
+  .footdisc{margin-top:30px;font-size:12.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px}
+  @media(max-width:600px){.wrap{padding:28px 14px 60px}.card{padding:18px 16px}.drop{flex-wrap:wrap}table.at .hidesm{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Tillbaka till kalkylatorn</a>
+
+  <div class="titlerow">
+    <h1>Husanalys</h1>
+    <span class="beta">Experimentell · Beta</span>
+  </div>
+  <p class="lead">Ladda upp husets dokument så sammanställs en saklig överslagskalkyl över vilka åtgärder objektet kan behöva och grova kostnadsintervall - mellan tummen och pekfingret.</p>
+
+  <div class="betanote">
+    <b>⚠ Experimentell funktion (beta)</b>
+    Detta är en tidig testversion. Analysen är automatiskt genererad, kan innehålla fel eller missa saker, och ersätter inte en egen besiktning eller offert från fackman. Kontrollera alltid uppgifterna själv. Dina dokument bearbetas för att skapa analysen och sparas inte.
+  </div>
+
+  <div class="card">
+    <h2>1 · Ladda upp dokument</h2>
+    <p class="sub">PDF-filer. Minst ett dokument krävs - fler ger bättre analys. Filerna läses i din webbläsare.</p>
+
+    <div class="drop" data-key="besiktning">
+      <div class="ic">📋</div>
+      <div class="meta"><div class="nm">Besiktningsprotokoll</div><div class="st">Ingen fil vald</div></div>
+      <button class="pick" type="button">Välj PDF</button>
+      <input type="file" accept="application/pdf" hidden>
+    </div>
+
+    <div class="drop" data-key="energirapport">
+      <div class="ic">🔥</div>
+      <div class="meta"><div class="nm">Energirapport</div><div class="st">Ingen fil vald</div></div>
+      <button class="pick" type="button">Välj PDF</button>
+      <input type="file" accept="application/pdf" hidden>
+    </div>
+
+    <div class="drop" data-key="energideklaration">
+      <div class="ic">⚡</div>
+      <div class="meta"><div class="nm">Energideklaration</div><div class="st">Ingen fil vald</div></div>
+      <button class="pick" type="button">Välj PDF</button>
+      <input type="file" accept="application/pdf" hidden>
+    </div>
+
+    <div class="drop" data-key="fragelista">
+      <div class="ic">❓</div>
+      <div class="meta"><div class="nm">Frågelista</div><div class="st">Ingen fil vald</div></div>
+      <button class="pick" type="button">Välj PDF</button>
+      <input type="file" accept="application/pdf" hidden>
+    </div>
+
+    <div class="actions">
+      <button class="go" id="goBtn" disabled>Analysera</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <div class="card" id="result">
+    <h2>2 · Resultat</h2>
+    <div class="kallor" id="kallor"></div>
+    <div class="facts" id="facts"></div>
+    <table class="at">
+      <thead><tr>
+        <th>Åtgärd</th>
+        <th class="hidesm">Brådska</th>
+        <th class="hidesm">Källa</th>
+        <th class="r">Grov kostnad</th>
+      </tr></thead>
+      <tbody id="atgarder"></tbody>
+    </table>
+    <div class="sumbar">
+      <span class="k">Summa åtgärder (grovt intervall)</span>
+      <span class="v" id="summa">-</span>
+    </div>
+    <div class="disc" id="friskrivning"></div>
+  </div>
+
+  <div class="footdisc">
+    Allmän information, inte teknisk eller juridisk rådgivning. © Snake Hessman 2026 · <a href="index.html">kanjagköpahus.se</a>
+  </div>
+</div>
+
+<!-- pdf.js för att läsa ut text ur PDF:er i webbläsaren -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  // === Konfiguration ======================================================
+  // Peka på din backend (Cloudflare Worker).
+  // Lokalt (wrangler dev): http://localhost:8787 - annars den deployade Workern.
+  var API_URL = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+      ? "http://localhost:8787"
+      : "https://kjkh-analys.kalle-hessman.workers.dev";
+
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+
+  var files = {};                 // key -> File
+  var statusEl = document.getElementById("status");
+  var goBtn = document.getElementById("goBtn");
+
+  // === Filval =============================================================
+  document.querySelectorAll(".drop").forEach(function(drop){
+    var key = drop.dataset.key;
+    var input = drop.querySelector("input[type=file]");
+    drop.querySelector(".pick").addEventListener("click", function(){ input.click(); });
+    input.addEventListener("change", function(){
+      var f = input.files[0];
+      var st = drop.querySelector(".st");
+      if (f) {
+        files[key] = f;
+        drop.classList.add("filled");
+        st.textContent = f.name + " (" + Math.round(f.size/1024) + " kB)";
+        drop.querySelector(".pick").textContent = "Byt";
+      } else {
+        delete files[key];
+        drop.classList.remove("filled");
+        st.textContent = "Ingen fil vald";
+      }
+      goBtn.disabled = Object.keys(files).length === 0;
+    });
+  });
+
+  // === PDF -> text ========================================================
+  async function pdfToText(file){
+    var buf = await file.arrayBuffer();
+    var pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    var out = [];
+    for (var p = 1; p <= pdf.numPages; p++){
+      var page = await pdf.getPage(p);
+      var content = await page.getTextContent();
+      out.push(content.items.map(function(i){ return i.str; }).join(" "));
+    }
+    return out.join("\n").replace(/\s+\n/g, "\n").trim();
+  }
+
+  // === Analysera ==========================================================
+  goBtn.addEventListener("click", async function(){
+    goBtn.disabled = true;
+    setStatus("Läser dokument…", false, true);
+    try {
+      var payload = {};
+      for (var key in files){
+        payload[key] = await pdfToText(files[key]);
+      }
+      setStatus("Analyserar…", false, true);
+
+      var res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+
+      render(data);
+      setStatus("Klart.", false, false);
+    } catch (err) {
+      setStatus("Kunde inte analysera: " + err.message, true, false);
+    } finally {
+      goBtn.disabled = Object.keys(files).length === 0;
+    }
+  });
+
+  function setStatus(text, isErr, busy){
+    statusEl.className = "status" + (isErr ? " err" : "");
+    statusEl.innerHTML = (busy ? '<span class="spin"></span>' : "") + text;
+  }
+
+  // === Rendering ==========================================================
+  function kr(n){
+    if (n === "n/a" || n == null) return "n/a";
+    return new Intl.NumberFormat("sv-SE").format(n) + " kr";
+  }
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>]/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];
+    });
+  }
+
+  var KALLOR = { besiktning:"Besiktning", energirapport:"Energirapport",
+                 energideklaration:"Energideklaration", fragelista:"Frågelista" };
+  var BRADSKA = { akut:"Akut", inom_nagra_ar:"Inom några år", pa_sikt:"På sikt" };
+
+  function render(d){
+    // Källor
+    var kEl = document.getElementById("kallor");
+    kEl.innerHTML = Object.keys(KALLOR).map(function(k){
+      var on = d.kallor && d.kallor[k];
+      return '<span class="kpill'+(on?" on":"")+'">'+KALLOR[k]+'</span>';
+    }).join("");
+
+    // Objektfakta
+    var o = d.objekt || {};
+    var facts = [["Typ",o.typ],["Byggår",o.byggar],["Boarea",o.boarea_kvm==="n/a"?"n/a":o.boarea_kvm+" m²"],["Energiklass",o.energiklass]];
+    document.getElementById("facts").innerHTML = facts.map(function(f){
+      return '<div class="f"><div class="fl">'+f[0]+'</div><div class="fv">'+esc(f[1])+'</div></div>';
+    }).join("");
+
+    // Åtgärder
+    var rows = (d.atgarder || []).map(function(a){
+      var br = a.bradska && BRADSKA[a.bradska] ? a.bradska : "na";
+      var brLbl = BRADSKA[a.bradska] || "n/a";
+      var kalla = KALLOR[a.kalla] || "n/a";
+      var kost = (a.kostnad_lag_sek==="n/a"||a.kostnad_hog_sek==="n/a")
+        ? "n/a"
+        : kr(a.kostnad_lag_sek)+" – "+kr(a.kostnad_hog_sek);
+      return '<tr>'+
+        '<td><div class="rub">'+esc(a.rubrik)+'</div>'+
+          (a.beskrivning?'<div class="desc">'+esc(a.beskrivning)+'</div>':'')+'</td>'+
+        '<td class="hidesm"><span class="tag '+br+'">'+brLbl+'</span></td>'+
+        '<td class="hidesm">'+kalla+'<div class="sak">säkerhet: '+esc(a.sakerhet||"n/a")+'</div></td>'+
+        '<td class="r">'+kost+'</td>'+
+      '</tr>';
+    }).join("");
+    document.getElementById("atgarder").innerHTML = rows ||
+      '<tr><td colspan="4" style="color:var(--ink-soft)">Inga åtgärder kunde utläsas ur underlaget.</td></tr>';
+
+    // Summering
+    var s = d.summering || {};
+    document.getElementById("summa").textContent =
+      (s.total_lag_sek==="n/a"||s.total_hog_sek==="n/a")
+        ? "n/a"
+        : kr(s.total_lag_sek)+" – "+kr(s.total_hog_sek);
+
+    document.getElementById("friskrivning").textContent = d.friskrivning || "";
+    document.getElementById("result").style.display = "block";
+    document.getElementById("result").scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+})();
+</script>
+</body>
+</html>
