@@ -2,3 +2,7 @@ node_modules/
 .wrangler/
 .dev.vars
 *.log
+
+# Prompt-texten + prislistan hålls privat: bara lokalt + deployad på Cloudflare,
+# aldrig i git. Behåll en egen backup av denna fil (den finns inte i repot).
+src/prompt.js
