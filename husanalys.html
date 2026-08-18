@@ -61,6 +61,10 @@
   .tag.pa_sikt{background:var(--green-soft);color:var(--green-dk)}
   .tag.na{background:#eee;color:var(--ink-soft)}
   .sak{font-size:11px;color:var(--ink-soft)}
+  .kostinp{width:112px;text-align:right;font-family:inherit;font-weight:600;font-size:13.5px;border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff;color:var(--ink)}
+  .kostinp:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
+  .kostinp.egen{border-color:var(--green);background:var(--green-soft)}
+  .schab{font-size:10.5px;color:var(--ink-soft);margin-top:3px;white-space:nowrap}
   .sumbar{display:flex;justify-content:space-between;align-items:baseline;background:var(--green);color:#fff;padding:16px 20px;border-radius:12px;margin-top:20px;gap:14px;flex-wrap:wrap}
   .sumbar .k{font-size:13px;opacity:.85}
   .sumbar .v{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(22px,4vw,30px)}
@@ -132,6 +136,7 @@
 
   <div class="card" id="result">
     <h2>2 · Resultat</h2>
+    <p class="sub" style="margin:-6px 0 14px">Har du en offert? Skriv in ditt eget pris på raden - annars används en grov schablon. Summan uppdateras direkt och sparas i din webbläsare.</p>
     <div class="kallor" id="kallor"></div>
     <div class="facts" id="facts"></div>
     <table class="at">
@@ -139,7 +144,7 @@
         <th>Åtgärd</th>
         <th class="hidesm">Brådska</th>
         <th class="hidesm">Källa</th>
-        <th class="r">Grov kostnad</th>
+        <th class="r">Kostnad (din/schablon)</th>
       </tr></thead>
       <tbody id="atgarder"></tbody>
     </table>
@@ -311,7 +316,7 @@
       row.addEventListener("click", function(){
         var saved = cacheGet(row.dataset.hash);
         if (saved){
-          render(saved);
+          render(saved, row.dataset.hash);
           setStatus("Visar sparad analys.", false, false);
           document.getElementById("result").scrollIntoView({ behavior:"smooth", block:"start" });
         }
@@ -357,7 +362,7 @@
       // Redan analyserat exakt detta underlag? Visa sparat (alltid gratis).
       var saved = cacheGet(hash);
       if (saved){
-        render(saved);
+        render(saved, hash);
         setStatus("Visar sparat resultat (samma dokument analyserades tidigare).", false, false);
         return;
       }
@@ -395,7 +400,7 @@
     cacheSet(hash, data);
     indexAdd(hash, data);
     renderHistory();
-    render(data);
+    render(data, hash);
   }
 
   // Öppnar Stripes inbäddade betalning; kör betald analys när betalningen är klar.
@@ -461,7 +466,28 @@
                  energideklaration:"Energideklaration", fragelista:"Frågelista" };
   var BRADSKA = { akut:"Akut", inom_nagra_ar:"Inom några år", pa_sikt:"På sikt" };
 
-  function render(d){
+  // === Egna priser: override av schablon per åtgärd, sparas i localStorage ===
+  var _atg = [], _hash = "";
+  function ovKey(){ return "kjkh:ov:" + _hash; }
+  function loadOv(){ try{ return JSON.parse(localStorage.getItem(ovKey())||"{}"); }catch(e){ return {}; } }
+  function recalcTotal(){
+    var lo=0, hi=0, any=false, ov={};
+    document.querySelectorAll("#atgarder .kostinp").forEach(function(inp){
+      var i=+inp.dataset.i, a=_atg[i]||{}, v=inp.value.trim();
+      var sLo=(a.kostnad_lag_sek==="n/a")?null:a.kostnad_lag_sek;
+      var sHi=(a.kostnad_hog_sek==="n/a")?null:a.kostnad_hog_sek;
+      if(v!==""){ var n=parseFloat(v.replace(/\s/g,"").replace(",","."))||0; lo+=n; hi+=n; any=true; ov[i]=n; }
+      else if(sLo!=null && sHi!=null){ lo+=sLo; hi+=sHi; any=true; }
+    });
+    document.getElementById("summa").textContent = any ? (kr(lo)+" – "+kr(hi)) : "n/a";
+    try{ localStorage.setItem(ovKey(), JSON.stringify(ov)); }catch(e){}
+    // Brygga till värderingskalkylen (Del 2): renoveringstotalen
+    try{ localStorage.setItem("kjkh:renovtotal", JSON.stringify({lo:lo, hi:hi, mid:Math.round((lo+hi)/2), ts:Date.now()})); }catch(e){}
+  }
+
+  function render(d, hash){
+    if (hash) _hash = hash;
+    _atg = d.atgarder || [];
     // Källor
     var kEl = document.getElementById("kallor");
     kEl.innerHTML = Object.keys(KALLOR).map(function(k){
@@ -477,30 +503,29 @@
     }).join("");
 
     // Åtgärder
-    var rows = (d.atgarder || []).map(function(a){
+    var _ov = loadOv();
+    var rows = _atg.map(function(a, i){
       var br = a.bradska && BRADSKA[a.bradska] ? a.bradska : "na";
       var brLbl = BRADSKA[a.bradska] || "n/a";
       var kalla = KALLOR[a.kalla] || "n/a";
-      var kost = (a.kostnad_lag_sek==="n/a"||a.kostnad_hog_sek==="n/a")
-        ? "n/a"
-        : kr(a.kostnad_lag_sek)+" – "+kr(a.kostnad_hog_sek);
+      var na = (a.kostnad_lag_sek==="n/a"||a.kostnad_hog_sek==="n/a");
+      var schab = na ? "n/a" : (kr(a.kostnad_lag_sek)+" – "+kr(a.kostnad_hog_sek));
+      var ovVal = (_ov[i]!=null) ? _ov[i] : "";
       return '<tr>'+
         '<td><div class="rub">'+esc(a.rubrik)+'</div>'+
           (a.beskrivning?'<div class="desc">'+esc(a.beskrivning)+'</div>':'')+'</td>'+
         '<td class="hidesm"><span class="tag '+br+'">'+brLbl+'</span></td>'+
         '<td class="hidesm">'+kalla+'<div class="sak">säkerhet: '+esc(a.sakerhet||"n/a")+'</div></td>'+
-        '<td class="r">'+kost+'</td>'+
+        '<td class="r"><input class="kostinp'+(ovVal!==""?" egen":"")+'" type="number" inputmode="numeric" data-i="'+i+'" value="'+ovVal+'" placeholder="'+(na?"":a.kostnad_lag_sek)+'">'+
+          '<div class="schab">schablon: '+schab+'</div></td>'+
       '</tr>';
     }).join("");
     document.getElementById("atgarder").innerHTML = rows ||
       '<tr><td colspan="4" style="color:var(--ink-soft)">Inga åtgärder kunde utläsas ur underlaget.</td></tr>';
-
-    // Summering
-    var s = d.summering || {};
-    document.getElementById("summa").textContent =
-      (s.total_lag_sek==="n/a"||s.total_hog_sek==="n/a")
-        ? "n/a"
-        : kr(s.total_lag_sek)+" – "+kr(s.total_hog_sek);
+    document.querySelectorAll("#atgarder .kostinp").forEach(function(inp){
+      inp.addEventListener("input", function(){ inp.classList.toggle("egen", inp.value.trim()!==""); recalcTotal(); });
+    });
+    recalcTotal();
 
     document.getElementById("friskrivning").textContent = d.friskrivning || "";
     document.getElementById("result").style.display = "block";
