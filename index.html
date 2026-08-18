@@ -145,6 +145,8 @@
   .crosslink .psst{font-family:"Fraunces",serif;font-style:italic;font-size:14px;color:var(--terra);font-weight:600}
   .crosslink a{color:var(--green);font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--green-soft)}
   .crosslink a:hover{border-bottom-color:var(--green)}
+  .movegrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 32px;align-items:start}
+  @media(max-width:640px){.movegrid{grid-template-columns:1fr;gap:14px}}
   .adzone{display:none;max-width:728px;margin:16px auto 0;text-align:center}
   .adzone .adlbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);opacity:.7;margin-bottom:5px}
   .adzone .adsbygoogle{display:block;min-height:90px}
@@ -489,6 +491,31 @@
     </div>
 
   </div>
+
+  <section class="card" id="flyttkort">
+    <h2>Jämför med ditt nuvarande boende</h2>
+    <div class="body">
+      <p class="hint" style="margin:0 0 14px">Räknar ut hur mycket du får över när du säljer ditt nuvarande boende och köper det här objektet (siffrorna hämtas från kalkylatorn ovan). <b>Sparas bara i din webbläsare</b> - vi lagrar ingen uppgift om din ekonomi.</p>
+      <div class="movegrid">
+        <div>
+          <div class="field"><label>Uppskattat försäljningspris</label><div class="unit"><input class="inp" id="f_salj" type="number" value="0"><span class="u">kr</span></div></div>
+          <div class="field"><label>Kvarvarande lån att lösa</label><div class="unit"><input class="inp" id="f_lan" type="number" value="0"><span class="u">kr</span></div></div>
+          <div class="field"><label>Mäklararvode</label><div class="unit"><input class="inp" id="f_mak" type="number" value="0"><span class="u">kr</span></div></div>
+          <div class="field"><label>Flyttstädning</label><div class="unit"><input class="inp" id="f_stad" type="number" value="0"><span class="u">kr</span></div></div>
+          <div class="field"><label>Ditt sparande</label><div class="unit"><input class="inp" id="f_spar" type="number" value="0"><span class="u">kr</span></div></div>
+          <div class="field"><label>Nuvarande månadskostnad<small>frivilligt - för jämförelse</small></label><div class="unit"><input class="inp" id="f_numan" type="number" value="0"><span class="u">kr</span></div></div>
+        </div>
+        <div class="res-rows" style="margin-top:0">
+          <div class="rrow"><div class="k">Netto från försäljning<small>pris - lån - arvode - städ</small></div><div class="v" id="f_netto">–</div></div>
+          <div class="rrow accent"><div class="k"><b>Tillgängligt totalt</b><small>netto + ditt sparande</small></div><div class="v" id="f_tillg">–</div></div>
+          <div class="rrow"><div class="k">Köprelaterade kostnader<small>kontantinsats + pantbrev + lagfart (nya)</small></div><div class="v" id="f_koprel">–</div></div>
+          <div class="rrow accent"><div class="k"><b>Kvar efter köp</b></div><div class="v" id="f_kvar">–</div></div>
+          <div class="rrow"><div class="k">Ny månadskostnad<small>efter ränteavdrag</small></div><div class="v" id="f_nyman">–</div></div>
+          <div class="rrow sub"><div class="k">jämfört med nuvarande</div><div class="v" id="f_mandiff" style="font-size:13px">–</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <div id="adZone" class="adzone"><div class="adlbl">Annons</div></div>
 
@@ -846,6 +873,7 @@ function calc(){
     vEl.className='verdict '+cls;
     vEl.innerHTML = 'Median: <b>' + kr0(op.med) + ' kr/kvm</b> (' + op.n + ' objekt, tidsjusterat). Husets pris motsvarar ' + kr0(subjKkvm) + ' kr/kvm.<br>Marknadsvärde-estimat: <b>' + kr(est) + '</b> · begärt ' + kr(pris) + ' → <b>' + (diff>=0?'+':'') + kr0(diff) + ' kr (' + (pct>=0?'+':'') + pct.toFixed(0) + ' %)</b> - ' + verdict + '.';
   }
+  flyttCalc(ki, lagfart, pantKost, nettoMan);
 }
 
 function collect(){
@@ -881,8 +909,30 @@ function doImport(e){
 }
 function resetAll(){ if(confirm('Nollställa alla fält till noll?')){ document.querySelectorAll('input[type=number]').forEach(el=>el.value=0); calc(); } }
 
+// --- Flyttkalkyl: jämför med nuvarande boende (sparas i localStorage) ---
+const FLYTT_IDS = ['f_salj','f_lan','f_mak','f_stad','f_spar','f_numan'];
+function saveFlytt(){ try{ const o={}; FLYTT_IDS.forEach(id=>o[id]=$(id).value); localStorage.setItem('kjkh:flytt', JSON.stringify(o)); }catch(e){} }
+function loadFlytt(){ try{ const o=JSON.parse(localStorage.getItem('kjkh:flytt')||'{}'); FLYTT_IDS.forEach(id=>{ if(o[id]!=null && $(id)) $(id).value=o[id]; }); }catch(e){} }
+function flyttCalc(ki, lagfart, pantKost, nyMan){
+  const salj=num('f_salj'), lan=num('f_lan'), mak=num('f_mak'), stad=num('f_stad'), spar=num('f_spar');
+  const netto = salj - lan - mak - stad;
+  const tillg = netto + spar;
+  const koprel = ki + lagfart + pantKost;
+  $('f_netto').textContent  = kr(netto);
+  $('f_tillg').textContent  = kr(tillg);
+  $('f_koprel').textContent = kr(koprel);
+  $('f_kvar').textContent   = kr(tillg - koprel);
+  $('f_nyman').textContent  = kr(nyMan);
+  const nu = num('f_numan');
+  $('f_mandiff').textContent = nu>0
+    ? ((nyMan-nu>=0?'+':'') + kr0(Math.round(nyMan-nu)) + ' kr/mån ' + (nyMan-nu>=0?'dyrare':'billigare'))
+    : 'ange nuvarande för jämförelse';
+  saveFlytt();
+}
+
 // Init: bygg mix-tabellen FÖRST så att globala input-lyssnare hittar fälten.
 buildMixTable();
+loadFlytt();
 document.querySelectorAll('input, select').forEach(el=>{
   if(el.type==='file') return;
   el.addEventListener('input', calc);
