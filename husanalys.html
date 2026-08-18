@@ -123,8 +123,19 @@
 
     <div class="actions">
       <button class="go" id="goBtn" disabled>Analysera</button>
+      <button class="go" type="button" id="manualBtn">Fyll i själv</button>
       <span class="status" id="status"></span>
     </div>
+  </div>
+
+  <div class="card" id="manualCard" style="display:none">
+    <h2>Fyll i själv</h2>
+    <p class="sub">Bygg listan manuellt gratis. Välj åtgärd så fylls en grov schablon i, eller välj "Annat" och skriv eget pris. Priset per rad kan du alltid ändra i resultatet nedan. Summan sparas i din webbläsare.</p>
+    <div class="actions" style="margin-top:0">
+      <select id="manualCat" style="font-family:inherit;font-size:14px;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper-2);color:var(--ink);flex:1;min-width:180px"></select>
+      <button class="go" type="button" id="manualAdd" style="padding:11px 20px;font-size:14px">Lägg till</button>
+    </div>
+    <div id="manualList" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
   </div>
 
   <div class="card" id="paywall" style="display:none">
@@ -531,6 +542,81 @@
     document.getElementById("result").style.display = "block";
     document.getElementById("result").scrollIntoView({ behavior:"smooth", block:"start" });
   }
+
+  // === "Fyll i själv"-läge: bygg åtgärdslistan manuellt =====
+  // Fallback-lista om /prices inte kan hämtas (samma schabloner som Workern).
+  var PRICES_FALLBACK = [
+    {id:"dranering",namn:"Dränering",lag:150000,hog:200000},
+    {id:"fuktsanering_kallare",namn:"Fuktsanering källare",lag:25000,hog:70000},
+    {id:"tak_omlaggning",namn:"Takomläggning",lag:70000,hog:150000},
+    {id:"tak_rengoring",namn:"Takrengöring",lag:2000,hog:10000},
+    {id:"elcentral",namn:"Elcentral (byte)",lag:10000,hog:22000},
+    {id:"el_omdragning",namn:"Omdragning av el",lag:35000,hog:90000},
+    {id:"tillaggsisolering_vind",namn:"Tilläggsisolering vind",lag:15000,hog:40000},
+    {id:"fonsterbyte",namn:"Fönsterbyte",lag:40000,hog:100000},
+    {id:"fasadmalning",namn:"Fasadmålning",lag:30000,hog:70000},
+    {id:"fasad_omputs",namn:"Omputsning fasad",lag:70000,hog:160000},
+    {id:"stambyte",namn:"Stambyte",lag:120000,hog:300000},
+    {id:"badrum",namn:"Renovering badrum",lag:70000,hog:150000},
+    {id:"kok",namn:"Renovering kök",lag:70000,hog:170000},
+    {id:"varmepump_luftvatten",namn:"Värmepump (luft/vatten)",lag:80000,hog:150000},
+    {id:"varmepump_luftluft",namn:"Värmepump (luft/luft)",lag:12000,hog:28000},
+    {id:"ventilation_ftx",namn:"Ventilation (FTX)",lag:70000,hog:140000},
+    {id:"avlopp_relining",namn:"Relining avlopp",lag:35000,hog:80000},
+    {id:"ytterdorr",namn:"Ytterdörr (byte)",lag:10000,hog:25000},
+    {id:"radon",namn:"Radonåtgärd",lag:15000,hog:50000},
+    {id:"annat",namn:"Annat (eget pris)",lag:"n/a",hog:"n/a"}
+  ];
+  var _prices = null, _manual = [], _pricesLoaded = false;
+
+  function fillCatSelect(list){
+    var sel = document.getElementById("manualCat");
+    sel.innerHTML = list.map(function(p){ return '<option value="'+p.id+'">'+esc(p.namn)+'</option>'; }).join("");
+  }
+  function loadPrices(cb){
+    if (_prices){ cb(_prices); return; }
+    fetch(API_URL, { method:"POST", headers:{"content-type":"application/json"},
+        body: JSON.stringify({ action:"prices" }) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ _prices = (d && d.kategorier && d.kategorier.length) ? d.kategorier : PRICES_FALLBACK; cb(_prices); })
+      .catch(function(){ _prices = PRICES_FALLBACK; cb(_prices); });
+  }
+  function priceById(id){ return (_prices||PRICES_FALLBACK).filter(function(p){ return p.id===id; })[0]; }
+
+  // Bygger ett AI-likt svarsobjekt av de manuella raderna och återanvänder render().
+  function renderManual(){
+    var atg = _manual.map(function(m){
+      return { rubrik:m.namn, beskrivning:"", kategori:m.id, bradska:"na",
+               kostnad_lag_sek:m.lag, kostnad_hog_sek:m.hog, sakerhet:"n/a", kalla:"na" };
+    });
+    render({ objekt:{typ:"n/a",byggar:"n/a",boarea_kvm:"n/a",energiklass:"n/a"},
+             kallor:{}, atgarder:atg,
+             friskrivning:"Manuellt ifylld lista. Schablonerna är grova - hämta gärna offert för säkrare siffror." },
+           "manual");
+    // Chips med möjlighet att ta bort rader
+    var ml = document.getElementById("manualList");
+    ml.innerHTML = _manual.map(function(m,i){
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--paper-2);border:1px solid var(--line);border-radius:9px;padding:8px 12px">'+
+        '<span style="font-size:14px">'+esc(m.namn)+'</span>'+
+        '<button class="pick" type="button" data-rm="'+i+'" style="padding:5px 10px;font-size:12px">Ta bort</button></div>';
+    }).join("");
+    ml.querySelectorAll("[data-rm]").forEach(function(b){
+      b.addEventListener("click", function(){ _manual.splice(+b.dataset.rm,1); renderManual(); });
+    });
+  }
+
+  document.getElementById("manualBtn").addEventListener("click", function(){
+    var card = document.getElementById("manualCard");
+    card.style.display = "block";
+    if (!_pricesLoaded){ _pricesLoaded = true; loadPrices(fillCatSelect); }
+    card.scrollIntoView({ behavior:"smooth", block:"start" });
+  });
+  document.getElementById("manualAdd").addEventListener("click", function(){
+    var id = document.getElementById("manualCat").value;
+    var p = priceById(id); if (!p) return;
+    _manual.push({ id:p.id, namn:p.namn, lag:p.lag, hog:p.hog });
+    renderManual();
+  });
 
   // Visa tidigare sparade analyser direkt vid sidladdning.
   renderHistory();
