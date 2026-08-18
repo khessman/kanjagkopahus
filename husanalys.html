@@ -91,30 +91,30 @@
 
   <div class="card">
     <h2>1 · Ladda upp dokument</h2>
-    <p class="sub">PDF-filer. Minst ett dokument krävs - fler ger bättre analys. Filerna läses i din webbläsare.<span id="priceNote" style="display:none"> <b>Första analysen är gratis</b>, därefter 5 kr per objekt.</span></p>
+    <p class="sub">PDF, text eller HTML. Minst ett dokument krävs - fler ger bättre analys. Filerna läses i din webbläsare.<span id="priceNote" style="display:none"> <b>Första analysen är gratis</b>, därefter 5 kr per objekt.</span></p>
 
     <div class="drop" data-key="besiktning">
       <div class="meta"><div class="nm">Besiktningsprotokoll</div><div class="st">Ingen fil vald</div></div>
-      <button class="pick" type="button">Välj PDF</button>
-      <input type="file" accept="application/pdf" hidden>
+      <button class="pick" type="button">Välj fil</button>
+      <input type="file" accept=".pdf,.txt,.md,.csv,.html,.htm,application/pdf,text/plain,text/html,text/markdown,text/csv" hidden>
     </div>
 
     <div class="drop" data-key="energirapport">
       <div class="meta"><div class="nm">Energirapport</div><div class="st">Ingen fil vald</div></div>
-      <button class="pick" type="button">Välj PDF</button>
-      <input type="file" accept="application/pdf" hidden>
+      <button class="pick" type="button">Välj fil</button>
+      <input type="file" accept=".pdf,.txt,.md,.csv,.html,.htm,application/pdf,text/plain,text/html,text/markdown,text/csv" hidden>
     </div>
 
     <div class="drop" data-key="energideklaration">
       <div class="meta"><div class="nm">Energideklaration</div><div class="st">Ingen fil vald</div></div>
-      <button class="pick" type="button">Välj PDF</button>
-      <input type="file" accept="application/pdf" hidden>
+      <button class="pick" type="button">Välj fil</button>
+      <input type="file" accept=".pdf,.txt,.md,.csv,.html,.htm,application/pdf,text/plain,text/html,text/markdown,text/csv" hidden>
     </div>
 
     <div class="drop" data-key="fragelista">
       <div class="meta"><div class="nm">Frågelista</div><div class="st">Ingen fil vald</div></div>
-      <button class="pick" type="button">Välj PDF</button>
-      <input type="file" accept="application/pdf" hidden>
+      <button class="pick" type="button">Välj fil</button>
+      <input type="file" accept=".pdf,.txt,.md,.csv,.html,.htm,application/pdf,text/plain,text/html,text/markdown,text/csv" hidden>
     </div>
 
     <div class="actions">
@@ -193,6 +193,10 @@
     input.addEventListener("change", function(){
       var f = input.files[0];
       var st = drop.querySelector(".st");
+      if (f && f.size > 12 * 1024 * 1024) {
+        st.textContent = "Filen är för stor (max 12 MB).";
+        input.value = ""; return;
+      }
       if (f) {
         files[key] = f;
         drop.classList.add("filled");
@@ -207,7 +211,20 @@
     });
   });
 
-  // === PDF -> text ========================================================
+  // === Fil -> text (PDF, text, HTML) ======================================
+  async function fileToText(file){
+    var name = (file.name || "").toLowerCase();
+    var type = file.type || "";
+    if (type === "application/pdf" || name.endsWith(".pdf")){
+      return await pdfToText(file);
+    }
+    var raw = await file.text();
+    if (type === "text/html" || name.endsWith(".html") || name.endsWith(".htm")){
+      return htmlToText(raw);
+    }
+    return raw.replace(/\s+\n/g, "\n").trim();   // .txt, .md, .csv m.fl.
+  }
+
   async function pdfToText(file){
     var buf = await file.arrayBuffer();
     var pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -218,6 +235,25 @@
       out.push(content.items.map(function(i){ return i.str; }).join(" "));
     }
     return out.join("\n").replace(/\s+\n/g, "\n").trim();
+  }
+
+  // Säker HTML->text: DOMParser skapar ett INERT dokument (inga script körs,
+  // inga onerror/onload triggas – vi rör aldrig live-DOM). Vi tar bort kod-
+  // element och läser bara den synliga texten.
+  function htmlToText(html){
+    try {
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      doc.querySelectorAll("script,style,noscript,template,iframe,object,embed").forEach(function(el){ el.remove(); });
+      var t = (doc.body || doc.documentElement || {}).textContent || "";
+      return t.replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").trim();
+    } catch (e) {
+      // Fallback: grov tag-strippning om DOMParser inte finns.
+      return html
+        .replace(/<script[\s\S]*?<\/script>/gi, "")
+        .replace(/<style[\s\S]*?<\/style>/gi, "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ").trim();
+    }
   }
 
   // === Cache i webbläsaren (localStorage) =================================
@@ -314,7 +350,7 @@
     try {
       var payload = {};
       for (var key in files){
-        payload[key] = await pdfToText(files[key]);
+        payload[key] = await fileToText(files[key]);
       }
       var hash = await docsHash(payload);
 
