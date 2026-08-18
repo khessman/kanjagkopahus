@@ -203,7 +203,7 @@
 
   <nav class="topnav">
     <a href="index.html" class="active">Kalkylator</a>
-    <a href="husanalys.html">Husanalys</a>
+    <a href="husanalys.html">Renoveringsanalys</a>
     <a href="spara-kontantinsats.html">Kontantinsats</a>
     <a href="byta-varmesystem.html">Byta värmesystem</a>
     <a href="budgivning.html">Budgivning</a>
@@ -218,7 +218,7 @@
 
   <a class="betatip" href="husanalys.html">
     <span class="bt-tag">Nytt</span>
-    <span class="bt-text">Testa <b>Husanalys</b>: ladda upp besiktning och energideklaration och få en saklig överslagskalkyl på vad huset kan behöva åtgärdas för.</span>
+    <span class="bt-text">Testa <b>Renoveringsanalys</b>: ladda upp besiktning och energideklaration och få en saklig överslagskalkyl på vad huset kan behöva åtgärdas för.</span>
     <span class="bt-arrow">→</span>
   </a>
 
@@ -231,7 +231,7 @@
         <div class="body">
           <div class="field"><label>Hämta från Booli<small>Klistra in en annonslänk</small></label><div class="unit"><input class="inp" id="booliUrl" type="url" placeholder="https://www.booli.se/bostad/..." style="width:200px;text-align:left"></div></div>
           <div style="margin:4px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="lilbtn" onclick="hamtaFranBooli()">↓ Hämta uppgifter</button>
+            <button class="lilbtn" onclick="hamtaFranBooli()">Hämta uppgifter</button>
             <span class="hint" id="booliStatus" style="display:none;margin:0;flex:1 1 200px"></span>
           </div>
           <div class="field"><label>Pris för huset</label><div class="unit"><input class="inp" id="pris" type="number" value="2300000"><span class="u">kr</span></div></div>
@@ -384,8 +384,8 @@
           <div class="field"><label>Hemadress</label><div class="unit"><input class="inp" id="c_home" type="text" value="" placeholder="Din hemadress" style="width:200px;text-align:left"></div></div>
           <div class="field"><label>Jobbadress</label><div class="unit"><input class="inp" id="c_work" type="text" value="" placeholder="Arbetsplatsens adress" style="width:200px;text-align:left"></div></div>
           <div style="margin:4px 0 10px;display:flex;gap:8px;flex-wrap:wrap">
-            <button class="lilbtn" onclick="autoRoute()">⚡ Beräkna automatiskt</button>
-            <button class="lilbtn alt" onclick="openMaps()">↗ Öppna i Google Maps</button>
+            <button class="lilbtn" onclick="autoRoute()">Beräkna automatiskt</button>
+            <button class="lilbtn alt" onclick="openMaps()">Öppna i Google Maps</button>
           </div>
           <div class="hint" id="c_routeStatus" style="display:none"></div>
           <div class="field"><label>Enkel resa<small>Klistra in från Google Maps</small></label><div class="unit"><input class="inp short" id="c_km" type="number" value="0" step="0.1"><span class="u">km</span><input class="inp short" id="c_min" type="number" value="0"><span class="u">min</span></div></div>
@@ -417,8 +417,8 @@
             <textarea id="op_urls" rows="5" placeholder="https://www.booli.se/bostad/1234567&#10;https://www.booli.se/bostad/2345678&#10;..." style="width:100%;font-family:'Hanken Grotesk',sans-serif;font-size:13.5px;border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink);resize:vertical;box-sizing:border-box"></textarea>
           </div>
           <div style="margin:8px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button class="lilbtn" onclick="hamtaJamforelser()">⚡ Hämta sålda från länkar</button>
-            <button class="lilbtn alt" onclick="openBooli()">↗ Öppna Booli slutpriser</button>
+            <button class="lilbtn" onclick="hamtaJamforelser()">Hämta sålda från länkar</button>
+            <button class="lilbtn alt" onclick="openBooli()">Öppna Booli slutpriser</button>
             <span class="hint" id="compStatus" style="display:none;margin:0;flex:1 1 200px"></span>
           </div>
           <div class="field"><label>Prisutveckling i området<small>Justerar äldre försäljningar till idag</small></label><div class="unit"><input class="inp short" id="op_trend" type="number" value="3" step="0.5"><span class="u">%/år</span></div></div>
@@ -652,7 +652,7 @@ function commute(){
 }
 function openMaps(){ const o=encodeURIComponent($('c_home').value||''), d=encodeURIComponent($('c_work').value||''); window.open('https://www.google.com/maps/dir/?api=1&origin='+o+'&destination='+d+'&travelmode=driving','_blank'); }
 
-const ROUTE_API = "https://booliparser.onrender.com/route";
+const ROUTE_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/route";
 async function autoRoute(){
   const status = $('c_routeStatus'); status.style.display = 'block';
   const home = $('c_home').value.trim(), work = $('c_work').value.trim();
@@ -668,7 +668,7 @@ async function autoRoute(){
   }catch(e){ status.textContent = 'Kunde inte beräkna: ' + e.message; }
 }
 
-const PARSER_API = "https://booliparser.onrender.com/parse";
+const PARSER_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
 async function hamtaFranBooli(){
   const status = $('booliStatus'); status.style.display = 'block';
   const url = $('booliUrl').value.trim();
