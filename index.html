@@ -451,6 +451,8 @@
             </tbody>
           </table>
           <div class="verdict line" id="op_verdict">Klistra in 1–5 Booli-länkar ovan och klicka "Hämta sålda från länkar", eller fyll i tabellen manuellt.</div>
+          <div class="field" style="margin-top:10px"><label>Renoveringsbehov<small>hämtas från Renoveringsanalysen - kan ändras</small></label><div class="unit"><input class="inp" id="op_renov" type="number" value="0"><span class="u">kr</span></div></div>
+          <div class="verdict line" id="op_varde" style="display:none"></div>
           <div class="hint">Sök fram jämförbara sålda på <a href="https://www.booli.se/sok/slutpriser" target="_blank" rel="noopener">booli.se/sok/slutpriser</a>, kopiera länkarna och klistra in en per rad. Servern hämtar pris, boarea och försäljningsdatum för varje. Jämför sedan mot husets begärda pris (<span id="op_subj">–</span>) och boarea (kort 2).</div>
         </div>
       </section>
@@ -870,6 +872,7 @@ function calc(){
   if(op.n===0 || boarea<=0 || pris<=0){
     vEl.className='verdict line';
     vEl.textContent = 'Fyll i minst ett jämförelseobjekt (samt husets pris och boarea) för att se en bedömning.';
+    $('op_varde').style.display='none';
   } else {
     const est = op.med*boarea;
     const subjKkvm = pris/boarea;
@@ -880,6 +883,15 @@ function calc(){
     else if(pct < -5){ cls='under'; verdict='under marknadsvärde'; }
     vEl.className='verdict '+cls;
     vEl.innerHTML = 'Median: <b>' + kr0(op.med) + ' kr/kvm</b> (' + op.n + ' objekt, tidsjusterat). Husets pris motsvarar ' + kr0(subjKkvm) + ' kr/kvm.<br>Marknadsvärde-estimat: <b>' + kr(est) + '</b> · begärt ' + kr(pris) + ' → <b>' + (diff>=0?'+':'') + kr0(diff) + ' kr (' + (pct>=0?'+':'') + pct.toFixed(0) + ' %)</b> - ' + verdict + '.';
+    // Egen värdering: marknadsintervall (±10 %) minus renoveringsbehov
+    const renov = num('op_renov');
+    const mLo = Math.round(est*0.90), mHi = Math.round(est*1.10);
+    let vh = '<b>Egen värdering (grov):</b> jämförbara pekar på ca <b>' + kr0(mLo) + '–' + kr0(mHi) + ' kr</b> för normalskick.';
+    if(renov>0){ vh += '<br>Minus renoveringsbehov (' + kr(renov) + ') → <b>värde i befintligt skick ≈ ' + kr0(mLo-renov) + '–' + kr0(mHi-renov) + ' kr</b>.'; }
+    vh += '<br><span style="color:var(--terra);font-weight:700">Mycket grov fingervisning</span> byggd på ' + op.n + ' objekt - inte en värdering. Kontrollera och tänk själv.';
+    $('op_varde').className = 'verdict ' + (renov>0?'over':'line');
+    $('op_varde').style.display = 'block';
+    $('op_varde').innerHTML = vh;
   }
   flyttCalc(ki, lagfart, pantKost, nettoMan);
 }
@@ -941,6 +953,7 @@ function flyttCalc(ki, lagfart, pantKost, nyMan){
 // Init: bygg mix-tabellen FÖRST så att globala input-lyssnare hittar fälten.
 buildMixTable();
 loadFlytt();
+try{ const _rt=JSON.parse(localStorage.getItem('kjkh:renovtotal')||'null'); if(_rt && _rt.mid && $('op_renov')) $('op_renov').value=_rt.mid; }catch(e){}
 document.querySelectorAll('input, select').forEach(el=>{
   if(el.type==='file') return;
   el.addEventListener('input', calc);
