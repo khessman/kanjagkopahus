@@ -30,10 +30,12 @@
   button.tool.primary:hover{background:var(--green-dk)}
   .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:28px;align-items:start}
   @media(max-width:920px){.grid{grid-template-columns:1fr}}
-  .topnav{display:flex;flex-wrap:wrap;gap:8px;padding:16px 0 6px;margin-top:4px}
+  .topnav{display:flex;flex-direction:column;gap:10px;padding:16px 0 6px;margin-top:4px}
   .topnav a{font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--paper-2);border:1.5px solid var(--line);border-radius:20px;padding:7px 13px;white-space:nowrap;transition:.15s}
   .topnav a:hover{border-color:var(--ink);transform:translateY(-1px)}
   .topnav a.active{background:var(--green);color:#fff;border-color:var(--green)}
+  .navgroup{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .navlabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--ink-soft);opacity:.65}
   .betatip{display:flex;align-items:center;gap:12px;margin:14px 0 2px;padding:12px 16px;text-decoration:none;background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--terra);border-radius:12px;box-shadow:var(--shadow);transition:.15s}
   .betatip:hover{border-color:var(--terra);transform:translateY(-1px)}
   .betatip .bt-tag{flex:none;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--terra);padding:4px 10px;border-radius:20px}
@@ -165,7 +167,7 @@
     .title .sub{font-size:13px;max-width:100%}
     .toolbar{width:100%}
     .toolbar button.tool{flex:1 1 auto;text-align:center;padding:10px 6px}
-    .topnav{justify-content:center}
+    .topnav{align-items:center}.navgroup{justify-content:center}
     .card>h2{padding:14px 16px;font-size:18px}
     .card .body{padding:12px 15px 16px}
     .field{grid-template-columns:1fr;gap:7px}
@@ -204,18 +206,24 @@
   </header>
 
   <nav class="topnav">
-    <a href="index.html" class="active">Kalkylator</a>
-    <a href="husanalys.html">Renoveringsanalys</a>
-    <a href="spara-kontantinsats.html">Kontantinsats</a>
-    <a href="byta-varmesystem.html">Byta värmesystem</a>
-    <a href="budgivning.html">Budgivning</a>
-    <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a>
-    <a href="besiktning.html">Besiktning</a>
-    <a href="dolda-fel.html">Dolda fel</a>
-    <a href="energiklass.html">Energiklass</a>
-    <a href="visningschecklista.html">Visningschecklista</a>
-    <a href="driftkostnader.html">Driftkostnader</a>
-    <a href="om.html">Om sidan</a>
+    <div class="navgroup">
+      <span class="navlabel">Verktyg</span>
+      <a href="index.html" class="active">Kalkylator</a>
+      <a href="spara-kontantinsats.html">Kontantinsats</a>
+      <a href="byta-varmesystem.html">Byta värmesystem</a>
+      <a href="husanalys.html">Renoveringsanalys</a>
+    </div>
+    <div class="navgroup">
+      <span class="navlabel">Guider</span>
+      <a href="budgivning.html">Budgivning</a>
+      <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a>
+      <a href="besiktning.html">Besiktning</a>
+      <a href="dolda-fel.html">Dolda fel</a>
+      <a href="energiklass.html">Energiklass</a>
+      <a href="visningschecklista.html">Visningschecklista</a>
+      <a href="driftkostnader.html">Driftkostnader</a>
+      <a href="om.html">Om sidan</a>
+    </div>
   </nav>
 
   <a class="betatip" href="husanalys.html">
