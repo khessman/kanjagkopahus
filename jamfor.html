@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jämför objekt - kanjagköpahus.se</title>
+<meta name="description" content="Jämför bostäder du sparat i kalkylatorn sida vid sida: pris, lån, månadskostnad, renoveringsbehov och skillnad mot ditt nuvarande boende.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--shadow:0 1px 2px rgba(28,37,32,.05),0 8px 24px -12px rgba(28,37,32,.18)}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px}
+  a{color:var(--green)}
+  .back{display:inline-block;margin-bottom:22px;font-size:14px;font-weight:600;text-decoration:none}
+  .back:hover{text-decoration:underline}
+  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,5vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05}
+  .lead{color:var(--ink-soft);font-size:15px;margin:10px 0 22px;max-width:62ch}
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:22px}
+  .picklbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--ink-soft);margin:0 0 10px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;padding:7px 13px;cursor:pointer;transition:.15s}
+  .chip.on{background:var(--green);color:#fff;border-color:var(--green)}
+  .chip .x{opacity:.6;font-weight:700}
+  .empty{color:var(--ink-soft);font-size:14.5px}
+  .cmpwrap{overflow-x:auto}
+  table.cmp{width:100%;border-collapse:collapse;font-size:14px;min-width:420px}
+  table.cmp th,table.cmp td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  table.cmp th:first-child,table.cmp td:first-child{text-align:left;color:var(--ink-soft);font-weight:500;white-space:normal}
+  table.cmp thead th{font-family:"Fraunces",serif;font-weight:600;font-size:15px;color:var(--ink);border-bottom:2px solid var(--line)}
+  table.cmp tr:last-child td{border-bottom:0}
+  table.cmp td.best{color:var(--green-dk);font-weight:700;background:var(--green-soft)}
+  table.cmp td.val{font-weight:600;font-feature-settings:"tnum" 1}
+  .disc{margin-top:20px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
+  @media(max-width:600px){.wrap{padding:28px 14px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Tillbaka till kalkylatorn</a>
+  <h1>Jämför objekt</h1>
+  <p class="lead">Välj bland objekt du sparat i kalkylatorn (knappen "Spara objekt") och jämför dem sida vid sida. Allt ligger i din webbläsare - inget lagras hos oss.</p>
+
+  <div class="card" id="pickCard">
+    <p class="picklbl">Välj upp till 3 objekt</p>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div id="cmp"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  function kr(n){ return (typeof n==="number") ? new Intl.NumberFormat("sv-SE").format(Math.round(n))+" kr" : "–"; }
+  function objs(){ try{ return JSON.parse(localStorage.getItem("kjkh:objekt")||"[]"); }catch(e){ return []; } }
+
+  var all = objs();
+  var sel = all.slice(0,3).map(function(o){ return o.id; });
+
+  function toggle(id){
+    var i = sel.indexOf(id);
+    if(i>=0){ sel.splice(i,1); }
+    else if(sel.length<3){ sel.push(id); }
+    render();
+  }
+
+  // Rader i jämförelsen: [etikett, hämtare, "min"=lägst bäst / "max"=högst bäst / null]
+  var ROWS = [
+    ["Pris",                    function(s){ return s.pris; },        null],
+    ["Boarea",                  function(s){ return s.boarea; },      null, "m²"],
+    ["Pris per m²",             function(s){ return s.boarea>0 ? s.pris/s.boarea : 0; }, "min"],
+    ["Lånebehov",               function(s){ return s.lan; },         null],
+    ["Kontantbehov vid tillträde", function(s){ return s.kontantbehov; }, "min"],
+    ["Månadskostnad (efter avdrag)", function(s){ return s.manad; },  "min"],
+    ["Renoveringsbehov",        function(s){ return s.renov; },       "min"],
+    ["Månad + renovering utslaget/10 år", function(s){ return s.manad + (s.renov||0)/120; }, "min"],
+    ["vs nuvarande boende/mån", function(s){ return s.nuMan>0 ? s.manad - s.nuMan : null; }, "min"],
+  ];
+
+  function render(){
+    // chips
+    if(!all.length){
+      $("chips").innerHTML = '<span class="empty">Inga sparade objekt än. Gå till kalkylatorn, fyll i ett objekt och klicka "Spara objekt".</span>';
+      $("cmp").innerHTML = ""; return;
+    }
+    $("chips").innerHTML = all.map(function(o){
+      var on = sel.indexOf(o.id)>=0;
+      return '<span class="chip'+(on?" on":"")+'" onclick="__t('+o.id+')">'+esc(o.namn||"Objekt")+(on?' <span class="x">×</span>':'')+'</span>';
+    }).join("");
+
+    var chosen = sel.map(function(id){ return all.find(function(o){ return o.id===id; }); }).filter(Boolean);
+    if(chosen.length<2){
+      $("cmp").innerHTML = '<div class="card"><p class="empty">Välj minst 2 objekt ovan för att jämföra.</p></div>';
+      return;
+    }
+
+    var head = '<tr><th>Post</th>' + chosen.map(function(o){ return '<th>'+esc(o.namn||"Objekt")+'</th>'; }).join("") + '</tr>';
+    var body = ROWS.map(function(r){
+      var label=r[0], get=r[1], best=r[2], unit=r[3]||"";
+      var vals = chosen.map(function(o){ return get(o.sum||{}); });
+      var nums = vals.filter(function(v){ return typeof v==="number"; });
+      var target = null;
+      if(best==="min" && nums.length) target = Math.min.apply(null, nums);
+      if(best==="max" && nums.length) target = Math.max.apply(null, nums);
+      var cells = vals.map(function(v){
+        var isBest = (target!==null && v===target && nums.length>1);
+        var txt = (typeof v!=="number") ? "–" : (unit==="m²" ? Math.round(v)+" m²" : kr(v));
+        return '<td class="val'+(isBest?" best":"")+'">'+txt+'</td>';
+      }).join("");
+      return '<tr><td>'+label+'</td>'+cells+'</tr>';
+    }).join("");
+
+    $("cmp").innerHTML = '<div class="card"><div class="cmpwrap"><table class="cmp"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
+      '<div class="disc">Grön markering = lägst kostnad i respektive rad. "vs nuvarande boende" visas bara om du fyllt i nuvarande månadskostnad i flyttkalkylen. Siffrorna är grova överslag - kontrollera alltid själv.</div></div>';
+  }
+
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  window.__t = toggle;
+  render();
+})();
+</script>
+</body>
+</html>
