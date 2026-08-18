@@ -334,6 +334,7 @@
       <section class="card">
         <h2><span class="num">4</span>Övriga driftkostnader / månad</h2>
         <div class="body" id="driftBody">
+          <div class="field"><label>Driftkostnad enligt Booli<small>Ersätter beräkningen nedan när ifylld (0 = räkna på delarna)</small></label><div class="unit"><input class="inp" id="d_booli" type="number" value="0"><span class="u">kr</span></div></div>
           <div class="field"><label>Hushållsel<small>El utöver uppvärmning</small></label><div class="unit"><input class="inp drift" id="d_el" type="number" value="600"><span class="u">kr</span></div></div>
           <div class="field"><label>Villaförsäkring</label><div class="unit"><input class="inp drift" id="d_fors" type="number" value="500"><span class="u">kr</span></div></div>
           <div class="field"><label>Sotning & brandskydd</label><div class="unit"><input class="inp drift" id="d_sotning" type="number" value="60"><span class="u">kr</span></div></div>
@@ -686,6 +687,7 @@ async function hamtaFranBooli(){
     if(f.pantbrev)        { $('pantbrev').value = f.pantbrev; filled.push('pantbrev'); }
     if(f.taxeringsvarde)  { $('taxvarde').value = f.taxeringsvarde; filled.push('taxeringsvärde'); }
     if(f.uppvarmning)     { const s=$('varmeForm'); if(s){ s.value=f.uppvarmning; s.dispatchEvent(new Event('change')); filled.push('uppvärmning'); } }
+    if(f.driftkostnad)    { $('d_booli').value = f.driftkostnad; document.querySelectorAll('.drift').forEach(el=>el.value=0); filled.push('driftkostnad (Booli, ersätter delfälten)'); }
     const missing = [];
     if(!f.uppvarmning)    missing.push('uppvärmning');
     if(!f.pantbrev)       missing.push('pantbrev');
@@ -752,7 +754,8 @@ function calc(){
   const trashMan = trashYr()/12;
   let driftBas = 0;
   document.querySelectorAll('.drift').forEach(el=>driftBas += parseFloat(el.value)||0);
-  const driftMan = varmeMan + watMan + trashMan + driftBas + favgYr/12;
+  const dBooli = parseFloat($('d_booli').value)||0;
+  const driftMan = (dBooli>0 ? dBooli : (varmeMan + watMan + trashMan + driftBas)) + favgYr/12;
   const bruttoMan  = (rantaYr + amortYr)/12 + driftMan;
   const nettoMan   = (nettoRantaYr + amortYr)/12 + driftMan;
   const verkligMan = nettoRantaYr/12 + driftMan;
