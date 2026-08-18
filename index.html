@@ -38,11 +38,14 @@
   .navlabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--ink-soft);opacity:.65}
   .objektrad{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 2px}
   .objlabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--ink-soft);opacity:.65}
-  .objkort{display:flex;flex-direction:column;gap:3px;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;padding:8px 11px;min-width:150px;box-shadow:var(--shadow)}
-  .objnamn{font-weight:600;font-size:13px;border:0;background:transparent;color:var(--ink);font-family:inherit;width:130px;padding:0}
-  .objnamn:focus{outline:none;border-bottom:1.5px solid var(--green)}
+  .objkort{display:flex;flex-direction:column;background:var(--paper-2);border:1px solid var(--line);border-radius:11px;overflow:hidden;min-width:160px;box-shadow:var(--shadow)}
+  .objhead{background:var(--green);padding:7px 12px}
+  .objnamn{font-weight:600;font-size:13px;border:0;background:transparent;color:#fff;font-family:inherit;width:100%;padding:0}
+  .objnamn::placeholder{color:rgba(255,255,255,.6)}
+  .objnamn:focus{outline:none}
+  .objbody{padding:8px 12px}
   .objmeta{font-size:11.5px;color:var(--ink-soft)}
-  .objbtns{display:flex;gap:6px;margin-top:3px}
+  .objbtns{display:flex;gap:6px;margin-top:6px}
   .objbtns button{font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--green);border-radius:7px;padding:3px 10px}
   .objbtns button.del{color:var(--terra);padding:3px 8px}
   .objmer{font-size:12.5px;font-weight:600;color:var(--green);text-decoration:none;white-space:nowrap;border-bottom:1.5px solid var(--green-soft)}
@@ -208,9 +211,6 @@
     </div>
     <div class="toolbar">
       <button class="tool primary" onclick="saveObjekt()">Spara objekt</button>
-      <button class="tool" onclick="doExport()">↓ Spara fil</button>
-      <button class="tool" onclick="document.getElementById('imp').click()">↑ Öppna fil</button>
-      <input type="file" id="imp" accept="application/json" style="display:none" onchange="doImport(event)">
       <button class="tool" onclick="window.print()">⎙ Skriv ut</button>
       <button class="tool" onclick="resetAll()">↺ Nollställ</button>
     </div>
@@ -952,23 +952,10 @@ function renderObjekt(){
   box.innerHTML = '<span class="objlabel">Sparade objekt</span>' + arr.slice(0,3).map(o=>{
     const m = (o.sum&&o.sum.manad)? kr0(Math.round(o.sum.manad))+' kr/mån' : '';
     const nm=(o.namn||'').replace(/"/g,'&quot;');
-    return '<div class="objkort"><input class="objnamn" value="'+nm+'" onchange="renameObjekt('+o.id+',this.value)"><div class="objmeta">'+m+'</div><div class="objbtns"><button onclick="loadObjekt('+o.id+')">Ladda</button><button class="del" onclick="deleteObjekt('+o.id+')" title="Ta bort">×</button></div></div>';
+    return '<div class="objkort"><div class="objhead"><input class="objnamn" value="'+nm+'" placeholder="Namnge" onchange="renameObjekt('+o.id+',this.value)"></div><div class="objbody"><div class="objmeta">'+m+'</div><div class="objbtns"><button onclick="loadObjekt('+o.id+')">Ladda</button><button class="del" onclick="deleteObjekt('+o.id+')" title="Ta bort">×</button></div></div></div>';
   }).join('') + '<a class="objmer" href="jamfor.html">Jämför →</a>';
 }
 
-function doExport(){
-  const blob = new Blob([JSON.stringify(collect(),null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='husbudget-'+new Date().toISOString().slice(0,10)+'.json'; a.click();
-}
-function doImport(e){
-  const f=e.target.files[0]; if(!f) return;
-  const rd=new FileReader();
-  rd.onload=()=>{ try{
-    applyState(JSON.parse(rd.result));
-  }catch(err){ alert('Kunde inte läsa filen: '+err.message); } };
-  rd.readAsText(f); e.target.value='';
-}
 function resetAll(){ if(confirm('Nollställa alla fält till noll?')){ document.querySelectorAll('input[type=number]').forEach(el=>el.value=0); calc(); } }
 
 // --- Flyttkalkyl: jämför med nuvarande boende (sparas i localStorage) ---
