@@ -339,6 +339,7 @@
   var STRIPE_PK = "pk_live_51U5UfJLk9GS9w3CI2oqsiyQOsxgRBfJBmMhVR8dyblAiYKusp2e6H8OH701jb0IDOxGVdO7j2hZ9tR9qhbSzlAOK00apwDJYOc";
   var stripe = window.Stripe ? Stripe(STRIPE_PK) : null;
   var PRICE_KR = 5;
+  var SUPPORT_EMAIL = "kalle.hessman@gmail.com";  // dit kunder mejlar för refund
   var _checkout = null;
   // Skarpt läge: betalning på för alla (gratis första, sen 5 kr).
   var PAY_ENABLED = true;
@@ -359,6 +360,29 @@
   function freeUsed(){ try { return localStorage.getItem("kjkh:freeUsed") === "1"; } catch (e) { return false; } }
   function setFreeUsed(){ try { localStorage.setItem("kjkh:freeUsed", "1"); } catch (e) {} }
 
+  // Betald men ännu inte slutförd analys: sparas så en betalning aldrig går
+  // förlorad om själva analysen kraschar. Rensas först när analysen lyckats.
+  // (Ett fack i taget – räcker gott: kunden gör om samma objekt, inte ett nytt.)
+  function getPending(){ try { return JSON.parse(localStorage.getItem("kjkh:pendingPaid") || "null"); } catch (e) { return null; } }
+  function setPending(p){ try { localStorage.setItem("kjkh:pendingPaid", JSON.stringify(p)); } catch (e) {} }
+  function clearPending(){ try { localStorage.removeItem("kjkh:pendingPaid"); } catch (e) {} }
+
+  // Betald analys misslyckades: räkna upp försök, behåll betalningen, och ge
+  // en refund-väg om felet håller i sig. Ingen ny debitering sker.
+  function failPaid(e){
+    var p = getPending() || {};
+    p.fails = (p.fails || 0) + 1;
+    setPending(p);
+    if (p.fails >= 2){
+      setStatus("Du har betalat men analysen gick inte att slutföra (" + e.message +
+        "). Ingen ny betalning behövs. Kvarstår felet – mejla " + SUPPORT_EMAIL +
+        " med referens " + (p.session_id || "") + " så återbetalar vi.", true, false);
+    } else {
+      setStatus("Betalt, men analysen misslyckades: " + e.message +
+        " Klicka Analysera igen – din betalning är kvar, ingen ny debitering.", true, false);
+    }
+  }
+
   // === Analysera ==========================================================
   goBtn.addEventListener("click", async function(){
     goBtn.disabled = true;
@@ -375,6 +399,19 @@
       if (saved){
         render(saved, hash);
         setStatus("Visar sparat resultat (samma dokument analyserades tidigare).", false, false);
+        return;
+      }
+
+      // Finns en betald men ej slutförd analys för exakt detta objekt?
+      // Kör om med SAMMA session – ingen ny betalning.
+      var pending = getPending();
+      if (pending && pending.session_id && pending.hash === hash){
+        try {
+          await runAnalysis(payload, hash, pending.session_id);
+          setStatus("Klart – din tidigare betalda analys slutfördes.", false, false);
+        } catch (e){
+          failPaid(e);
+        }
         return;
       }
 
@@ -410,6 +447,8 @@
     if (!res.ok) throw new Error((data.error || ("HTTP " + res.status)) + (data.detalj ? " (" + data.detalj + ")" : ""));
     cacheSet(hash, data);
     indexAdd(hash, data);
+    var _p = getPending();
+    if (_p && _p.hash === hash) clearPending();   // betalningen är kvitterad
     renderHistory();
     render(data, hash);
   }
@@ -430,12 +469,15 @@
     _checkout = await stripe.initEmbeddedCheckout({
       clientSecret: s.client_secret,
       onComplete: async function(){
+        hidePaywall();
+        // Kvittera betalningen lokalt FÖRST – så den överlever även om analysen
+        // kraschar eller sidan laddas om innan resultatet kommit.
+        setPending({ session_id: s.session_id, hash: hash, fails: 0 });
         try {
-          hidePaywall();
           await runAnalysis(payload, hash, s.session_id);
           setStatus("Betalt och klart.", false, false);
         } catch (e){
-          setStatus("Betalt, men analysen misslyckades: " + e.message + " Prova igen.", true, false);
+          failPaid(e);
         }
       }
     });

@@ -27,6 +27,11 @@ export default {
       return handleCheckout(env, cors);
     }
 
+    // --- Prislista: kategorier + schabloner för "Fyll i själv"-läget (gratis) ---
+    if (body.action === "prices") {
+      return json({ kategorier: priceList() }, 200, cors);
+    }
+
     // Förväntat: { besiktning, energirapport, energideklaration, fragelista }
     // (var och en är ren text, redan utdragen ur PDF på klientsidan).
     const docs = {
@@ -50,19 +55,23 @@ export default {
     }
 
     // --- Betalning: gratis-anrop saknar paid_session; betalda måste verifieras ---
+    // Vi kollar HÄR bara att sessionen är en äkta betald session. Om den redan är
+    // förbrukad avgörs LÄNGRE NER – först efter cache-koll – så att ett återförsök
+    // efter ett tappat svar ändå kan hämta det redan uträknade resultatet ur
+    // cachen i stället för att blockeras (och kunden slipper betala igen).
     const paidSession = str(body.paid_session);
     let isPaid = false;
+    let sessionUsed = false;
     if (paidSession) {
       const v = await verifyStripeSession(env, paidSession);
       if (!v.ok) return json({ error: v.error || "Betalning kunde inte verifieras." }, 402, cors);
-      if (env.RL_KV && (await env.RL_KV.get("sess:" + paidSession))) {
-        return json({ error: "Den här betalningen är redan använd." }, 402, cors);
-      }
       isPaid = true;
+      if (env.RL_KV && (await env.RL_KV.get("sess:" + paidSession))) sessionUsed = true;
     }
 
     // Cache-nyckel = hash av dokumenttexterna. Identiskt underlag => samma svar
-    // utan att köra AI igen (sparar pengar och tid).
+    // utan att köra AI igen (sparar pengar och tid). Cachen är deterministisk per
+    // dokument, så en träff returneras alltid – även för en redan förbrukad session.
     const cacheable = env.MOCK !== "true";
     const cache = caches.default;
     const cacheKey = new Request(
@@ -74,9 +83,15 @@ export default {
       if (hit) {
         const cached = applyPrices(await hit.json());
         cached._cache = "hit";
-        if (isPaid) await markConsumed(env, paidSession);
+        if (isPaid) await markConsumed(env, paidSession); // idempotent
         return json(cached, 200, cors);
       }
+    }
+
+    // Cache-miss: NU spärrar vi en redan förbrukad betalning (den kan annars inte
+    // återanvändas för ett NYTT objekt).
+    if (sessionUsed) {
+      return json({ error: "Den här betalningen är redan använd." }, 402, cors);
     }
 
     // Rate limit (KV): bara GRATIS AI-anrop (efter cache-miss) räknas. Betalda
@@ -216,6 +231,40 @@ function applyPrices(d) {
   d.summering.total_lag_sek = any ? lo : "n/a";
   d.summering.total_hog_sek = any ? hi : "n/a";
   return d;
+}
+
+// Kategorilista till "Fyll i själv"-läget: id, svensk etikett och schablon.
+// Samma källa som AI-läget (PRICE_TABLE) så priserna alltid stämmer överens.
+const PRICE_LABELS = {
+  dranering: "Dränering",
+  fuktsanering_kallare: "Fuktsanering källare",
+  tak_omlaggning: "Takomläggning",
+  tak_rengoring: "Takrengöring",
+  elcentral: "Elcentral (byte)",
+  el_omdragning: "Omdragning av el",
+  tillaggsisolering_vind: "Tilläggsisolering vind",
+  fonsterbyte: "Fönsterbyte",
+  fasadmalning: "Fasadmålning",
+  fasad_omputs: "Omputsning fasad",
+  stambyte: "Stambyte",
+  badrum: "Renovering badrum",
+  kok: "Renovering kök",
+  varmepump_luftvatten: "Värmepump (luft/vatten)",
+  varmepump_luftluft: "Värmepump (luft/luft)",
+  ventilation_ftx: "Ventilation (FTX)",
+  avlopp_relining: "Relining avlopp",
+  ytterdorr: "Ytterdörr (byte)",
+  radon: "Radonåtgärd",
+};
+function priceList() {
+  const out = Object.keys(PRICE_TABLE).map((id) => ({
+    id,
+    namn: PRICE_LABELS[id] || id,
+    lag: PRICE_TABLE[id][0],
+    hog: PRICE_TABLE[id][1],
+  }));
+  out.push({ id: "annat", namn: "Annat (eget pris)", lag: "n/a", hog: "n/a" });
+  return out;
 }
 
 // Kanonisk sträng av de fyra dokumenten i fast ordning – bas för cache-hashen.
