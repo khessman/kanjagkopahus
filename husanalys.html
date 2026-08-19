@@ -88,10 +88,16 @@
 </head>
 <body>
 <div class="wrap">
-  <a class="back" href="kalkylator.html">← Tillbaka till kalkylatorn</a>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px">
+    <a class="back" href="kalkylator.html" id="backLink" style="margin:0">← Tillbaka till kalkylatorn</a>
+    <button class="go" type="button" id="returnBtn" style="display:none;padding:10px 18px;font-size:14px">Använd &amp; tillbaka →</button>
+  </div>
 
   <div class="titlerow">
     <h1>Renoveringsanalys</h1>
+  </div>
+  <div class="betanote" id="returnHint" style="display:none">
+    Du kom hit från din husanalys. Kör en ny analys eller öppna en sparad nedan - klicka sedan <b>"Använd &amp; tillbaka"</b> för att ta med renoveringssumman dit du var.
   </div>
   <p class="lead">Ladda upp husets dokument så sammanställs en saklig överslagskalkyl över vilka åtgärder objektet kan behöva och grova kostnadsintervall - mellan tummen och pekfingret.</p>
 
@@ -747,6 +753,30 @@
     _manual.push({ id:p.id, namn:p.namn, lag:p.lag, hog:p.hog });
     renderManual();
   });
+
+  // === Retur till guiden/objektanalysen (kom man hit därifrån?) ===========
+  // Guiden/Objektanalysen sätter kjkh:renovReturn innan de skickar hit. Då
+  // visar vi en tydlig "Använd & tillbaka"-knapp som tar med renoveringssumman
+  // (den bryggas redan via kjkh:renovtotal när en analys renderas/öppnas).
+  (function(){
+    var ret;
+    try { ret = JSON.parse(localStorage.getItem("kjkh:renovReturn") || "null"); } catch(e){ ret = null; }
+    // Giltig i 6 timmar, annars strunta i den.
+    if (ret && ret.url && (Date.now() - (ret.ts||0) < 6*3600*1000)) {
+      var btn = document.getElementById("returnBtn");
+      var hint = document.getElementById("returnHint");
+      var back = document.getElementById("backLink");
+      btn.textContent = "Använd & tillbaka till " + (ret.label || "analysen") + " →";
+      btn.style.display = "";
+      hint.style.display = "";
+      btn.addEventListener("click", function(){
+        try { localStorage.removeItem("kjkh:renovReturn"); } catch(e){}
+        location.href = ret.url;
+      });
+      // "Tillbaka till kalkylatorn" avbryter returläget.
+      back.addEventListener("click", function(){ try { localStorage.removeItem("kjkh:renovReturn"); } catch(e){} });
+    }
+  })();
 
   // Visa tidigare sparade analyser direkt vid sidladdning.
   renderHistory();

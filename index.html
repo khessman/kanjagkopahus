@@ -314,7 +314,11 @@
     document.querySelectorAll(".pickbtn").forEach(function(b){ b.classList.toggle("sel", b.dataset.renov===mode); });
     $("renovRough").style.display = (mode==="rough"||mode==="deep") ? "block" : "none";
     if(mode==="skip") $("o_renov").value=0;
-    if(mode==="deep" && !silent){ saveState(); location.href="husanalys.html"; return; }
+    if(mode==="deep" && !silent){
+      saveState();
+      try{ localStorage.setItem("kjkh:renovReturn", JSON.stringify({url:"index.html", label:"guiden", ts:Date.now()})); }catch(e){}
+      location.href="husanalys.html"; return;
+    }
     if(!silent) recompute();
   }
   document.querySelectorAll(".pickbtn").forEach(function(b){ b.addEventListener("click", function(){ setRenov(b.dataset.renov); }); });
