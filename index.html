@@ -95,7 +95,7 @@
 <div class="wrap">
   <div class="topbar">
     <a href="kalkylator.html">Kalkylator &amp; verktyg</a>
-    <a href="objektanalys.html" title="Se allt på en sida i stället">Expertläge →</a>
+    <a href="kalkylator.html" title="Öppna hela kalkylatorn med alla detaljer">Fullständig kalkylator →</a>
   </div>
 
   <h1>Har du råd att köpa huset?</h1>
@@ -206,7 +206,7 @@
   // === Persistens =========================================================
   var PROFIL_IDS=["p_brutto","p_netto","p_spar","p_ranta","p_stress","p_kontant"];
   var OBJ_IDS=["o_url","o_pris","o_vard","o_drift","o_pantbrev","o_renov","o_namn"];
-  var _renovMode=null, revealed=0;
+  var _renovMode=null, revealed=0, _adress="";
   function loadState(){
     var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
     PROFIL_IDS.forEach(function(id){ if(p[id]!=null) $(id).value=p[id]; });
@@ -216,6 +216,7 @@
     var w={}; try{ w=JSON.parse(localStorage.getItem("kjkh:wizard")||"{}"); }catch(e){}
     OBJ_IDS.forEach(function(id){ if(w[id]!=null) $(id).value=w[id]; });
     if(w.driftunit) $("o_driftunit").value=w.driftunit;
+    if(w.adress) _adress=w.adress;
     if(w.renovMode) setRenov(w.renovMode, true);
     if(typeof w.revealed==="number") revealed=w.revealed;
     // Renov från renoveringsanalysen
@@ -227,7 +228,7 @@
     var p={}; PROFIL_IDS.forEach(function(id){ p[id]=$(id).value; });
     try{ localStorage.setItem("kjkh:profil", JSON.stringify(p)); }catch(e){}
     var w={}; OBJ_IDS.forEach(function(id){ w[id]=$(id).value; });
-    w.driftunit=$("o_driftunit").value; w.renovMode=_renovMode; w.revealed=revealed; w.bud=budFromSlider();
+    w.driftunit=$("o_driftunit").value; w.adress=_adress; w.renovMode=_renovMode; w.revealed=revealed; w.bud=budFromSlider();
     try{ localStorage.setItem("kjkh:wizard", JSON.stringify(w)); }catch(e){}
   }
 
@@ -253,7 +254,8 @@
   function recompute(){
     // Fakta-rutan på objekt-kortet
     var utg=num("o_pris"), fk=$("o_fakta");
-    if(utg){ fk.className="fakta on"; fk.textContent="Utgångspris "+kr(utg)+(num("o_vard")?" · Boolis värdering "+kr(num("o_vard")):"")+(driftMan()?" · drift "+kr(driftMan())+"/mån":""); }
+    if(utg||_adress){ fk.className="fakta on";
+      fk.innerHTML=(_adress?'<b>'+_adress.replace(/[<>&]/g,"")+'</b><br>':'')+(utg?"Utgångspris "+kr(utg):"utgångspris saknas")+(num("o_vard")?" · Boolis värdering "+kr(num("o_vard")):"")+(driftMan()?" · drift "+kr(driftMan())+"/mån":""); }
     else fk.className="fakta";
 
     // Resultatkortet
@@ -301,8 +303,8 @@
       if(f.vardering){ $("o_vard").value=f.vardering; fick.push("värdering"); }
       if(f.driftkostnad){ $("o_drift").value=f.driftkostnad; $("o_driftunit").value="ar"; fick.push("driftkostnad"); }
       if(f.pantbrev){ $("o_pantbrev").value=f.pantbrev; fick.push("pantbrev"); }
-      if(f.adress && !$("o_namn").value){ $("o_namn").value=f.adress; }
-      st.textContent=fick.length?("Hämtade: "+fick.join(", ")+". Kontrollera under Inställningar."):"Hittade inga fält - fyll i under Inställningar.";
+      if(f.adress){ _adress=f.adress; if(!$("o_namn").value) $("o_namn").value=f.adress; }
+      st.textContent=(_adress?_adress+" — ":"")+(fick.length?("hämtade "+fick.join(", ")+". Stämmer adressen? Kontrollera resten under Inställningar."):"hittade inga fält - fyll i under Inställningar.");
       var utg=num("o_pris"); if(utg) $("s_bud").value=sliderFromBud(utg);
       recompute();
     }catch(e){ st.textContent="Kunde inte hämta: "+e.message+". Fyll i under Inställningar."; }
