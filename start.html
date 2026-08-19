@@ -100,10 +100,10 @@
   <div class="progtxt" id="progtxt"></div>
 
   <div class="card">
-    <!-- STEG 1: EKONOMI -->
-    <section class="step" data-step="0">
+    <!-- STEG 3: EKONOMI -->
+    <section class="step" data-step="2">
       <h2>Din ekonomi</h2>
-      <p class="say">Börja med hushållets siffror. De sparas bara i din webbläsare - inget skickas till oss, ingen inloggning.</p>
+      <p class="say">Nu till hushållets siffror - de behövs för att räkna ut om objektet går ihop. Sparas bara i din webbläsare, inget skickas till oss, ingen inloggning.</p>
       <div class="two">
         <div class="field">
           <label for="p_brutto">Bruttoinkomst hushåll <span class="hint">(kr/mån, före skatt)</span></label>
@@ -127,8 +127,8 @@
       </details>
     </section>
 
-    <!-- STEG 2: OBJEKTET -->
-    <section class="step" data-step="1">
+    <!-- STEG 1: OBJEKTET -->
+    <section class="step" data-step="0">
       <h2>Objektet</h2>
       <p class="say">Klistra in en Booli-länk så hämtas pris, driftkostnad och Boolis värdering. Eller fyll i själv under detaljer.</p>
       <div class="linkrow">
@@ -168,8 +168,8 @@
       </div>
     </section>
 
-    <!-- STEG 3: RENOVERING -->
-    <section class="step" data-step="2">
+    <!-- STEG 2: RENOVERING -->
+    <section class="step" data-step="1">
       <h2>Vad behöver huset?</h2>
       <p class="say">Renovering äter av din kontantinsats, så det påverkar vad du har råd att buda. Hur noga vill du gå?</p>
       <div class="picks">
@@ -217,7 +217,7 @@
   var RANTEAVDRAG  = 0.30, RANTEAVDRAG2 = 0.21, AVDRAG_TAK = 100000;
   var BAND_JA      = 0.40, BAND_TIGHT = 0.55, DEF_RANTA = 4.5, DEF_STRESS = 7.0;
   var LAGFART_PCT  = 0.015, LAGFART_FAST = 825, PANTBREV_PCT = 0.02, PANTBREV_FAST = 375;
-  var STEG = ["Din ekonomi","Objektet","Renovering","Har du råd?","Spara & jämför"];
+  var STEG = ["Objektet","Renovering","Din ekonomi","Har du råd?","Spara & jämför"];
 
   function $(id){ return document.getElementById(id); }
   function num(el){ var v=(typeof el==="string"?$(el):el); if(!v) return 0; var n=parseFloat(String(v.value).replace(/\s/g,"").replace(",",".")); return isFinite(n)?n:0; }
@@ -389,9 +389,9 @@
   $("o_pris").addEventListener("change", function(){ var utg=num("o_pris"); if(utg) $("s_bud").value=sliderFromBud(utg); recompute(); });
 
   loadState();
-  // Kom man tillbaka från renoveringsanalysen? Landa på renov-steget (nu steg 3)
-  // så man ser summan landa - sen ett klick vidare till domen.
-  if((localStorage.getItem("kjkh:wizard")||"").indexOf('"renovMode":"deep"')>=0){ steg=2; }
+  // Kom man tillbaka från renoveringsanalysen? Landa på renov-steget (nu steg 2)
+  // så man ser summan landa - sen vidare till ekonomi och domen.
+  if((localStorage.getItem("kjkh:wizard")||"").indexOf('"renovMode":"deep"')>=0){ steg=1; }
   paint(); recompute();
 })();
 </script>
