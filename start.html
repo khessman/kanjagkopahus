@@ -207,16 +207,16 @@
   <div class="footdisc">Grov vägledning, inte lånelöfte eller rådgivning. © Snake Hessman 2026 · <a href="index.html">kanjagköpahus.se</a></div>
 </div>
 
+<script src="affordability.js"></script>
 <script>
 (function(){
   "use strict";
 
-  // === Regler (MÅSTE spegla objektanalys.html) ============================
-  var PARSER_API   = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
-  var BOLANETAK    = 0.85, AMORT_HOG = 0.02, AMORT_SKULD = 0.01, SKULD_GRANS = 4.5;
-  var RANTEAVDRAG  = 0.30, RANTEAVDRAG2 = 0.21, AVDRAG_TAK = 100000;
-  var BAND_JA      = 0.40, BAND_TIGHT = 0.55, DEF_RANTA = 4.5, DEF_STRESS = 7.0;
-  var LAGFART_PCT  = 0.015, LAGFART_FAST = 825, PANTBREV_PCT = 0.02, PANTBREV_FAST = 375;
+  // === Konfiguration ======================================================
+  var PARSER_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
+  // Motorn (regler + bedömning) bor i affordability.js (KJKH_AFF).
+  var C = KJKH_AFF.C;
+  var SKULD_GRANS = C.SKULD_GRANS, AVDRAG_TAK = C.AVDRAG_TAK, DEF_RANTA = C.DEF_RANTA, DEF_STRESS = C.DEF_STRESS;
   var STEG = ["Objektet","Renovering","Din ekonomi","Har du råd?","Spara & jämför"];
 
   function $(id){ return document.getElementById(id); }
@@ -251,30 +251,16 @@
     try{ localStorage.setItem("kjkh:wizard", JSON.stringify(w)); }catch(e){}
   }
 
-  // === Motorn (identisk med objektanalys) =================================
+  // === Motorn (delad: affordability.js) ===================================
   function driftMan(){ var v=num("o_drift"); return $("o_driftunit").value==="ar"?v/12:v; }
-  function ranteManad(lan, r){ var a=lan*r; var av=Math.min(a,AVDRAG_TAK)*RANTEAVDRAG+Math.max(0,a-AVDRAG_TAK)*RANTEAVDRAG2; return (a-av)/12; }
   function bedom(B){
-    var brutto=num("p_brutto"), netto=num("p_netto"), spar=num("p_spar");
-    var ranta=num("p_ranta")/100, stress=num("p_stress")/100, renov=num("o_renov"), pantBefintlig=num("o_pantbrev");
-    var kiKrav=(1-BOLANETAK)*B, lan=BOLANETAK*B;
-    var lagfart=LAGFART_PCT*B+LAGFART_FAST;
-    var nyaPantbrev=Math.max(0,lan-pantBefintlig);
-    var pantbrevKost=nyaPantbrev>0?PANTBREV_PCT*nyaPantbrev+PANTBREV_FAST:0;
-    var kontantbehov=kiKrav+lagfart+pantbrevKost, kontanterTillg=spar-renov;
-    var bruttoAr=brutto*12, skuldkvot=bruttoAr>0?lan/bruttoAr:99;
-    var amort=AMORT_HOG+(skuldkvot>SKULD_GRANS?AMORT_SKULD:0), amortMan=lan*amort/12, dMan=driftMan();
-    var boendeMan=ranteManad(lan,ranta)+amortMan+dMan, boendeStress=ranteManad(lan,stress)+amortMan+dMan;
-    var kvarAttLeva=netto-boendeStress, hardFail=kontanterTillg<kontantbehov;
-    var ratio=netto>0?boendeStress/netto:1, band;
-    if(hardFail||ratio>BAND_TIGHT) band="nej"; else if(ratio>BAND_JA) band="tight"; else band="ja";
-    return {B:B,kiKrav:kiKrav,lagfart:lagfart,pantbrevKost:pantbrevKost,nyaPantbrev:nyaPantbrev,kontantbehov:kontantbehov,
-            kontanterTillg:kontanterTillg,lan:lan,skuldkvot:skuldkvot,amort:amort,amortMan:amortMan,
-            boendeMan:boendeMan,boendeStress:boendeStress,kvarAttLeva:kvarAttLeva,band:band,hardFail:hardFail,ranta:ranta,stress:stress};
+    return KJKH_AFF.bedom({
+      B:B, brutto:num("p_brutto"), netto:num("p_netto"), spar:num("p_spar"),
+      ranta:num("p_ranta")/100, stress:num("p_stress")/100,
+      renov:num("o_renov"), pantBefintlig:num("o_pantbrev"), driftMan:driftMan()
+    });
   }
-  function priser(){ var utg=num("o_pris"),vard=num("o_vard"),hog=Math.max(utg,vard,1);
-    var min=Math.round(utg*0.8/25000)*25000, max=Math.round(hog*1.6/25000)*25000;
-    if(min<0)min=0; if(max<=min)max=min+1000000; return {utg:utg,vard:vard,min:min,max:max}; }
+  function priser(){ return KJKH_AFF.priser(num("o_pris"), num("o_vard")); }
   function budFromSlider(){ var p=priser(),t=num("s_bud")/100; return Math.round((p.min+t*(p.max-p.min))/25000)*25000; }
   function sliderFromBud(bud){ var p=priser(); if(p.max===p.min)return 50; return Math.max(0,Math.min(100,(bud-p.min)/(p.max-p.min)*100)); }
 

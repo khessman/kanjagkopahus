@@ -193,27 +193,17 @@
   </div>
 </div>
 
+<script src="affordability.js"></script>
 <script>
 (function(){
   "use strict";
 
-  // === Konfiguration / regler (justerbara) ================================
-  var PARSER_API   = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
-  var BOLANETAK    = 0.85;   // max lån av köpeskilling => min 15 % kontantinsats
-  var AMORT_HOG    = 0.02;   // belåningsgrad > 70 % => 2 %/år
-  var AMORT_SKULD  = 0.01;   // + lån > 4,5 x bruttoårsinkomst => +1 %/år
-  var SKULD_GRANS  = 4.5;
-  var RANTEAVDRAG  = 0.30;   // upp till 100 000 kr ränta/år
-  var RANTEAVDRAG2 = 0.21;   // över 100 000 kr ränta/år
-  var AVDRAG_TAK   = 100000;
-  var BAND_JA      = 0.40;   // boendekostnad (stress) / nettoinkomst
-  var BAND_TIGHT   = 0.55;
-  var DEF_RANTA    = 4.5;
-  var DEF_STRESS   = 7.0;
-  var LAGFART_PCT  = 0.015;  // stämpelskatt lagfart + 825 kr expedition
-  var LAGFART_FAST = 825;
-  var PANTBREV_PCT = 0.02;   // stämpelskatt nya pantbrev + 375 kr/pantbrev
-  var PANTBREV_FAST= 375;
+  // === Konfiguration ======================================================
+  var PARSER_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
+  // Motorn (regler + bedömning) bor i affordability.js (KJKH_AFF). Här bara
+  // de konstanter som fortfarande används i UI:t/defaultvärden.
+  var C = KJKH_AFF.C;
+  var SKULD_GRANS = C.SKULD_GRANS, AVDRAG_TAK = C.AVDRAG_TAK, DEF_RANTA = C.DEF_RANTA, DEF_STRESS = C.DEF_STRESS;
 
   function $(id){ return document.getElementById(id); }
   function num(el){ var v = (typeof el === "string" ? $(el) : el); if(!v) return 0; var n = parseFloat(String(v.value).replace(/\s/g,"").replace(",",".")); return isFinite(n) ? n : 0; }
@@ -270,61 +260,22 @@
     }
   });
 
-  // === Affordability-motorn ===============================================
+  // === Affordability-motorn (delad: affordability.js) =====================
   function driftMan(){
     var v = num("o_drift");
     return $("o_driftunit").value === "ar" ? v/12 : v;
   }
-  function ranteManad(lan, rantaDec){
-    var arsranta = lan * rantaDec;
-    var avdrag = Math.min(arsranta, AVDRAG_TAK) * RANTEAVDRAG + Math.max(0, arsranta - AVDRAG_TAK) * RANTEAVDRAG2;
-    return (arsranta - avdrag) / 12;
-  }
+  // Samlar in fälten och delegerar bedömningen till den delade motorn.
   function bedom(B){
-    var brutto = num("p_brutto"), netto = num("p_netto"), spar = num("p_spar");
-    var ranta = num("p_ranta")/100, stress = num("p_stress")/100;
-    var renov = num("o_renov"), pantBefintlig = num("o_pantbrev");
-
-    var kiKrav = (1 - BOLANETAK) * B;          // 15 % av budet
-    var lan = BOLANETAK * B;                     // antar minsta kontantinsats (tightast)
-    var lagfart = LAGFART_PCT * B + LAGFART_FAST;
-    var nyaPantbrev = Math.max(0, lan - pantBefintlig);
-    var pantbrevKost = nyaPantbrev > 0 ? PANTBREV_PCT * nyaPantbrev + PANTBREV_FAST : 0;
-    var kontantbehov = kiKrav + lagfart + pantbrevKost;   // kontanter vid tillträde
-    var kontanterTillg = spar - renov;          // renovering äter av kontanterna
-    var bruttoAr = brutto * 12;
-    var skuldkvot = bruttoAr > 0 ? lan / bruttoAr : 99;
-    var amort = AMORT_HOG + (skuldkvot > SKULD_GRANS ? AMORT_SKULD : 0);
-    var amortMan = lan * amort / 12;
-    var dMan = driftMan();
-    var boendeMan   = ranteManad(lan, ranta)  + amortMan + dMan;
-    var boendeStress= ranteManad(lan, stress) + amortMan + dMan;
-    var kvarAttLeva = netto - boendeStress;
-
-    var hardFail = kontanterTillg < kontantbehov;
-    var ratio = netto > 0 ? boendeStress / netto : 1;
-    var band;
-    if(hardFail || ratio > BAND_TIGHT) band = "nej";
-    else if(ratio > BAND_JA) band = "tight";
-    else band = "ja";
-
-    return { B:B, kiKrav:kiKrav, lagfart:lagfart, pantbrevKost:pantbrevKost, nyaPantbrev:nyaPantbrev,
-             kontantbehov:kontantbehov, kontanterTillg:kontanterTillg, buffer:kontanterTillg - kontantbehov,
-             lan:lan, skuldkvot:skuldkvot, amort:amort, amortMan:amortMan,
-             boendeMan:boendeMan, boendeStress:boendeStress, kvarAttLeva:kvarAttLeva,
-             band:band, hardFail:hardFail, ranta:ranta, stress:stress };
+    return KJKH_AFF.bedom({
+      B: B, brutto: num("p_brutto"), netto: num("p_netto"), spar: num("p_spar"),
+      ranta: num("p_ranta")/100, stress: num("p_stress")/100,
+      renov: num("o_renov"), pantBefintlig: num("o_pantbrev"), driftMan: driftMan()
+    });
   }
 
   // === Reglagets spann ====================================================
-  function priser(){
-    var utg = num("o_pris"), vard = num("o_vard");
-    var hog = Math.max(utg, vard, 1);
-    var min = Math.round(utg * 0.8 / 25000) * 25000;
-    var max = Math.round(hog * 1.6 / 25000) * 25000;
-    if(min < 0) min = 0;
-    if(max <= min) max = min + 1000000;
-    return { utg:utg, vard:vard, min:min, max:max };
-  }
+  function priser(){ return KJKH_AFF.priser(num("o_pris"), num("o_vard")); }
   function budFromSlider(){
     var p = priser();
     var t = num("s_bud") / 100;
