@@ -149,6 +149,7 @@
             <div class="field unit"><select id="o_driftunit"><option value="man">kr/mån</option><option value="ar">kr/år</option></select></div>
           </div>
         </div>
+        <div class="field"><label for="o_pantbrev">Befintliga pantbrev <span class="hint">(kr - hämtas från Booli, sänker pantbrevskostnaden)</span></label><input type="number" id="o_pantbrev" inputmode="numeric" placeholder="0"></div>
       </details>
       <p class="say" id="o_prisnote" style="margin-top:14px"></p>
     </section>
@@ -215,6 +216,7 @@
   var BOLANETAK    = 0.85, AMORT_HOG = 0.02, AMORT_SKULD = 0.01, SKULD_GRANS = 4.5;
   var RANTEAVDRAG  = 0.30, RANTEAVDRAG2 = 0.21, AVDRAG_TAK = 100000;
   var BAND_JA      = 0.40, BAND_TIGHT = 0.55, DEF_RANTA = 4.5, DEF_STRESS = 7.0;
+  var LAGFART_PCT  = 0.015, LAGFART_FAST = 825, PANTBREV_PCT = 0.02, PANTBREV_FAST = 375;
   var STEG = ["Din ekonomi","Objektet","Renovering","Har du råd?","Spara & jämför"];
 
   function $(id){ return document.getElementById(id); }
@@ -224,7 +226,7 @@
 
   // === Persistens =========================================================
   var PROFIL_IDS=["p_brutto","p_netto","p_spar","p_ranta","p_stress"];
-  var OBJ_IDS=["o_url","o_pris","o_vard","o_drift","o_renov","o_namn"];
+  var OBJ_IDS=["o_url","o_pris","o_vard","o_drift","o_pantbrev","o_renov","o_namn"];
   function loadState(){
     var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
     PROFIL_IDS.forEach(function(id){ if(p[id]!=null) $(id).value=p[id]; });
@@ -254,15 +256,20 @@
   function ranteManad(lan, r){ var a=lan*r; var av=Math.min(a,AVDRAG_TAK)*RANTEAVDRAG+Math.max(0,a-AVDRAG_TAK)*RANTEAVDRAG2; return (a-av)/12; }
   function bedom(B){
     var brutto=num("p_brutto"), netto=num("p_netto"), spar=num("p_spar");
-    var ranta=num("p_ranta")/100, stress=num("p_stress")/100, renov=num("o_renov");
-    var kiKrav=(1-BOLANETAK)*B, kontanterTillg=spar-renov, lan=BOLANETAK*B;
+    var ranta=num("p_ranta")/100, stress=num("p_stress")/100, renov=num("o_renov"), pantBefintlig=num("o_pantbrev");
+    var kiKrav=(1-BOLANETAK)*B, lan=BOLANETAK*B;
+    var lagfart=LAGFART_PCT*B+LAGFART_FAST;
+    var nyaPantbrev=Math.max(0,lan-pantBefintlig);
+    var pantbrevKost=nyaPantbrev>0?PANTBREV_PCT*nyaPantbrev+PANTBREV_FAST:0;
+    var kontantbehov=kiKrav+lagfart+pantbrevKost, kontanterTillg=spar-renov;
     var bruttoAr=brutto*12, skuldkvot=bruttoAr>0?lan/bruttoAr:99;
     var amort=AMORT_HOG+(skuldkvot>SKULD_GRANS?AMORT_SKULD:0), amortMan=lan*amort/12, dMan=driftMan();
     var boendeMan=ranteManad(lan,ranta)+amortMan+dMan, boendeStress=ranteManad(lan,stress)+amortMan+dMan;
-    var kvarAttLeva=netto-boendeStress, hardFail=kontanterTillg<kiKrav;
+    var kvarAttLeva=netto-boendeStress, hardFail=kontanterTillg<kontantbehov;
     var ratio=netto>0?boendeStress/netto:1, band;
     if(hardFail||ratio>BAND_TIGHT) band="nej"; else if(ratio>BAND_JA) band="tight"; else band="ja";
-    return {B:B,kiKrav:kiKrav,kontanterTillg:kontanterTillg,lan:lan,skuldkvot:skuldkvot,amort:amort,amortMan:amortMan,
+    return {B:B,kiKrav:kiKrav,lagfart:lagfart,pantbrevKost:pantbrevKost,nyaPantbrev:nyaPantbrev,kontantbehov:kontantbehov,
+            kontanterTillg:kontanterTillg,lan:lan,skuldkvot:skuldkvot,amort:amort,amortMan:amortMan,
             boendeMan:boendeMan,boendeStress:boendeStress,kvarAttLeva:kvarAttLeva,band:band,hardFail:hardFail,ranta:ranta,stress:stress};
   }
   function priser(){ var utg=num("o_pris"),vard=num("o_vard"),hog=Math.max(utg,vard,1);
@@ -283,7 +290,7 @@
     box.className="verdict "+r.band;
     if(r.band==="ja"){ big.textContent="Ja"; sub.textContent="Rymms med marginal, även vid stressränta "+pct(r.stress*100)+"."; }
     else if(r.band==="tight"){ big.textContent="Det är tight"; sub.textContent="Det går, men marginalen är tunn vid stressränta "+pct(r.stress*100)+"."; }
-    else if(r.hardFail){ big.textContent="Nej"; sub.textContent="Kontantinsatsen räcker inte: du behöver "+kr(r.kiKrav)+" kvar efter renovering."; }
+    else if(r.hardFail){ big.textContent="Nej"; sub.textContent="Kontanterna räcker inte: du behöver "+kr(r.kontantbehov)+" vid tillträde (utöver renoveringen)."; }
     else { big.textContent="Nej"; sub.textContent="Månadskostnaden blir för hög mot din nettoinkomst vid stressränta."; }
   }
 
@@ -297,14 +304,17 @@
       function c(l,v,neg){ return '<div class="c"><div class="l">'+l+'</div><div class="v'+(neg?' neg':'')+'">'+v+'</div></div>'; }
       $("brk").innerHTML=
         c("Kontantinsats (15 %)",kr(r.kiKrav))+
-        c("Kontanter efter renov.",kr(r.kontanterTillg),r.kontanterTillg<r.kiKrav)+
+        c("Lagfart (1,5 %)",kr(r.lagfart))+
+        c("Pantbrev (nya)",r.pantbrevKost?kr(r.pantbrevKost):"0 kr")+
+        c("Kontantbehov vid tillträde",kr(r.kontantbehov))+
+        c("Kontanter efter renov.",kr(r.kontanterTillg),r.kontanterTillg<r.kontantbehov)+
         c("Bolån (85 %)",kr(r.lan))+
         c("Skuldkvot",(Math.round(r.skuldkvot*10)/10).toLocaleString("sv-SE")+"×"+(r.skuldkvot>SKULD_GRANS?" (+1 %)":""))+
         c("Amortering",pct(r.amort*100)+"/år")+
         c("Månad ("+pct(r.ranta*100)+")",kr(r.boendeMan))+
         c("Månad (stress "+pct(r.stress*100)+")",kr(r.boendeStress))+
         c("Kvar att leva på",kr(r.kvarAttLeva),r.kvarAttLeva<0);
-      $("disc").textContent="Antaganden: minsta kontantinsats (15 %), maximalt bolån, amortering enligt belåningsgrad och skuldkvot, ränteavdrag 30 % (21 % över "+kr(AVDRAG_TAK)+" ränta/år). Grov modell - banken räknar på fler poster.";
+      $("disc").textContent="Antaganden: minsta kontantinsats (15 %), lagfart 1,5 % + pantbrev 2 % på nya pantbrev (befintliga dras av), maximalt bolån, amortering enligt belåningsgrad och skuldkvot, ränteavdrag 30 % (21 % över "+kr(AVDRAG_TAK)+" ränta/år). Grov modell - banken räknar på fler poster.";
       // steg 5 speglar samma dom
       verdictText($("verdict2"),$("v_big2"),$("v_sub2"),r);
     }
@@ -325,6 +335,7 @@
       if(f.pris){ $("o_pris").value=f.pris; fick.push("pris"); }
       if(f.vardering){ $("o_vard").value=f.vardering; fick.push("Boolis värdering"); }
       if(f.driftkostnad){ $("o_drift").value=f.driftkostnad; $("o_driftunit").value="ar"; fick.push("driftkostnad (antas kr/år)"); }
+      if(f.pantbrev){ $("o_pantbrev").value=f.pantbrev; fick.push("befintliga pantbrev"); }
       st.textContent=fick.length?("Hämtade: "+fick.join(", ")+". Kontrollera mot annonsen."):"Hittade inga fält - fyll i under detaljer.";
       $("o_more").open=true; recompute();
     }catch(e){ st.textContent="Kunde inte hämta: "+e.message+". Fyll i under detaljer."; $("o_more").open=true; }
@@ -347,7 +358,7 @@
     var bud=budFromSlider(), r=bedom(bud);
     var namn=($("o_namn").value.trim() || ("Objekt "+kr(num("o_pris"))));
     var obj={ id:Date.now(), namn:namn, ts:Date.now(),
-      sum:{ pris:num("o_pris"), lan:r.lan, kontantbehov:r.kiKrav, manad:r.boendeMan, renov:num("o_renov") },
+      sum:{ pris:num("o_pris"), lan:r.lan, kontantbehov:r.kontantbehov, manad:r.boendeMan, renov:num("o_renov") },
       objektanalys:{ url:$("o_url").value.trim(), utgangspris:num("o_pris"), vardering:num("o_vard"),
         bud:bud, band:r.band, boendeMan:r.boendeMan, boendeStress:r.boendeStress, kvarAttLeva:r.kvarAttLeva } };
     try{ var arr=JSON.parse(localStorage.getItem("kjkh:objekt")||"[]"); arr.unshift(obj);
@@ -372,7 +383,7 @@
 
   // === Lyssnare + init ====================================================
   PROFIL_IDS.forEach(function(id){ $(id).addEventListener("input", recompute); });
-  ["o_pris","o_vard","o_drift","o_renov","o_url","o_namn"].forEach(function(id){ $(id).addEventListener("input", recompute); });
+  ["o_pris","o_vard","o_drift","o_pantbrev","o_renov","o_url","o_namn"].forEach(function(id){ $(id).addEventListener("input", recompute); });
   $("o_driftunit").addEventListener("change", recompute);
   $("s_bud").addEventListener("input", recompute);
   $("o_pris").addEventListener("change", function(){ var utg=num("o_pris"); if(utg) $("s_bud").value=sliderFromBud(utg); recompute(); });
