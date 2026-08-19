@@ -113,6 +113,10 @@
           <label for="p_stress">Stressränta <span class="hint">(% - marginal för höjda räntor)</span></label>
           <input type="number" id="p_stress" inputmode="decimal" step="0.1" placeholder="7">
         </div>
+        <div class="field">
+          <label for="p_kontant">Kontantinsats <span class="hint">(%, minst 10 % från 2026)</span></label>
+          <input type="number" id="p_kontant" inputmode="decimal" step="1" min="10" placeholder="15">
+        </div>
       </div>
     </details>
   </div>
@@ -203,7 +207,7 @@
   // Motorn (regler + bedömning) bor i affordability.js (KJKH_AFF). Här bara
   // de konstanter som fortfarande används i UI:t/defaultvärden.
   var C = KJKH_AFF.C;
-  var SKULD_GRANS = C.SKULD_GRANS, AVDRAG_TAK = C.AVDRAG_TAK, DEF_RANTA = C.DEF_RANTA, DEF_STRESS = C.DEF_STRESS;
+  var SKULD_GRANS = C.SKULD_GRANS, AVDRAG_TAK = C.AVDRAG_TAK, DEF_RANTA = C.DEF_RANTA, DEF_STRESS = C.DEF_STRESS, DEF_KONTANT = C.DEF_KONTANT * 100;
 
   function $(id){ return document.getElementById(id); }
   function num(el){ var v = (typeof el === "string" ? $(el) : el); if(!v) return 0; var n = parseFloat(String(v.value).replace(/\s/g,"").replace(",",".")); return isFinite(n) ? n : 0; }
@@ -211,13 +215,14 @@
   function pct(n){ return (Math.round(n*10)/10).toLocaleString("sv-SE") + " %"; }
 
   // === Profil: sparas i localStorage ======================================
-  var PROFIL_IDS = ["p_brutto","p_netto","p_spar","p_ranta","p_stress"];
+  var PROFIL_IDS = ["p_brutto","p_netto","p_spar","p_ranta","p_stress","p_kontant"];
   function loadProfil(){
     var o = {};
     try{ o = JSON.parse(localStorage.getItem("kjkh:profil") || "{}"); }catch(e){}
     PROFIL_IDS.forEach(function(id){ if(o[id]!=null) $(id).value = o[id]; });
-    if(!$("p_ranta").value)  $("p_ranta").value  = DEF_RANTA;
-    if(!$("p_stress").value) $("p_stress").value = DEF_STRESS;
+    if(!$("p_ranta").value)   $("p_ranta").value   = DEF_RANTA;
+    if(!$("p_stress").value)  $("p_stress").value  = DEF_STRESS;
+    if(!$("p_kontant").value) $("p_kontant").value = DEF_KONTANT;
   }
   function saveProfil(){
     var o = {}; PROFIL_IDS.forEach(function(id){ o[id] = $(id).value; });
@@ -270,7 +275,8 @@
     return KJKH_AFF.bedom({
       B: B, brutto: num("p_brutto"), netto: num("p_netto"), spar: num("p_spar"),
       ranta: num("p_ranta")/100, stress: num("p_stress")/100,
-      renov: num("o_renov"), pantBefintlig: num("o_pantbrev"), driftMan: driftMan()
+      renov: num("o_renov"), pantBefintlig: num("o_pantbrev"), driftMan: driftMan(),
+      kontantAndel: num("p_kontant")/100
     });
   }
 
@@ -327,19 +333,19 @@
     // Breakdown
     function c(l, v, neg){ return '<div class="c"><div class="l">' + l + '</div><div class="v' + (neg?' neg':'') + '">' + v + '</div></div>'; }
     $("brk").innerHTML =
-      c("Kontantinsats (15 %)", kr(r.kiKrav)) +
+      c("Kontantinsats (" + pct(r.kontantAndel*100) + ")", kr(r.kiKrav)) +
       c("Lagfart (1,5 %)", kr(r.lagfart)) +
       c("Pantbrev (nya)", r.pantbrevKost ? kr(r.pantbrevKost) : "0 kr") +
       c("Kontantbehov vid tillträde", kr(r.kontantbehov)) +
       c("Kontanter kvar efter renov.", kr(r.kontanterTillg), r.kontanterTillg < r.kontantbehov) +
-      c("Bolån (85 %)", kr(r.lan)) +
+      c("Bolån (" + pct(r.belaning*100) + ")", kr(r.lan)) +
       c("Skuldkvot", (Math.round(r.skuldkvot*10)/10).toLocaleString("sv-SE") + "×" + (r.skuldkvot>SKULD_GRANS?" (amort +1 %)":"")) +
       c("Amortering", pct(r.amort*100) + "/år · " + kr(r.amortMan) + "/mån") +
       c("Månadskostnad (" + pct(r.ranta*100) + ")", kr(r.boendeMan) + "/mån") +
       c("Månadskostnad (stress " + pct(r.stress*100) + ")", kr(r.boendeStress) + "/mån") +
       c("Kvar att leva på (stress)", kr(r.kvarAttLeva) + "/mån", r.kvarAttLeva < 0);
 
-    $("disc").textContent = "Antaganden: minsta kontantinsats (15 %), lagfart 1,5 % + pantbrev 2 % på nya pantbrev (befintliga pantbrev dras av), maximalt bolån, amortering enligt belåningsgrad och skuldkvot, ränteavdrag 30 % (21 % över " +
+    $("disc").textContent = "Antaganden: kontantinsats " + pct(r.kontantAndel*100) + ", lagfart 1,5 % + pantbrev 2 % på nya pantbrev (befintliga pantbrev dras av), amortering enligt belåningsgrad och skuldkvot, ränteavdrag 30 % (21 % över " +
       kr(AVDRAG_TAK) + " ränta/år). Renovering dras från dina kontanter. Grov modell - din bank räknar på fler poster.";
   }
 

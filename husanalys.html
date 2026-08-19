@@ -70,13 +70,19 @@
   .sumbar .v{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(22px,4vw,30px)}
   .disc{margin-top:22px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
   .footdisc{margin-top:30px;font-size:12.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px}
-  .histrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer;transition:.15s}
+  .histrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:8px;transition:.15s}
   .histrow:last-child{margin-bottom:0}
-  .histrow:hover{border-color:var(--green);transform:translateY(-1px)}
-  .histrow .hmeta{min-width:0}
-  .histrow .ht{font-weight:600;font-size:14px}
-  .histrow .hs{font-size:12px;color:var(--ink-soft);margin-top:1px}
-  .histrow .hopen{flex:none;font-size:12.5px;font-weight:600;color:var(--green);white-space:nowrap}
+  .histrow:hover{border-color:var(--green)}
+  .histrow .hmeta{min-width:0;flex:1}
+  .histrow .hnamn{font-weight:600;font-size:14px;font-family:inherit;border:1px solid transparent;border-radius:7px;padding:4px 7px;margin:-4px 0 0 -7px;width:100%;max-width:340px;background:transparent;color:var(--ink)}
+  .histrow .hnamn:hover{border-color:var(--line)}
+  .histrow .hnamn:focus{outline:none;border-color:var(--green);background:#fff}
+  .histrow .hs{font-size:12px;color:var(--ink-soft);margin-top:1px;padding-left:1px}
+  .histrow .hbtns{flex:none;display:flex;gap:6px;align-items:center}
+  .histrow .hopen{font-size:12.5px;font-weight:700;color:#fff;background:var(--green);border:0;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
+  .histrow .hopen:hover{background:var(--green-dk)}
+  .histrow .hdel{font-size:16px;line-height:1;color:var(--ink-soft);background:var(--paper-2);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;transition:.15s}
+  .histrow .hdel:hover{border-color:var(--terra);color:var(--terra)}
   @media(max-width:600px){.wrap{padding:28px 14px 60px}.card{padding:18px 16px}.drop{flex-wrap:wrap}table.at .hidesm{display:none}}
 </style>
 </head>
@@ -102,7 +108,7 @@
         <label for="booliDocUrl" style="font-size:12.5px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:5px">Booli-länk <span style="font-weight:400">- hämta dokument automatiskt från mäklaren (best-effort)</span></label>
         <input type="url" id="booliDocUrl" placeholder="https://www.booli.se/..." style="font-family:inherit;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%">
       </div>
-      <button class="pick" type="button" id="booliDocBtn">Hämta dokument</button>
+      <button class="go" type="button" id="booliDocBtn" style="padding:11px 20px;font-size:14px">Hämta dokument</button>
     </div>
     <div class="status" id="booliDocStatus" style="margin-bottom:14px;min-height:1.2em"></div>
 
@@ -354,17 +360,37 @@
   function indexGet(){
     try { return JSON.parse(localStorage.getItem("kjkh:index") || "[]"); } catch (e) { return []; }
   }
+  function indexSet(list){ try { localStorage.setItem("kjkh:index", JSON.stringify(list.slice(0, 50))); } catch (e) {} }
   function indexAdd(hash, data){
-    var list = indexGet().filter(function(e){ return e.hash !== hash; });
+    var prev = indexGet().filter(function(e){ return e.hash !== hash; });
     var s = data.summering || {};
-    list.unshift({
+    var o = data.objekt || {};
+    prev.unshift({
       hash: hash,
       ts: Date.now(),
       count: (data.atgarder || []).length,
       lo: s.total_lag_sek,
       hi: s.total_hog_sek,
+      namn: (o.adress && o.adress !== "n/a") ? o.adress : "",   // föreslå gatuadress om AI gav den
     });
-    try { localStorage.setItem("kjkh:index", JSON.stringify(list.slice(0, 50))); } catch (e) {}
+    indexSet(prev);
+  }
+  function indexRename(hash, namn){
+    var list = indexGet(); var e = list.filter(function(x){ return x.hash === hash; })[0];
+    if (e){ e.namn = namn; indexSet(list); }
+  }
+  function indexRemove(hash){
+    indexSet(indexGet().filter(function(e){ return e.hash !== hash; }));
+    try { localStorage.removeItem("kjkh:" + hash); } catch (e) {}   // ta bort själva analysen ur cachen
+    renderHistory();
+  }
+  function openSaved(hash){
+    var saved = cacheGet(hash);
+    if (saved){
+      render(saved, hash);
+      setStatus("Visar sparad analys. Summan är bryggad till kalkylatorn/objektanalysen.", false, false);
+      document.getElementById("result").scrollIntoView({ behavior:"smooth", block:"start" });
+    }
   }
   function renderHistory(){
     var list = indexGet();
@@ -377,20 +403,23 @@
       var kostnad = (typeof e.lo === "number" && typeof e.hi === "number")
         ? new Intl.NumberFormat("sv-SE").format(e.lo) + "–" + new Intl.NumberFormat("sv-SE").format(e.hi) + " kr"
         : "kostnad n/a";
+      var namn = (e.namn || "").replace(/"/g, "&quot;");
       return '<div class="histrow" data-hash="' + e.hash + '">' +
-        '<div class="hmeta"><div class="ht">' + e.count + ' åtgärder · ' + kostnad + '</div>' +
-        '<div class="hs">Analyserad ' + when + '</div></div>' +
-        '<span class="hopen">Öppna →</span></div>';
+        '<div class="hmeta">' +
+          '<input class="hnamn" value="' + namn + '" placeholder="Namnge (t.ex. gatuadress)">' +
+          '<div class="hs">' + e.count + ' åtgärder · ' + kostnad + ' · ' + when + '</div>' +
+        '</div>' +
+        '<div class="hbtns"><button class="hopen" type="button">Öppna →</button>' +
+        '<button class="hdel" type="button" title="Ta bort">×</button></div></div>';
     }).join("");
     box.querySelectorAll(".histrow").forEach(function(row){
-      row.addEventListener("click", function(){
-        var saved = cacheGet(row.dataset.hash);
-        if (saved){
-          render(saved, row.dataset.hash);
-          setStatus("Visar sparad analys.", false, false);
-          document.getElementById("result").scrollIntoView({ behavior:"smooth", block:"start" });
-        }
+      var hash = row.dataset.hash;
+      row.querySelector(".hopen").addEventListener("click", function(){ openSaved(hash); });
+      row.querySelector(".hdel").addEventListener("click", function(){
+        if (confirm("Ta bort den här sparade analysen?")) indexRemove(hash);
       });
+      var inp = row.querySelector(".hnamn");
+      inp.addEventListener("change", function(){ indexRename(hash, inp.value.trim()); });
     });
   }
 

@@ -13,8 +13,10 @@
   "use strict";
 
   var C = {
-    BOLANETAK: 0.85,        // max lån av köpeskilling
+    DEF_KONTANT: 0.15,      // förvald kontantinsats (andel av priset)
+    KONTANT_MIN: 0.10,      // lägsta tillåtna kontantinsats (bolånetak from 2026: 90 %)
     AMORT_HOG: 0.02,        // belåningsgrad > 70 % => 2 %/år
+    AMORT_MELLAN: 0.01,     // belåningsgrad 50–70 % => 1 %/år
     AMORT_SKULD: 0.01,      // + lån > 4,5x bruttoårsinkomst => +1 %/år
     SKULD_GRANS: 4.5,
     RANTEAVDRAG: 0.30,      // upp till AVDRAG_TAK ränta/år
@@ -51,15 +53,21 @@
   // Kärnan. input = {
   //   B, brutto, netto, spar,      // kr (ränta/stress som decimal, 0.045)
   //   ranta, stress,
-  //   renov, pantBefintlig, driftMan   // kr; driftMan = driftkostnad per mån
+  //   renov, pantBefintlig, driftMan,  // kr; driftMan = driftkostnad per mån
+  //   kontantAndel                 // andel kontantinsats (0.15). Utelämnad => DEF_KONTANT
   // }
   function bedom(i) {
     var B = i.B, netto = i.netto, spar = i.spar;
     var ranta = i.ranta, stress = i.stress;
     var renov = i.renov || 0, pantBefintlig = i.pantBefintlig || 0, dMan = i.driftMan || 0;
 
-    var kiKrav = (1 - C.BOLANETAK) * B;                 // 15 % av budet
-    var lan = C.BOLANETAK * B;                          // antar minsta kontantinsats (tightast)
+    var kontantAndel = (i.kontantAndel && i.kontantAndel > 0) ? i.kontantAndel : C.DEF_KONTANT;
+    if (kontantAndel < C.KONTANT_MIN) kontantAndel = C.KONTANT_MIN;   // bolånetaket
+    if (kontantAndel > 1) kontantAndel = 1;
+
+    var kiKrav = kontantAndel * B;
+    var lan = (1 - kontantAndel) * B;
+    var belaning = 1 - kontantAndel;                    // = lån / pris
     var lagfart = C.LAGFART_PCT * B + C.LAGFART_FAST;
     var nyaPantbrev = Math.max(0, lan - pantBefintlig);
     var pantbrevKost = nyaPantbrev > 0 ? C.PANTBREV_PCT * nyaPantbrev + C.PANTBREV_FAST : 0;
@@ -68,7 +76,9 @@
 
     var bruttoAr = i.brutto * 12;
     var skuldkvot = bruttoAr > 0 ? lan / bruttoAr : 99;
-    var amort = C.AMORT_HOG + (skuldkvot > C.SKULD_GRANS ? C.AMORT_SKULD : 0);
+    // Amorteringskrav: >70 % => 2 %, 50–70 % => 1 %, <=50 % => 0 %; + skuldkvot >4,5 => +1 %.
+    var amortBas = belaning > 0.70 ? C.AMORT_HOG : (belaning > 0.50 ? C.AMORT_MELLAN : 0);
+    var amort = amortBas + (skuldkvot > C.SKULD_GRANS ? C.AMORT_SKULD : 0);
     var amortMan = lan * amort / 12;
     var boendeMan    = ranteManad(lan, ranta)  + amortMan + dMan;
     var boendeStress = ranteManad(lan, stress) + amortMan + dMan;
@@ -82,7 +92,8 @@
     else band = "ja";
 
     return {
-      B: B, kiKrav: kiKrav, lagfart: lagfart, pantbrevKost: pantbrevKost, nyaPantbrev: nyaPantbrev,
+      B: B, kontantAndel: kontantAndel, belaning: belaning,
+      kiKrav: kiKrav, lagfart: lagfart, pantbrevKost: pantbrevKost, nyaPantbrev: nyaPantbrev,
       kontantbehov: kontantbehov, kontanterTillg: kontanterTillg, buffer: kontanterTillg - kontantbehov,
       lan: lan, skuldkvot: skuldkvot, amort: amort, amortMan: amortMan,
       boendeMan: boendeMan, boendeStress: boendeStress, kvarAttLeva: kvarAttLeva,
