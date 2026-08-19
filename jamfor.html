@@ -33,6 +33,10 @@
   table.cmp tr:last-child td{border-bottom:0}
   table.cmp td.best{color:var(--green-dk);font-weight:700;background:var(--green-soft)}
   table.cmp td.val{font-weight:600;font-feature-settings:"tnum" 1}
+  table.cmp td.band{font-weight:700}
+  table.cmp td.band.ja{color:var(--green-dk);background:var(--green-soft)}
+  table.cmp td.band.tight{color:#9a7b22;background:#f3ecd4}
+  table.cmp td.band.nej{color:var(--terra);background:var(--terra-soft)}
   .disc{margin-top:20px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
   @media(max-width:600px){.wrap{padding:28px 14px 60px}}
 </style>
@@ -41,7 +45,7 @@
 <div class="wrap">
   <a class="back" href="index.html">← Tillbaka till kalkylatorn</a>
   <h1>Jämför objekt</h1>
-  <p class="lead">Välj bland objekt du sparat i kalkylatorn (knappen "Spara objekt") och jämför dem sida vid sida. Allt ligger i din webbläsare - inget lagras hos oss.</p>
+  <p class="lead">Välj bland objekt du sparat i kalkylatorn eller Objektanalysen och jämför dem sida vid sida - inklusive "har du råd"-utfallet vid ditt bud. Allt ligger i din webbläsare, inget lagras hos oss.</p>
 
   <div class="card" id="pickCard">
     <p class="picklbl">Välj upp till 3 objekt</p>
@@ -68,18 +72,29 @@
     render();
   }
 
-  // Rader i jämförelsen: [etikett, hämtare, "min"=lägst bäst / "max"=högst bäst / null]
+  // Hämtare: sum() = fält från kalkylatorn, oa() = fält från Objektanalysen.
+  function sum(o,k){ return (o && o.sum && typeof o.sum[k]==="number") ? o.sum[k] : null; }
+  function oa(o,k){ return (o && o.objektanalys && o.objektanalys[k]!=null) ? o.objektanalys[k] : null; }
+  function first(){ for(var i=0;i<arguments.length;i++){ if(arguments[i]!=null) return arguments[i]; } return null; }
+
+  // Rader: {l:etikett, g:hämtare(o), best:"min"/"max"/null, unit, band:true}
   var ROWS = [
-    ["Pris",                    function(s){ return s.pris; },        null],
-    ["Boarea",                  function(s){ return s.boarea; },      null, "m²"],
-    ["Pris per m²",             function(s){ return s.boarea>0 ? s.pris/s.boarea : 0; }, "min"],
-    ["Lånebehov",               function(s){ return s.lan; },         null],
-    ["Kontantbehov vid tillträde", function(s){ return s.kontantbehov; }, "min"],
-    ["Månadskostnad (efter avdrag)", function(s){ return s.manad; },  "min"],
-    ["Renoveringsbehov",        function(s){ return s.renov; },       "min"],
-    ["Månad + renovering utslaget/10 år", function(s){ return s.manad + (s.renov||0)/120; }, "min"],
-    ["vs nuvarande boende/mån", function(s){ return s.nuMan>0 ? s.manad - s.nuMan : null; }, "min"],
+    { l:"Utgångspris / pris",        g:function(o){ return first(oa(o,"utgangspris"), sum(o,"pris")); } },
+    { l:"Boolis värdering",          g:function(o){ return oa(o,"vardering"); } },
+    { l:"Boarea",                    g:function(o){ return sum(o,"boarea"); }, unit:"m²" },
+    { l:"Pris per m²",               g:function(o){ var p=first(oa(o,"utgangspris"),sum(o,"pris")), a=sum(o,"boarea"); return a>0?p/a:null; }, best:"min" },
+    { l:"Ditt bud (Objektanalys)",   g:function(o){ return oa(o,"bud"); } },
+    { l:"Har du råd (vid budet)",    g:function(o){ return oa(o,"band"); }, band:true },
+    { l:"Lånebehov",                 g:function(o){ return sum(o,"lan"); } },
+    { l:"Kontantbehov",              g:function(o){ return sum(o,"kontantbehov"); }, best:"min" },
+    { l:"Månadskostnad",             g:function(o){ return sum(o,"manad"); }, best:"min" },
+    { l:"Månadskostnad (stress)",    g:function(o){ return oa(o,"boendeStress"); }, best:"min" },
+    { l:"Kvar att leva på (stress)", g:function(o){ return oa(o,"kvarAttLeva"); }, best:"max" },
+    { l:"Renoveringsbehov",          g:function(o){ return sum(o,"renov"); }, best:"min" },
+    { l:"vs nuvarande boende/mån",   g:function(o){ var nu=sum(o,"nuMan"); return nu>0 ? sum(o,"manad")-nu : null; }, best:"min" },
   ];
+
+  var BAND_LBL = { ja:"Ja", tight:"Tight", nej:"Nej" };
 
   function render(){
     // chips
@@ -100,22 +115,32 @@
 
     var head = '<tr><th>Post</th>' + chosen.map(function(o){ return '<th>'+esc(o.namn||"Objekt")+'</th>'; }).join("") + '</tr>';
     var body = ROWS.map(function(r){
-      var label=r[0], get=r[1], best=r[2], unit=r[3]||"";
-      var vals = chosen.map(function(o){ return get(o.sum||{}); });
+      var vals = chosen.map(function(o){ return r.g(o); });
+      // Dölj rader som inget valt objekt har data för.
+      if(!vals.some(function(v){ return v!=null; })) return "";
+
+      if(r.band){
+        var cells = vals.map(function(v){
+          if(v==null) return '<td class="val">–</td>';
+          return '<td class="band '+v+'">'+(BAND_LBL[v]||esc(v))+'</td>';
+        }).join("");
+        return '<tr><td>'+r.l+'</td>'+cells+'</tr>';
+      }
+
       var nums = vals.filter(function(v){ return typeof v==="number"; });
       var target = null;
-      if(best==="min" && nums.length) target = Math.min.apply(null, nums);
-      if(best==="max" && nums.length) target = Math.max.apply(null, nums);
-      var cells = vals.map(function(v){
+      if(r.best==="min" && nums.length) target = Math.min.apply(null, nums);
+      if(r.best==="max" && nums.length) target = Math.max.apply(null, nums);
+      var cells2 = vals.map(function(v){
         var isBest = (target!==null && v===target && nums.length>1);
-        var txt = (typeof v!=="number") ? "–" : (unit==="m²" ? Math.round(v)+" m²" : kr(v));
+        var txt = (typeof v!=="number") ? "–" : (r.unit==="m²" ? Math.round(v)+" m²" : kr(v));
         return '<td class="val'+(isBest?" best":"")+'">'+txt+'</td>';
       }).join("");
-      return '<tr><td>'+label+'</td>'+cells+'</tr>';
+      return '<tr><td>'+r.l+'</td>'+cells2+'</tr>';
     }).join("");
 
     $("cmp").innerHTML = '<div class="card"><div class="cmpwrap"><table class="cmp"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>'+
-      '<div class="disc">Grön markering = lägst kostnad i respektive rad. "vs nuvarande boende" visas bara om du fyllt i nuvarande månadskostnad i flyttkalkylen. Siffrorna är grova överslag - kontrollera alltid själv.</div></div>';
+      '<div class="disc">Grön markering = bäst värde i raden (lägst kostnad, mest kvar att leva på, eller "Ja" på budet). Objektanalys-raderna visas bara för objekt du sparat från Objektanalysen; "vs nuvarande boende" kräver att du fyllt i nuvarande månadskostnad i flyttkalkylen. Grova överslag - kontrollera alltid själv.</div></div>';
   }
 
   function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }

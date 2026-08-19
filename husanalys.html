@@ -97,6 +97,15 @@
     <h2>1 · Ladda upp dokument</h2>
     <p class="sub">PDF, text eller HTML. Minst ett dokument krävs - fler ger bättre analys. Filerna läses i din webbläsare.<span id="priceNote" style="display:none"> <b>Första analysen är gratis</b>, därefter 5 kr per objekt.</span></p>
 
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px">
+      <div style="flex:1;min-width:200px">
+        <label for="booliDocUrl" style="font-size:12.5px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:5px">Booli-länk <span style="font-weight:400">- hämta dokument automatiskt från mäklaren (best-effort)</span></label>
+        <input type="url" id="booliDocUrl" placeholder="https://www.booli.se/..." style="font-family:inherit;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%">
+      </div>
+      <button class="pick" type="button" id="booliDocBtn">Hämta dokument</button>
+    </div>
+    <div class="status" id="booliDocStatus" style="margin-bottom:14px;min-height:1.2em"></div>
+
     <div class="drop" data-key="besiktning">
       <div class="meta"><div class="nm">Besiktningsprotokoll</div><div class="st">Ingen fil vald</div></div>
       <button class="pick" type="button">Välj fil</button>
@@ -225,6 +234,56 @@
       }
       goBtn.disabled = Object.keys(files).length === 0;
     });
+  });
+
+  // === Auto-hämta dokument från mäklaren via Booli-länk (best-effort) =======
+  // Anropar booli-parsern: /docs hittar mäklarlänk + PDF:er, /docfetch proxar
+  // varje PDF (med CORS) så pdf.js kan läsa den. Faller något -> ladda upp själv.
+  var PARSER_BASE = "https://kjkh-booliparser.kalle-hessman.workers.dev";
+  var DOC_KEY = { besiktning:"besiktning", energideklaration:"energideklaration", fragelista:"fragelista" };
+  function setFileForKey(key, file){
+    var drop = document.querySelector('.drop[data-key="'+key+'"]');
+    if(!drop) return;
+    files[key] = file;
+    drop.classList.add("filled");
+    drop.querySelector(".st").textContent = file.name + " (" + Math.round(file.size/1024) + " kB)";
+    drop.querySelector(".pick").textContent = "Byt";
+    goBtn.disabled = Object.keys(files).length === 0;
+  }
+  var booliDocBtn = document.getElementById("booliDocBtn");
+  if (booliDocBtn) booliDocBtn.addEventListener("click", async function(){
+    var url = document.getElementById("booliDocUrl").value.trim();
+    var st = document.getElementById("booliDocStatus");
+    if(!url){ st.textContent = "Klistra in en Booli-länk först."; return; }
+    booliDocBtn.disabled = true;
+    st.textContent = "Söker dokument hos mäklaren…";
+    try{
+      var r = await fetch(PARSER_BASE + "/docs?url=" + encodeURIComponent(url));
+      var d = await r.json();
+      if(!r.ok){ throw new Error(d.detail || r.statusText); }
+      var docs = (d.dokument || []).filter(function(x){ return DOC_KEY[x.typ]; });
+      if(!docs.length){ st.textContent = (d.notes && d.notes[0]) || "Hittade inga dokument. Ladda upp själv nedan."; return; }
+      var fick = [], fel = [];
+      for (var i=0;i<docs.length;i++){
+        var doc = docs[i], key = DOC_KEY[doc.typ];
+        if(files[key]) continue;                        // redan ifyllt (t.ex. uppladdat)
+        st.textContent = "Hämtar " + doc.typ + "…";
+        try{
+          var pr = await fetch(PARSER_BASE + "/docfetch?url=" + encodeURIComponent(doc.url));
+          if(!pr.ok) throw new Error("nås ej");
+          var blob = await pr.blob();
+          if(blob.size > 12*1024*1024) throw new Error("för stor");
+          setFileForKey(key, new File([blob], doc.typ + ".pdf", { type: blob.type || "application/pdf" }));
+          fick.push(doc.typ);
+        }catch(e){ fel.push(doc.typ); }
+      }
+      st.textContent = (fick.length ? "Hämtade: " + fick.join(", ") + ". " : "") +
+        (fel.length ? "Kunde inte hämta: " + fel.join(", ") + " - ladda upp dem själv nedan." : "Klart - klicka Analysera.");
+    }catch(e){
+      st.textContent = "Kunde inte hämta dokument: " + e.message + ". Ladda upp själv nedan.";
+    }finally{
+      booliDocBtn.disabled = false;
+    }
   });
 
   // === Fil -> text (PDF, text, HTML) ======================================

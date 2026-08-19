@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Objektanalys - kanjagköpahus.se</title>
+<meta name="description" content="Klistra in en Booli-länk och fyll i din ekonomi en gång. Dra i budreglaget och se direkt om du har råd - Ja, Tight eller Nej - med svenska bolåneregler inräknade.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--gold:#9a7b22;--gold-soft:#f3ecd4}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:820px;margin:0 auto;padding:40px 20px 80px}
+  a{color:var(--green)}
+  .back{display:inline-block;margin-bottom:22px;font-size:14px;font-weight:600;text-decoration:none}
+  .back:hover{text-decoration:underline}
+  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,5vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05}
+  .lead{color:var(--ink-soft);font-size:15px;margin:10px 0 0;max-width:62ch}
+  .betanote{background:var(--terra-soft);border-left:4px solid var(--terra);border-radius:10px;padding:13px 17px;margin:20px 0 26px;font-size:13.5px}
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:24px 26px;box-shadow:0 8px 24px -12px rgba(28,37,32,.18);margin-bottom:22px}
+  .card h2{font-family:"Fraunces",serif;font-weight:600;font-size:20px;margin:0 0 4px}
+  .card .sub{color:var(--ink-soft);font-size:13px;margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+  .field .hint{font-size:11px;color:var(--ink-soft);font-weight:400}
+  input[type=text],input[type=number],input[type=url],select{font-family:inherit;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
+  input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
+  .row2{display:flex;gap:10px}
+  .row2 .field:first-child{flex:1}
+  .unit{width:110px;flex:none}
+  .btn{font-family:inherit;font-weight:700;cursor:pointer;border:0;border-radius:11px;transition:.15s}
+  .btn.go{font-size:15px;background:var(--green);color:#fff;padding:12px 22px}
+  .btn.go:hover{background:var(--green-dk);transform:translateY(-1px)}
+  .btn.ghost{font-size:13px;font-weight:600;background:var(--paper-2);border:1.5px solid var(--line);color:var(--ink);padding:10px 15px}
+  .btn.ghost:hover{border-color:var(--ink)}
+  .linkrow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+  .linkrow .field{flex:1;min-width:200px}
+  .status{font-size:13px;color:var(--ink-soft);margin-top:10px;min-height:1.2em}
+  .savenote{font-size:12px;color:var(--ink-soft);margin-top:12px}
+  /* Resultat */
+  #result{display:none}
+  .verdict{border-radius:14px;padding:22px 24px;text-align:center;margin-bottom:20px;transition:.2s}
+  .verdict .big{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(30px,7vw,46px);line-height:1;letter-spacing:-.01em}
+  .verdict .sub{font-size:14px;margin-top:8px;opacity:.9}
+  .verdict.ja{background:var(--green-soft);color:var(--green-dk);border:1px solid var(--green)}
+  .verdict.tight{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold)}
+  .verdict.nej{background:var(--terra-soft);color:var(--terra);border:1px solid var(--terra)}
+  .sliderwrap{margin:6px 0 4px}
+  .budline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .budline .k{font-size:13px;color:var(--ink-soft)}
+  .budline .v{font-family:"Fraunces",serif;font-weight:600;font-size:26px}
+  input[type=range]{width:100%;accent-color:var(--green);height:26px}
+  .marks{position:relative;height:34px;margin-top:2px;font-size:11px;color:var(--ink-soft)}
+  .marks .mk{position:absolute;transform:translateX(-50%);text-align:center;white-space:nowrap}
+  .marks .mk .tick{display:block;width:1.5px;height:8px;background:var(--ink-soft);margin:0 auto 3px;opacity:.5}
+  .marks .mk b{font-weight:700;color:var(--ink)}
+  .brk{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-top:22px}
+  .brk .c{background:var(--paper-2);padding:11px 14px}
+  .brk .c .l{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:600}
+  .brk .c .v{font-size:16px;font-weight:600;margin-top:2px}
+  .brk .c .v.neg{color:var(--terra)}
+  .disc{margin-top:22px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
+  .footdisc{margin-top:30px;font-size:12.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px}
+  details.adv{margin-top:14px}
+  details.adv summary{font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer}
+  details.adv .grid{margin-top:12px}
+  @media(max-width:600px){.wrap{padding:28px 14px 60px}.card{padding:18px 16px}.brk{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Tillbaka till kalkylatorn</a>
+
+  <h1>Objektanalys</h1>
+  <p class="lead">Fyll i din ekonomi en gång, klistra in en Booli-länk, och dra i budreglaget. Du ser direkt om du har råd - <b>Ja</b>, <b>Tight</b> eller <b>Nej</b> - med bolånetak, amorteringskrav och en stressränta inräknade. Allt räknas i din webbläsare och sparas bara där.</p>
+
+  <div class="betanote">
+    Grov vägledning, inte ett lånelöfte eller ekonomisk rådgivning. Bankernas kalkyl (KALP) och din verkliga situation kan skilja sig. Kontrollera alltid med banken innan du budar.
+  </div>
+
+  <!-- 1 · Profil -->
+  <div class="card">
+    <h2>1 · Din ekonomi</h2>
+    <p class="sub">Fylls en gång och sparas i din webbläsare. Ingen inloggning, inget skickas till oss.</p>
+    <div class="grid">
+      <div class="field">
+        <label for="p_brutto">Bruttoinkomst hushåll <span class="hint">(kr/mån, före skatt)</span></label>
+        <input type="number" id="p_brutto" inputmode="numeric" placeholder="t.ex. 65000">
+      </div>
+      <div class="field">
+        <label for="p_netto">Nettoinkomst hushåll <span class="hint">(kr/mån, på kontot)</span></label>
+        <input type="number" id="p_netto" inputmode="numeric" placeholder="t.ex. 48000">
+      </div>
+      <div class="field">
+        <label for="p_spar">Kontantinsats / sparande <span class="hint">(kr, tillgängligt nu)</span></label>
+        <input type="number" id="p_spar" inputmode="numeric" placeholder="t.ex. 600000">
+      </div>
+      <div class="field">
+        <label for="p_ranta">Ränteantagande <span class="hint">(% per år)</span></label>
+        <input type="number" id="p_ranta" inputmode="decimal" step="0.1" placeholder="4.5">
+      </div>
+    </div>
+    <details class="adv">
+      <summary>Avancerat</summary>
+      <div class="grid">
+        <div class="field">
+          <label for="p_stress">Stressränta <span class="hint">(% - marginal för höjda räntor)</span></label>
+          <input type="number" id="p_stress" inputmode="decimal" step="0.1" placeholder="7">
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 2 · Objektet -->
+  <div class="card">
+    <h2>2 · Objektet</h2>
+    <p class="sub">Klistra in en Booli-länk så hämtas pris, driftkostnad och Boolis värdering automatiskt. Eller fyll i för hand. Kontrollera alltid värdena mot annonsen.</p>
+    <div class="linkrow">
+      <div class="field">
+        <label for="o_url">Booli-länk</label>
+        <input type="url" id="o_url" placeholder="https://www.booli.se/...">
+      </div>
+      <button class="btn ghost" type="button" id="o_hamta">Hämta</button>
+    </div>
+    <div class="status" id="o_status"></div>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="field">
+        <label for="o_pris">Utgångspris <span class="hint">(kr)</span></label>
+        <input type="number" id="o_pris" inputmode="numeric" placeholder="t.ex. 3950000">
+      </div>
+      <div class="field">
+        <label for="o_vard">Boolis värdering <span class="hint">(kr, valfritt - visas som märke)</span></label>
+        <input type="number" id="o_vard" inputmode="numeric" placeholder="t.ex. 4200000">
+      </div>
+      <div class="field">
+        <label>Driftkostnad</label>
+        <div class="row2">
+          <div class="field"><input type="number" id="o_drift" inputmode="numeric" placeholder="t.ex. 3500"></div>
+          <div class="field unit">
+            <select id="o_driftunit"><option value="man">kr/mån</option><option value="ar">kr/år</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="o_renov">Renoveringsbehov <span class="hint">(kr - äter av kontantinsatsen)</span></label>
+        <input type="number" id="o_renov" inputmode="numeric" placeholder="0">
+        <span class="hint" id="o_renovnote"></span>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <a class="btn ghost" href="husanalys.html" style="text-decoration:none;display:inline-block">Gör en renoveringsanalys →</a>
+    </div>
+  </div>
+
+  <!-- 3 · Resultat -->
+  <div class="card" id="result">
+    <h2>3 · Har du råd?</h2>
+    <div class="verdict" id="verdict">
+      <div class="big" id="v_big">-</div>
+      <div class="sub" id="v_sub"></div>
+    </div>
+
+    <div class="sliderwrap">
+      <div class="budline"><span class="k">Ditt bud</span><span class="v" id="s_val">-</span></div>
+      <input type="range" id="s_bud" min="0" max="100" value="50">
+      <div class="marks" id="s_marks"></div>
+    </div>
+
+    <div class="brk" id="brk"></div>
+
+    <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn go" type="button" id="o_save">Spara objekt</button>
+      <a class="btn ghost" href="jamfor.html" style="text-decoration:none;display:inline-flex;align-items:center">Jämför objekt →</a>
+    </div>
+    <div class="savenote" id="o_savenote"></div>
+
+    <div class="disc" id="disc"></div>
+  </div>
+
+  <div class="footdisc">
+    Allmän information, inte teknisk eller juridisk rådgivning. © Snake Hessman 2026 · <a href="index.html">kanjagköpahus.se</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // === Konfiguration / regler (justerbara) ================================
+  var PARSER_API   = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
+  var BOLANETAK    = 0.85;   // max lån av köpeskilling => min 15 % kontantinsats
+  var AMORT_HOG    = 0.02;   // belåningsgrad > 70 % => 2 %/år
+  var AMORT_SKULD  = 0.01;   // + lån > 4,5 x bruttoårsinkomst => +1 %/år
+  var SKULD_GRANS  = 4.5;
+  var RANTEAVDRAG  = 0.30;   // upp till 100 000 kr ränta/år
+  var RANTEAVDRAG2 = 0.21;   // över 100 000 kr ränta/år
+  var AVDRAG_TAK   = 100000;
+  var BAND_JA      = 0.40;   // boendekostnad (stress) / nettoinkomst
+  var BAND_TIGHT   = 0.55;
+  var DEF_RANTA    = 4.5;
+  var DEF_STRESS   = 7.0;
+
+  function $(id){ return document.getElementById(id); }
+  function num(el){ var v = (typeof el === "string" ? $(el) : el); if(!v) return 0; var n = parseFloat(String(v.value).replace(/\s/g,"").replace(",",".")); return isFinite(n) ? n : 0; }
+  function kr(n){ if(n==null||!isFinite(n)) return "-"; return Math.round(n).toLocaleString("sv-SE") + " kr"; }
+  function pct(n){ return (Math.round(n*10)/10).toLocaleString("sv-SE") + " %"; }
+
+  // === Profil: sparas i localStorage ======================================
+  var PROFIL_IDS = ["p_brutto","p_netto","p_spar","p_ranta","p_stress"];
+  function loadProfil(){
+    var o = {};
+    try{ o = JSON.parse(localStorage.getItem("kjkh:profil") || "{}"); }catch(e){}
+    PROFIL_IDS.forEach(function(id){ if(o[id]!=null) $(id).value = o[id]; });
+    if(!$("p_ranta").value)  $("p_ranta").value  = DEF_RANTA;
+    if(!$("p_stress").value) $("p_stress").value = DEF_STRESS;
+  }
+  function saveProfil(){
+    var o = {}; PROFIL_IDS.forEach(function(id){ o[id] = $(id).value; });
+    try{ localStorage.setItem("kjkh:profil", JSON.stringify(o)); }catch(e){}
+  }
+
+  // === Renov-brygga från renoveringsanalysen ==============================
+  function loadRenov(){
+    try{
+      var r = JSON.parse(localStorage.getItem("kjkh:renovtotal") || "null");
+      if(r && r.mid){
+        $("o_renov").value = Math.round(r.mid);
+        $("o_renovnote").textContent = "Hämtat från din renoveringsanalys (" + kr(r.lo) + " – " + kr(r.hi) + "). Ändra fritt.";
+      }
+    }catch(e){}
+  }
+
+  // === Booli-hämtning (Fas 1) =============================================
+  $("o_hamta").addEventListener("click", async function(){
+    var url = $("o_url").value.trim();
+    var st = $("o_status");
+    if(!url){ st.textContent = "Klistra in en Booli-länk först."; return; }
+    st.textContent = "Hämtar...";
+    try{
+      var r = await fetch(PARSER_API + "?url=" + encodeURIComponent(url));
+      var d = await r.json();
+      if(!r.ok){ throw new Error(d.detail || r.statusText); }
+      var f = d.fields || {};
+      var fick = [];
+      if(f.pris){ $("o_pris").value = f.pris; fick.push("utgångspris"); }
+      if(f.vardering){ $("o_vard").value = f.vardering; fick.push("Boolis värdering"); }
+      if(f.driftkostnad){ $("o_drift").value = f.driftkostnad; $("o_driftunit").value = "ar"; fick.push("driftkostnad (antas kr/år - kontrollera)"); }
+      st.textContent = fick.length
+        ? "Hämtade: " + fick.join(", ") + ". Fyll i resten och kontrollera mot annonsen."
+        : "Hittade inga fält. Fyll i manuellt.";
+      recompute();
+    }catch(e){
+      st.textContent = "Kunde inte hämta annonsen: " + e.message + ". Fyll i manuellt.";
+    }
+  });
+
+  // === Affordability-motorn ===============================================
+  function driftMan(){
+    var v = num("o_drift");
+    return $("o_driftunit").value === "ar" ? v/12 : v;
+  }
+  function ranteManad(lan, rantaDec){
+    var arsranta = lan * rantaDec;
+    var avdrag = Math.min(arsranta, AVDRAG_TAK) * RANTEAVDRAG + Math.max(0, arsranta - AVDRAG_TAK) * RANTEAVDRAG2;
+    return (arsranta - avdrag) / 12;
+  }
+  function bedom(B){
+    var brutto = num("p_brutto"), netto = num("p_netto"), spar = num("p_spar");
+    var ranta = num("p_ranta")/100, stress = num("p_stress")/100;
+    var renov = num("o_renov");
+
+    var kiKrav = (1 - BOLANETAK) * B;          // 15 % av budet
+    var kontanterTillg = spar - renov;          // renovering äter av kontanterna
+    var lan = BOLANETAK * B;                     // antar minsta kontantinsats (tightast)
+    var bruttoAr = brutto * 12;
+    var skuldkvot = bruttoAr > 0 ? lan / bruttoAr : 99;
+    var amort = AMORT_HOG + (skuldkvot > SKULD_GRANS ? AMORT_SKULD : 0);
+    var amortMan = lan * amort / 12;
+    var dMan = driftMan();
+    var boendeMan   = ranteManad(lan, ranta)  + amortMan + dMan;
+    var boendeStress= ranteManad(lan, stress) + amortMan + dMan;
+    var kvarAttLeva = netto - boendeStress;
+
+    var hardFail = kontanterTillg < kiKrav;
+    var ratio = netto > 0 ? boendeStress / netto : 1;
+    var band;
+    if(hardFail || ratio > BAND_TIGHT) band = "nej";
+    else if(ratio > BAND_JA) band = "tight";
+    else band = "ja";
+
+    return { B:B, kiKrav:kiKrav, kontanterTillg:kontanterTillg, buffer:kontanterTillg - kiKrav,
+             lan:lan, skuldkvot:skuldkvot, amort:amort, amortMan:amortMan,
+             boendeMan:boendeMan, boendeStress:boendeStress, kvarAttLeva:kvarAttLeva,
+             band:band, hardFail:hardFail, ranta:ranta, stress:stress };
+  }
+
+  // === Reglagets spann ====================================================
+  function priser(){
+    var utg = num("o_pris"), vard = num("o_vard");
+    var hog = Math.max(utg, vard, 1);
+    var min = Math.round(utg * 0.8 / 25000) * 25000;
+    var max = Math.round(hog * 1.6 / 25000) * 25000;
+    if(min < 0) min = 0;
+    if(max <= min) max = min + 1000000;
+    return { utg:utg, vard:vard, min:min, max:max };
+  }
+  function budFromSlider(){
+    var p = priser();
+    var t = num("s_bud") / 100;
+    return Math.round((p.min + t * (p.max - p.min)) / 25000) * 25000;
+  }
+  function sliderFromBud(bud){
+    var p = priser();
+    if(p.max === p.min) return 50;
+    return Math.max(0, Math.min(100, (bud - p.min) / (p.max - p.min) * 100));
+  }
+
+  function renderMarks(){
+    var p = priser(), box = $("s_marks");
+    var mk = [];
+    function place(val, label, bold){
+      if(!val) return;
+      var left = Math.max(0, Math.min(100, (val - p.min) / (p.max - p.min) * 100));
+      mk.push('<div class="mk" style="left:' + left + '%"><span class="tick"></span>' +
+        (bold ? '<b>' : '') + label + (bold ? '</b>' : '') + '<br>' + kr(val) + '</div>');
+    }
+    place(p.utg, "Utgångspris", true);
+    if(p.vard && Math.abs(p.vard - p.utg) > p.max*0.03) place(p.vard, "Boolis värd.", false);
+    box.innerHTML = mk.join("");
+  }
+
+  function recompute(){
+    var utg = num("o_pris");
+    var enoughProfil = num("p_netto") > 0 && num("p_spar") >= 0 && num("p_brutto") > 0;
+    if(!utg || !enoughProfil){
+      $("result").style.display = "none";
+      return;
+    }
+    $("result").style.display = "block";
+
+    var bud = budFromSlider();
+    $("s_val").textContent = kr(bud);
+    renderMarks();
+
+    var r = bedom(bud);
+
+    // Verdict
+    var vbox = $("verdict"), big = $("v_big"), sub = $("v_sub");
+    vbox.className = "verdict " + r.band;
+    if(r.band === "ja"){ big.textContent = "Ja"; sub.textContent = "Rymms med marginal, även vid stressränta " + pct(r.stress*100) + "."; }
+    else if(r.band === "tight"){ big.textContent = "Det är tight"; sub.textContent = "Det går, men marginalen är tunn vid stressränta " + pct(r.stress*100) + "."; }
+    else if(r.hardFail){ big.textContent = "Nej"; sub.textContent = "Kontantinsatsen räcker inte: du behöver " + kr(r.kiKrav) + " kvar efter renovering."; }
+    else { big.textContent = "Nej"; sub.textContent = "Månadskostnaden blir för hög i förhållande till din nettoinkomst vid stressränta."; }
+
+    // Breakdown
+    function c(l, v, neg){ return '<div class="c"><div class="l">' + l + '</div><div class="v' + (neg?' neg':'') + '">' + v + '</div></div>'; }
+    $("brk").innerHTML =
+      c("Kontantinsats (15 %)", kr(r.kiKrav)) +
+      c("Kontanter kvar efter renov.", kr(r.kontanterTillg), r.kontanterTillg < r.kiKrav) +
+      c("Bolån (85 %)", kr(r.lan)) +
+      c("Skuldkvot", (Math.round(r.skuldkvot*10)/10).toLocaleString("sv-SE") + "×" + (r.skuldkvot>SKULD_GRANS?" (amort +1 %)":"")) +
+      c("Amortering", pct(r.amort*100) + "/år · " + kr(r.amortMan) + "/mån") +
+      c("Månadskostnad (" + pct(r.ranta*100) + ")", kr(r.boendeMan) + "/mån") +
+      c("Månadskostnad (stress " + pct(r.stress*100) + ")", kr(r.boendeStress) + "/mån") +
+      c("Kvar att leva på (stress)", kr(r.kvarAttLeva) + "/mån", r.kvarAttLeva < 0);
+
+    $("disc").textContent = "Antaganden: minsta kontantinsats (15 %), maximalt bolån, amortering enligt belåningsgrad och skuldkvot, ränteavdrag 30 % (21 % över " +
+      kr(AVDRAG_TAK) + " ränta/år). Renovering dras från dina kontanter. Detta är en grov modell - din bank räknar på fler poster.";
+  }
+
+  // === Spara objekt (delas med jamfor.html) ===============================
+  $("o_save").addEventListener("click", function(){
+    var bud = budFromSlider(), r = bedom(bud);
+    var namn = ($("o_url").value.trim() ? "Objekt " : "Objekt ") + kr(num("o_pris"));
+    var obj = {
+      id: Date.now(), namn: namn, ts: Date.now(),
+      sum: { pris:num("o_pris"), lan:r.lan, kontantbehov:r.kiKrav, manad:r.boendeMan, renov:num("o_renov") },
+      objektanalys: {
+        url:$("o_url").value.trim(), utgangspris:num("o_pris"), vardering:num("o_vard"),
+        bud:bud, band:r.band, boendeMan:r.boendeMan, boendeStress:r.boendeStress, kvarAttLeva:r.kvarAttLeva
+      }
+    };
+    try{
+      var arr = JSON.parse(localStorage.getItem("kjkh:objekt") || "[]");
+      arr.unshift(obj);
+      localStorage.setItem("kjkh:objekt", JSON.stringify(arr.slice(0,20)));
+      $("o_savenote").textContent = "Sparat. Öppna \"Jämför objekt\" för att ställa två mot varandra.";
+    }catch(e){ $("o_savenote").textContent = "Kunde inte spara (webbläsarens lagring full?)."; }
+  });
+
+  // === Lyssnare ===========================================================
+  PROFIL_IDS.forEach(function(id){ $(id).addEventListener("input", function(){ saveProfil(); recompute(); }); });
+  ["o_pris","o_vard","o_drift","o_renov"].forEach(function(id){ $(id).addEventListener("input", recompute); });
+  $("o_driftunit").addEventListener("change", recompute);
+  $("s_bud").addEventListener("input", recompute);
+  // När utgångspriset ändras: flytta reglaget till utgångspriset som utgångsläge.
+  $("o_pris").addEventListener("change", function(){
+    var utg = num("o_pris");
+    if(utg) $("s_bud").value = sliderFromBud(utg);
+    recompute();
+  });
+
+  // === Init ===============================================================
+  loadProfil();
+  loadRenov();
+  recompute();
+})();
+</script>
+</body>
+</html>
