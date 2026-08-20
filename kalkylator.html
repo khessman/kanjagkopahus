@@ -701,7 +701,9 @@ function commute(){
   const milYr = kmYr/10; const schablonYr = milYr*num('c_schablon');
   const avdrag = Math.max(0, schablonYr - num('c_trosk'));
   const taxBenMan = avdrag*(num('c_skatt')/100)/12;
-  return { kmMan, fuelMan, hMan, taxBenMan, netMan: fuelMan - taxBenMan };
+  // Reseavdraget är en årlig skatteåterbäring, inte en sänkt månadsutgift - räkna inte in den i kostnaden,
+  // bara den faktiska drivmedelskostnaden. taxBenMan returneras som ren info.
+  return { kmMan, fuelMan, hMan, taxBenMan, netMan: fuelMan };
 }
 function openMaps(){ const o=encodeURIComponent($('c_home').value||''), d=encodeURIComponent($('c_work').value||''); window.open('https://www.google.com/maps/dir/?api=1&origin='+o+'&destination='+d+'&travelmode=driving','_blank'); }
 
@@ -831,7 +833,7 @@ function calc(){
   $('m_total').textContent    = kr(nettoMan + com.netMan);
   $('c_out').textContent = kr(com.fuelMan) + '/mån';
   $('c_detail').innerHTML = com.kmMan>0
-    ? kr0(com.kmMan) + ' km/mån · ' + com.hMan.toFixed(1) + ' h/mån i bil · reseavdrag ≈ ' + kr0(com.taxBenMan) + '/mån · nettokostnad ' + kr(com.netMan) + '/mån.'
+    ? kr0(com.kmMan) + ' km/mån · ' + com.hMan.toFixed(1) + ' h/mån i bil · drivmedel ' + kr(com.fuelMan) + '/mån' + (com.taxBenMan>0 ? ' (reseavdrag ger ≈ ' + kr0(com.taxBenMan) + '/mån i skatteåterbäring en gång om året, ej medräknat i månadskostnaden)' : '') + '.'
     : 'Fyll i avstånd för att räkna pendlingskostnad.';
 
   $('w_out').textContent = kr(wat.kr/12) + '/mån';

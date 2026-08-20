@@ -38,9 +38,12 @@
        <a href="mailto:kalle.hessman@gmail.com">kalle.hessman@gmail.com</a>.</p>
 
     <h2>Uppgifter du själv matar in i kalkylatorn</h2>
-    <p>Värdena du fyller i (pris, ränta, adresser m.m.) behandlas endast lokalt i din egen webbläsare.
-       De skickas inte till någon server och sparas inte av sidan. Väljer du att spara en fil (JSON-export)
-       hamnar den enbart på din egen enhet. Stänger du fliken försvinner uppgifterna.</p>
+    <p>Värdena du fyller i (pris, ränta, ekonomi, sparade objekt m.m.) sparas i din webbläsares lokala lagring
+       (localStorage) på din egen enhet - inte på någon server. Uppgifterna ligger kvar även om du stänger fliken
+       eller startar om webbläsaren, tills du själv rensar dem (t.ex. via "Nollställ"-knappen eller genom att
+       rensa webbläsardata). Klistrar du in en Booli-länk eller beräknar en pendlingsrutt skickas den länken/adressen
+       till vår egen server (en Cloudflare Worker) för att hämta uppgifter från Booli respektive en ruttberäkning -
+       inget annat i kalkylatorn skickas dit.</p>
 
     <h2>Cookies och annonser</h2>
     <p>Sidan visar annonser via Google AdSense. Google och dess partners kan använda cookies

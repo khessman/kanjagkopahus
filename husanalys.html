@@ -88,16 +88,10 @@
 </head>
 <body>
 <div class="wrap">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px">
-    <a class="back" href="index.html" id="backLink" style="margin:0">← Till startsidan</a>
-    <button class="go" type="button" id="returnBtn" style="display:none;padding:10px 18px;font-size:14px">Använd &amp; tillbaka →</button>
-  </div>
+  <a class="back" href="index.html" id="backLink" style="margin:0 0 22px">← Till startsidan</a>
 
   <div class="titlerow">
     <h1>Renoveringsanalys</h1>
-  </div>
-  <div class="betanote" id="returnHint" style="display:none">
-    Du kom hit från din husanalys. Kör en ny analys eller öppna en sparad nedan - klicka sedan <b>"Använd &amp; tillbaka"</b> för att ta med renoveringssumman dit du var.
   </div>
   <p class="lead">Ladda upp husets dokument så sammanställs en saklig överslagskalkyl över vilka åtgärder objektet kan behöva och grova kostnadsintervall - mellan tummen och pekfingret.</p>
 
@@ -107,6 +101,9 @@
 
   <div class="card">
     <h2>1 · Ladda upp dokument</h2>
+    <div class="betanote" id="returnHint" style="display:none">
+      Du kom hit från <b id="returnHintFrom">guiden</b>. Kör en ny analys nedan, eller öppna en sparad analys längre ner - klicka sedan <b>"Använd &amp; tillbaka"</b> i resultatet för att ta med renoveringssumman dit du var.
+    </div>
     <p class="sub">PDF, text eller HTML. Minst ett dokument krävs - fler ger bättre analys. Filerna läses i din webbläsare.<span id="priceNote" style="display:none"> <b>Första analysen är gratis</b>, därefter 5 kr per objekt.</span></p>
 
     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px">
@@ -168,6 +165,9 @@
 
   <div class="card" id="result">
     <h2>2 · Resultat</h2>
+    <div id="returnBox" style="display:none;margin:0 0 16px">
+      <button class="go returnGo" type="button" style="padding:12px 20px;font-size:14.5px;width:100%">Använd &amp; tillbaka →</button>
+    </div>
     <p class="sub" style="margin:-6px 0 14px">Har du en offert? Skriv in ditt eget pris på raden - annars används en grov schablon. Summan uppdateras direkt och sparas i din webbläsare.</p>
     <div class="kallor" id="kallor"></div>
     <div class="facts" id="facts"></div>
@@ -189,6 +189,7 @@
 
   <div class="card" id="history" style="display:none">
     <h2>Dina sparade analyser</h2>
+    <p class="sub" id="returnHintHistory" style="display:none">Öppna en sparad analys nedan för att använda den - knappen "Använd &amp; tillbaka" dyker upp i resultatet ovan.</p>
     <p class="sub">Sparas bara i den här webbläsaren – ingen inloggning behövs. Obs: rensar du webbläsardata (cookies/historik) försvinner de. Vill du behålla en analys, spara den separat.</p>
     <div id="historyList"></div>
   </div>
@@ -763,17 +764,20 @@
     try { ret = JSON.parse(localStorage.getItem("kjkh:renovReturn") || "null"); } catch(e){ ret = null; }
     // Giltig i 6 timmar, annars strunta i den.
     if (ret && ret.url && (Date.now() - (ret.ts||0) < 6*3600*1000)) {
-      var btn = document.getElementById("returnBtn");
-      var hint = document.getElementById("returnHint");
       var back = document.getElementById("backLink");
-      btn.textContent = "Använd & tillbaka till " + (ret.label || "analysen") + " →";
-      btn.style.display = "";
-      hint.style.display = "";
-      btn.addEventListener("click", function(){
+      document.getElementById("returnHint").style.display = "block";
+      document.getElementById("returnHintFrom").textContent = ret.label || "analysen";
+      document.getElementById("returnHintHistory").style.display = "block";
+      document.getElementById("returnBox").style.display = "block";
+      function goBack(){
         try { localStorage.removeItem("kjkh:renovReturn"); } catch(e){}
         location.href = ret.url;
+      }
+      document.querySelectorAll(".returnGo").forEach(function(b){
+        b.textContent = "Använd & tillbaka till " + (ret.label || "analysen") + " →";
+        b.addEventListener("click", goBack);
       });
-      // "Tillbaka till kalkylatorn" avbryter returläget.
+      // "Till startsidan" avbryter returläget.
       back.addEventListener("click", function(){ try { localStorage.removeItem("kjkh:renovReturn"); } catch(e){} });
     }
   })();
