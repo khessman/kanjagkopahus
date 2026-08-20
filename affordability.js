@@ -30,7 +30,8 @@
     LAGFART_FAST: 825,
     PANTBREV_PCT: 0.02,     // stämpelskatt nya pantbrev + fast avgift
     PANTBREV_FAST: 375,
-    BUFFER_KNAPP: 0.15,     // kontantbuffert efter renov. < 15 % av kontantbehov => "tight"
+    BUFFER_KNAPP: 0.15,     // andelströskel - kontantbuffert < 15 % av kontantbehov => "tight"
+    BUFFER_FAST: 125000,    // kronströskel - och alltid minst 125 000 kr buffert, oavsett prisklass
 
     // Prisantaganden för driftkostnad, samma defaults som kalkylator.html (2026, elområde SE3).
     EL_PRIS: 1.60, SCOP_LV: 3.2, SCOP_BV: 3.5, SCOP_LL: 3.0,
@@ -186,16 +187,21 @@
 
     var hardFail = kontanterTillg < kontantbehov;
     var ratio = netto > 0 ? boendeStress / netto : 1;
-    var bufferAndel = kontantbehov > 0 ? (kontanterTillg - kontantbehov) / kontantbehov : 1;
+    var buffer = kontanterTillg - kontantbehov;
+    var bufferAndel = kontantbehov > 0 ? buffer / kontantbehov : 1;
+    // Buffertkrav: störst av en fast kronsumma och en andel av kontantbehovet -
+    // skyddar mot att en liten andel blir försumbar på ett dyrt hus, och att en fast
+    // kronsumma blir orimligt hög andel på ett billigt hus.
+    var bufferKrav = Math.max(C.BUFFER_FAST, C.BUFFER_KNAPP * kontantbehov);
     var band;
     if (hardFail || ratio > C.BAND_TIGHT) band = "nej";
-    else if (ratio > C.BAND_JA || bufferAndel < C.BUFFER_KNAPP) band = "tight";
+    else if (ratio > C.BAND_JA || buffer < bufferKrav) band = "tight";
     else band = "ja";
 
     return {
       B: B, kontantAndel: kontantAndel, belaning: belaning,
       kiKrav: kiKrav, lagfart: lagfart, pantbrevKost: pantbrevKost, nyaPantbrev: nyaPantbrev,
-      kontantbehov: kontantbehov, kontanterTillg: kontanterTillg, buffer: kontanterTillg - kontantbehov,
+      kontantbehov: kontantbehov, kontanterTillg: kontanterTillg, buffer: buffer, bufferKrav: bufferKrav,
       bufferAndel: bufferAndel,
       lan: lan, skuldkvot: skuldkvot, amort: amort, amortMan: amortMan, nLantagare: nLantagare,
       boendeMan: boendeMan, boendeStress: boendeStress, kvarAttLeva: kvarAttLeva,

@@ -82,8 +82,12 @@
   .verdict.ja{background:var(--green-soft);color:var(--green-dk);border:1px solid var(--green)}
   .verdict.tight{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold)}
   .verdict.nej{background:var(--terra-soft);color:var(--terra);border:1px solid var(--terra)}
-  .budline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
-  .budline .k{font-size:13px;color:var(--ink-soft)}.budline .v{font-family:"Fraunces",serif;font-weight:600;font-size:24px}
+  .budline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:10px}
+  .budline .k{font-size:13px;color:var(--ink-soft)}
+  .budline .v{font-family:"Fraunces",serif;font-weight:600;font-size:24px}
+  input.budinput{font-family:"Fraunces",serif;font-weight:600;font-size:24px;text-align:right;border:1.5px solid transparent;background:transparent;padding:2px 6px;border-radius:8px;width:170px;color:var(--ink)}
+  input.budinput:hover{border-color:var(--line)}
+  input.budinput:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 2px var(--green-soft)}
   .budtrack{position:relative;padding-top:5px}
   .budtrack .grad{position:absolute;left:0;right:0;top:16px;height:6px;border-radius:4px;pointer-events:none}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;position:relative;z-index:1;margin:0}
@@ -357,9 +361,10 @@
       <div id="v_body">
         <div class="verdict" id="verdict"><div class="big" id="v_big">-</div><div class="vsub" id="v_sub"></div></div>
         <p class="say" style="margin-bottom:6px">Dra i reglaget och testa olika bud.</p>
-        <div class="budline"><span class="k">Ditt bud</span><span class="v" id="s_val">-</span></div>
+        <div class="budline"><span class="k">Ditt bud</span><input type="number" class="budinput" id="s_val" inputmode="numeric" step="25000"></div>
         <div class="budtrack"><div class="grad" id="s_grad"></div><input type="range" id="s_bud" min="0" max="100" value="50"></div>
         <div class="marks" id="s_marks"></div>
+        <div class="disc" id="bandinfo" style="margin-top:14px"></div>
         <div class="field" style="margin-top:14px"><label for="o_namn">Namn på objektet</label><input type="text" id="o_namn" placeholder="t.ex. Björkvägen 4"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
           <button class="btn go" type="button" id="o_save">Spara objekt</button>
@@ -465,7 +470,7 @@
     var p={}; PROFIL_IDS.forEach(function(id){ p[id]=$(id).value; });
     try{ localStorage.setItem("kjkh:profil", JSON.stringify(p)); }catch(e){}
     var w={}; OBJ_IDS.forEach(function(id){ w[id]=$(id).value; });
-    w.driftunit=$("o_driftunit").value; w.adress=_adress; w.renovMode=_renovMode; w.revealed=revealed; w.bud=budFromSlider();
+    w.driftunit=$("o_driftunit").value; w.adress=_adress; w.renovMode=_renovMode; w.revealed=revealed; w.bud=currentBud();
     w.amortMode=_amortMode; w.nLantagare=_nLantagare; w.personer=_personer; w.driftMode=_driftMode;
     try{ localStorage.setItem("kjkh:wizard", JSON.stringify(w)); }catch(e){}
   }
@@ -532,6 +537,16 @@
   function priser(mult){ return KJKH_AFF.priser(num("o_pris"), num("o_vard"), mult); }
   function budFromSlider(){ var p=priser(3),t=num("s_bud")/100; return Math.round((p.min+t*(p.max-p.min))/25000)*25000; }
   function sliderFromBud(bud){ var p=priser(3); if(p.max===p.min)return 50; return Math.max(0,Math.min(100,(bud-p.min)/(p.max-p.min)*100)); }
+  var _bud=0;
+  function currentBud(){ return _bud; }
+  // Enda källan till sanning för "bud" - både slider och sifferfält skriver hit.
+  function setBud(v){
+    var p=priser(3);
+    v=Math.max(p.min,Math.min(p.max,Math.round(v)));
+    _bud=v;
+    if(document.activeElement!==$("s_val")) $("s_val").value=v;
+    $("s_bud").value=sliderFromBud(v);
+  }
   function renderMarks(){
     var p=priser(3),box=$("s_marks");
     var leftOf=function(val){ return Math.max(0,Math.min(100,(val-p.min)/(p.max-p.min)*100)); };
@@ -565,7 +580,7 @@
       $("resrows").innerHTML=""; $("res_stress").querySelector("tbody").innerHTML=""; $("res_bind").querySelector("tbody").innerHTML="";
       return;
     }
-    var bud=budFromSlider(), r=bedom(bud);
+    var bud=currentBud(), r=bedom(bud);
     var rantaManRaw=r.lan*r.ranta/12;
     var nettoRantaMan=KJKH_AFF.ranteManad(r.lan, r.ranta, r.nLantagare);
     var drift=driftMan(), pendel=num("o_pendel");
@@ -632,15 +647,21 @@
       return;
     }
     $("v_needs").style.display="none"; $("v_body").style.display="block";
-    var bud=budFromSlider(); $("s_val").textContent=kr(bud); renderMarks(); renderGrad();
+    var bud=currentBud();
+    renderMarks(); renderGrad();
     var r=bedom(bud);
     var vb=$("verdict"),big=$("v_big"),sub=$("v_sub");
     vb.className="verdict "+r.band;
     if(r.band==="ja"){ big.textContent="Ja"; sub.textContent="Rymms med marginal, även vid stressränta "+pct(r.stress*100)+"."; }
-    else if(r.band==="tight" && r.bufferAndel<C.BUFFER_KNAPP && !r.hardFail){ big.textContent="Det är tight"; sub.textContent="Marginalen på kontanterna efter renovering är knapp - bara "+pct(r.bufferAndel*100)+" buffert utöver kontantbehovet."; }
+    else if(r.band==="tight" && r.buffer<r.bufferKrav && !r.hardFail){ big.textContent="Det är tight"; sub.textContent="Marginalen på kontanterna efter renovering är knapp - "+kr(r.buffer)+" buffert, du bör ha minst "+kr(r.bufferKrav)+"."; }
     else if(r.band==="tight"){ big.textContent="Det är tight"; sub.textContent="Det går, men marginalen är tunn vid stressränta "+pct(r.stress*100)+"."; }
     else if(r.hardFail){ big.textContent="Nej"; sub.textContent="Kontanterna räcker inte: du behöver "+kr(r.kontantbehov)+" vid tillträde (utöver renoveringen)."; }
     else { big.textContent="Nej"; sub.textContent="Månadskostnaden blir för hög mot din nettoinkomst vid stressränta."; }
+    $("bandinfo").innerHTML =
+      "<b style='color:"+BAND_COLOR.ja+"'>● Grönt</b> = boendekostnad vid stressränta ("+pct(C.DEF_STRESS)+") är högst "+pct(C.BAND_JA*100)+" av nettoinkomsten, och kontantbufferten efter renovering är minst "+kr(r.bufferKrav)+" (störst av "+kr(C.BUFFER_FAST)+" och "+pct(C.BUFFER_KNAPP*100)+" av kontantbehovet).<br>"+
+      "<b style='color:"+BAND_COLOR.tight+"'>● Gult</b> = kvoten är över "+pct(C.BAND_JA*100)+" (men högst "+pct(C.BAND_TIGHT*100)+"), eller så är kontantbufferten under "+kr(r.bufferKrav)+".<br>"+
+      "<b style='color:"+BAND_COLOR.nej+"'>● Rött</b> = kvoten är över "+pct(C.BAND_TIGHT*100)+", eller så räcker inte kontanterna vid tillträde.<br>"+
+      "Tumreglar - mellan tumme och pekfinger, inte lånelöfte eller rådgivning.";
     function c(l,v,neg){ return '<div class="c"><div class="l">'+l+'</div><div class="v'+(neg?' neg':'')+'">'+v+'</div></div>'; }
     $("brk").innerHTML=
       c("Kontantinsats ("+pct(r.kontantAndel*100)+")",kr(r.kiKrav))+
@@ -675,7 +696,7 @@
       if(f.uppvarmning){ $("d_varmeform").value=f.uppvarmning; fick.push("uppvärmning"); }
       if(f.adress){ _adress=f.adress; if(!$("o_namn").value) $("o_namn").value=f.adress; if(!$("c_home").value) $("c_home").value=f.adress; }
       st.textContent=(_adress?_adress+" — ":"")+(fick.length?("hämtade "+fick.join(", ")+". Stämmer adressen? Kontrollera resten under Detaljerat."):"hittade inga fält - fyll i under Detaljerat.");
-      var utg=num("o_pris"); if(utg) $("s_bud").value=sliderFromBud(utg);
+      var utg=num("o_pris"); if(utg) setBud(utg);
       recompute();
     }catch(e){ st.textContent="Kunde inte hämta: "+e.message+". Fyll i under Detaljerat."; }
   });
@@ -752,7 +773,7 @@
 
   // === Spara objekt =======================================================
   $("o_save").addEventListener("click", function(){
-    var bud=budFromSlider(), r=bedom(bud);
+    var bud=currentBud(), r=bedom(bud);
     var namn=($("o_namn").value.trim() || ("Objekt "+kr(num("o_pris"))));
     var obj={ id:Date.now(), namn:namn, ts:Date.now(),
       sum:{ pris:num("o_pris"), lan:r.lan, kontantbehov:r.kontantbehov, manad:r.boendeMan, renov:num("o_renov") },
@@ -801,15 +822,16 @@
   $("o_driftunit").addEventListener("change", recompute);
   $("d_varmeform").addEventListener("change", function(){ updateVarmeRows(); recompute(); });
   ["d_tkarl","d_tfreq","d_tmat"].forEach(function(id){ $(id).addEventListener("change", recompute); });
-  $("s_bud").addEventListener("input", recompute);
-  $("o_pris").addEventListener("change", function(){ var utg=num("o_pris"); if(utg) $("s_bud").value=sliderFromBud(utg); recompute(); });
+  $("s_bud").addEventListener("input", function(){ setBud(budFromSlider()); recompute(); });
+  $("s_val").addEventListener("input", function(){ setBud(num("s_val")); recompute(); });
+  $("o_pris").addEventListener("change", function(){ var utg=num("o_pris"); if(utg) setBud(utg); recompute(); });
 
   loadState();
   // Tillbaka från renoveringsanalysen? Visa fram till renov-kortet och scrolla dit.
   var _franRenov=(localStorage.getItem("kjkh:wizard")||"").indexOf('"renovMode":"deep"')>=0;
   if(_franRenov) revealed=Math.max(revealed,2);
   showUpTo(revealed);
-  if(num("o_pris")) $("s_bud").value=sliderFromBud(num("o_pris"));
+  if(num("o_pris")) setBud(num("o_pris"));
   recompute();
   if(_franRenov && cards[2]){
     setTimeout(function(){ cards[2].scrollIntoView({ behavior:"smooth", block:"start" }); }, 60);
