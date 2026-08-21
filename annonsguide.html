@@ -60,6 +60,11 @@
   /* Resultat: huvudkort + delkort */
   .hero{background:var(--paper-2);border:1px solid var(--line);border-radius:22px;padding:26px 24px 30px;box-shadow:0 14px 40px -20px rgba(20,30,24,.35);margin-top:8px}
   .hero.hidden{display:none}
+  .objhead{margin-bottom:16px}
+  .objhead .adr{font-family:"Fraunces",serif;font-weight:600;font-size:18px;margin:0 0 6px}
+  .objhead .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .objhead .chip{font-size:11.5px;font-weight:600;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:4px 11px}
+  .objhead.hidden{display:none}
   .verdict{border-radius:16px;padding:22px 24px;text-align:center;margin-bottom:22px}
   .verdict.ja{background:var(--green-soft);color:var(--green-dk);border:1px solid var(--green)}
   .verdict.tight{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold)}
@@ -193,6 +198,7 @@
 
   <!-- RESULTAT -->
   <div class="hero hidden" id="hero">
+    <div class="objhead" id="objhead"></div>
     <div class="verdict" id="verdict">
       <div class="vlbl">Helhetsbedömning</div>
       <div class="vbig" id="v-big"></div>
@@ -427,7 +433,10 @@
     var byggar = num(getField("byggar"));
     var boarea = num(getField("boarea"));
     var brutto = num($("p_brutto").value), netto = num($("p_netto").value), spar = num($("p_spar").value);
-    var stress = ranta + (C.DEF_STRESS - C.DEF_RANTA);
+    // Stresstestets marginal styrs av hur bekväm du sagt dig vara med rörlig ränta -
+    // schablonen är +2,5 procentenheter (DEF_STRESS-DEF_RANTA), vi glider ±1 utifrån svaret.
+    var STRESS_OFFSET = { bekvam: 1.5, neutral: 2.5, obekvam: 3.5 };
+    var stress = ranta + (STRESS_OFFSET[risk.risk_ranta] != null ? STRESS_OFFSET[risk.risk_ranta] : 2.5);
 
     // Drift: känd driftkostnad, annars uppskattad från boarea via schablon - delas
     // upp i fyra justerbara poster (driftState) första gången, sen styr sliders resten.
@@ -457,6 +466,9 @@
     });
     computed = res;
 
+    // --- Objhead: adress + fakta som booliparser hittade men annars inte syns ---
+    renderObjhead();
+
     // --- Verdict ---
     var vEl = $("verdict");
     vEl.className = "verdict " + res.band;
@@ -474,6 +486,19 @@
   }
 
   function bandOf(ratio){ return ratio > C.BAND_TIGHT ? "nej" : (ratio > C.BAND_JA ? "tight" : "ja"); }
+
+  function renderObjhead(){
+    var el = $("objhead");
+    var chips = [];
+    if(fields.energiklass) chips.push("Energiklass "+fields.energiklass);
+    if(fields.taxeringsvarde) chips.push("Taxeringsvärde "+kr(fields.taxeringsvarde));
+    if(fields.vardering) chips.push("Booli-värdering "+kr(fields.vardering));
+    if(fields.pantbrev) chips.push("Pantbrev "+kr(fields.pantbrev));
+    if(!fields.adress && chips.length === 0){ el.classList.add("hidden"); el.innerHTML=""; return; }
+    el.classList.remove("hidden");
+    el.innerHTML = (fields.adress ? '<div class="adr">'+fields.adress+'</div>' : "")+
+      (chips.length ? '<div class="chips">'+chips.map(function(c){ return '<span class="chip">'+c+'</span>'; }).join("")+'</div>' : "");
+  }
 
   function renderEkonomi(res){
     var netto = num($("p_netto").value);
@@ -507,8 +532,15 @@
       '<div class="sliderow"><div class="sl-top"><span>Ränta</span><b id="ranta-val">'+pct(ranta)+'</b></div>'+
       '<input type="range" id="s_ranta" min="1.5" max="7" step="0.05" value="'+ranta+'"></div>'+
       '<div class="sliderow"><div class="sl-top"><span>Kontantinsats</span><b id="kontant-val">'+kontantPct+' %</b></div>'+
-      '<input type="range" id="s_kontant" min="'+(C.KONTANT_MIN*100)+'" max="40" step="1" value="'+kontantPct+'"></div>'+
-      '<details class="dd"><summary>Detaljer</summary><div class="ddbody"><div class="brk">'+
+      '<input type="range" id="s_kontant" min="'+(C.KONTANT_MIN*100)+'" max="40" step="1" value="'+kontantPct+'"></div>';
+    if(res.skuldkvot > C.SKULD_GRANS && risk.risk_ranta === "obekvam"){
+      html += '<div class="tip risk">Skuldkvot över '+C.SKULD_GRANS+'x bruttoinkomst och du sa dig obekväm med rörlig ränta - överväg att binda hela eller delar av lånet. Stresstestet räknar redan med extra marginal (+3,5 procentenheter) för det.</div>';
+    } else if(risk.risk_ranta === "obekvam"){
+      html += '<div class="tip">Du är obekväm med rörlig ränta - stresstestet räknar därför med en bredare marginal (+3,5 procentenheter) än schablonen.</div>';
+    } else if(risk.risk_ranta === "bekvam"){
+      html += '<div class="tip">Du är bekväm med ränterisk - stresstestet räknar med en snävare marginal (+1,5 procentenheter) än schablonen.</div>';
+    }
+    html += '<details class="dd"><summary>Detaljer</summary><div class="ddbody"><div class="brk">'+
       row("Kontantinsats", kr(res.kiKrav))+
       row("Lagfart + pantbrev", kr(res.lagfart+res.pantbrevKost))+
       row("Amortering", pct(res.amort*100)+"/år · "+kr(res.amortMan)+"/mån")+
@@ -523,6 +555,11 @@
     var html = '<div class="shead"><h3><span class="dot '+band+'"></span>Renovering</h3></div>'+
       '<div><div class="mainstat">'+(renov.lo?kr0(renov.lo)+"–"+kr0(renov.hi):"0")+'<span class="unit">kr</span></div>'+
       '<div class="statline">'+(renov.aktuella.length ? renov.aktuella.length+" del(ar) aktuella inom 5 år" : "inget akut enligt livslängdstabellen")+'</div></div>';
+    if(renov.aktuella.length > 0 && risk.risk_horisont === "kort"){
+      html += '<div class="tip risk">Kort boendehorisont (&lt; 5 år) och renoveringsbehov inom samma tid: hinner eller vill du inte göra jobbet själv väger det ändå in i vad en köpare är villig att betala när du säljer.</div>';
+    } else if(renov.aktuella.length > 0 && risk.risk_horisont === "lang"){
+      html += '<div class="tip">Lång boendehorisont (10+ år) - gott om tid att sprida ut renoveringarna över flera år istället för allt på en gång.</div>';
+    }
     var urgLabel = { akut:"Akut", snart:"Inom 5 år", sikt:"På sikt", okand:"Okänt byggår" };
     html += '<details class="dd"><summary>Per komponent</summary><div class="ddbody"><table class="comptable">'+
       renov.items.map(function(it){
