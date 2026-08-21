@@ -291,7 +291,10 @@ async function runAI(docs, env) {
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001", // billig, räcker gott för detta
       max_tokens: 8000,
-      system: SYSTEM_PROMPT,
+      // Prompt caching: SYSTEM_PROMPT är identisk för varje anrop (bara
+      // dokumenttexten i messages varierar), så den cachas 5 min hos
+      // Anthropic - billigare och snabbare vid flera analyser i följd.
+      system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: buildUserMessage(docs) }],
     }),
   });

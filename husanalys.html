@@ -782,6 +782,16 @@
     }
   })();
 
+  // Förifyll Booli-länken om användaren redan klistrat in en i guiden.
+  (function(){
+    var field = document.getElementById("booliDocUrl");
+    if (field.value.trim()) return;
+    try {
+      var w = JSON.parse(localStorage.getItem("kjkh:wizard") || "{}");
+      if (w.o_url) field.value = w.o_url;
+    } catch(e){}
+  })();
+
   // Visa tidigare sparade analyser direkt vid sidladdning.
   renderHistory();
   if (PAY_ENABLED){ document.getElementById("priceNote").style.display = "inline"; }
