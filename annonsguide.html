@@ -295,7 +295,7 @@
       var d = await r.json();
       if(!r.ok) throw new Error(d.detail || r.statusText);
       fields = d.fields || {};
-      driftState = null; // ny annons - räkna om driftsplitten från grunden
+      driftState = null; bud = null; // ny annons - räkna om driftsplit och bud från grunden
       var fick = Object.keys(fields).filter(function(k){ return fields[k]; });
       st.textContent = fick.length ? ("Hämtade: "+fick.join(", ")+".") : "Hittade inga fält - fyll i manuellt nedan.";
       renderFragor();
@@ -305,7 +305,7 @@
     }catch(e){
       st.textContent = "Kunde inte hämta: "+e.message+". Du kan ändå fylla i manuellt nedan.";
       fields = {};
-      driftState = null;
+      driftState = null; bud = null;
       renderFragor();
       $("card-fragor").classList.remove("hidden");
       stepIdx = 0; visaSteg();
@@ -403,7 +403,7 @@
   $("o_tillbaka").addEventListener("click", function(){ stepIdx--; visaSteg(); });
 
   // === Beräkna ==============================================================
-  var ranta = null, kontantPct = null, computed = null;
+  var ranta = null, kontantPct = null, bud = null, computed = null;
 
   // Delar upp en total driftkostnad i fyra justerbara poster med grova schablonandelar
   // (uppvärmning tyngst, sen hushållsel, vatten/avlopp, sophämtning).
@@ -421,6 +421,7 @@
     if(stepIdx < steg.length - 1){ stepIdx++; visaSteg(); return; }
     ranta = num($("p_ranta").value) || C.DEF_RANTA;
     kontantPct = C.DEF_KONTANT * 100;
+    if(bud == null) bud = num(getField("pris"));
     render();
     $("hero").classList.remove("hidden");
     $("hero").scrollIntoView({ behavior:"smooth", block:"start" });
@@ -458,11 +459,11 @@
 
     var kontantAndel = kontantPct/100;
     var res = KJKH_AFF.bedom({
-      B: pris, brutto: brutto, netto: netto, spar: spar,
+      B: bud, brutto: brutto, netto: netto, spar: spar,
       ranta: ranta/100, stress: stress/100,
       renov: renov.mid, driftMan: driftKand,
       kontantAndel: kontantAndel,
-      bufferKravOverride: bufferOverride ? Math.max(C.BUFFER_FAST*1.3, C.BUFFER_KNAPP*1.3*pris*(1-kontantAndel)) : null,
+      bufferKravOverride: bufferOverride ? Math.max(C.BUFFER_FAST*1.3, C.BUFFER_KNAPP*1.3*bud*(1-kontantAndel)) : null,
     });
     computed = res;
 
@@ -480,7 +481,7 @@
     $("v-sub").innerHTML = "Boendekostnaden landar på <b>"+Math.round(ratioNorm*100)+"%</b> av nettoinkomsten vid "+pct(ranta)+" ränta, <b>"+Math.round(ratio*100)+"%</b> vid stresstest ("+pct(stress)+")."+renovNote;
 
     renderEkonomi(res);
-    renderLan(res);
+    renderLan(res, pris, num(fields.vardering));
     renderRenov(renov);
     renderDrift(kand, boarea);
   }
@@ -524,11 +525,14 @@
     $("sub-ekonomi").innerHTML = html;
   }
 
-  function renderLan(res){
+  function renderLan(res, utg, vardering){
     var band = res.skuldkvot > C.SKULD_GRANS ? "tight" : "ja";
+    var pr = KJKH_AFF.priser(utg, vardering);
     var html = '<div class="shead"><h3><span class="dot '+band+'"></span>Lån</h3></div>'+
       '<div><div class="mainstat">'+kr0(res.lan)+'<span class="unit">kr lån</span></div>'+
       '<div class="statline">skuldkvot '+(Math.round(res.skuldkvot*10)/10).toLocaleString("sv-SE")+' × bruttoinkomst</div></div>'+
+      '<div class="sliderow"><div class="sl-top"><span>Bud</span><b id="bud-val">'+kr(bud)+'</b></div>'+
+      '<input type="range" id="s_bud" min="'+pr.min+'" max="'+pr.max+'" step="5000" value="'+bud+'"></div>'+
       '<div class="sliderow"><div class="sl-top"><span>Ränta</span><b id="ranta-val">'+pct(ranta)+'</b></div>'+
       '<input type="range" id="s_ranta" min="1.5" max="7" step="0.05" value="'+ranta+'"></div>'+
       '<div class="sliderow"><div class="sl-top"><span>Kontantinsats</span><b id="kontant-val">'+kontantPct+' %</b></div>'+
@@ -541,11 +545,14 @@
       html += '<div class="tip">Du är bekväm med ränterisk - stresstestet räknar med en snävare marginal (+1,5 procentenheter) än schablonen.</div>';
     }
     html += '<details class="dd"><summary>Detaljer</summary><div class="ddbody"><div class="brk">'+
+      row("Utgångspris", kr(utg))+
+      (vardering ? row("Booli-värdering", kr(vardering)) : "")+
       row("Kontantinsats", kr(res.kiKrav))+
       row("Lagfart + pantbrev", kr(res.lagfart+res.pantbrevKost))+
       row("Amortering", pct(res.amort*100)+"/år · "+kr(res.amortMan)+"/mån")+
       '</div></div></details>';
     $("sub-lan").innerHTML = html;
+    $("s_bud").addEventListener("input", function(e){ bud = num(e.target.value); render(); });
     $("s_ranta").addEventListener("input", function(e){ ranta = num(e.target.value); render(); });
     $("s_kontant").addEventListener("input", function(e){ kontantPct = num(e.target.value); render(); });
   }
