@@ -107,6 +107,11 @@
   .urg.snart{background:var(--gold-soft);color:var(--gold)}
   .urg.sikt,.urg.okand{background:var(--green-soft);color:var(--green-dk)}
   .footdisc{margin-top:20px;font-size:12.5px;color:var(--ink-soft);text-align:center}
+  .crosslink{margin:16px 0 0;padding:12px 16px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--terra);border-radius:12px;transition:.15s}
+  .crosslink:hover{border-color:var(--terra)}
+  .crosslink .psst{font-family:"Fraunces",serif;font-style:italic;font-size:14px;color:var(--terra);font-weight:600}
+  .crosslink a{color:var(--green);font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--green-soft)}
+  .crosslink a:hover{border-bottom-color:var(--green)}
 </style>
 </head>
 <body>
@@ -199,6 +204,7 @@
       <div class="sub" id="sub-renov"></div>
       <div class="sub" id="sub-drift"></div>
     </div>
+    <div class="crosslink"><span class="psst">Psst.</span> Vill du finjustera varje detalj själv - uppvärmning, pendling, bindningstider, prisanalys? <a href="kalkylator.html">Fullständiga kalkylatorn →</a></div>
   </div>
 
   <div class="footdisc">Grov vägledning, inte lånelöfte eller rådgivning. Alla beräkningar är regelbaserade (ingen AI) - samma indata ger alltid samma resultat.</div>
@@ -238,6 +244,7 @@
   var extraFields = {}; // svar på de villkorade "saknat"-frågorna
   var renovBucket = {}; // svar på renoveringsfrågorna, { kok:"nyligen", ... } - se RENOV_BUCKETS
   var risk = { risk_utgift:"medel", risk_ranta:"neutral", risk_horisont:"mellan" };
+  var driftState = null; // { varme, el, vatten, sopor } kr/mån, satt första render() eller från localStorage
 
   function loadProfil(){
     var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
@@ -253,10 +260,11 @@
     var s={}; try{ s=JSON.parse(localStorage.getItem("kjkh:annonsguide")||"{}"); }catch(e){}
     if(s.risk) risk = s.risk;
     if(s.renovBucket) renovBucket = s.renovBucket;
+    if(s.driftState) driftState = s.driftState;
     if(s.extraFields) extraFields = s.extraFields;
   }
   function saveAnnonsguide(){
-    try{ localStorage.setItem("kjkh:annonsguide", JSON.stringify({ risk:risk, renovBucket:renovBucket, extraFields:extraFields })); }catch(e){}
+    try{ localStorage.setItem("kjkh:annonsguide", JSON.stringify({ risk:risk, renovBucket:renovBucket, extraFields:extraFields, driftState:driftState })); }catch(e){}
   }
   loadProfil(); loadAnnonsguide();
 
@@ -281,6 +289,7 @@
       var d = await r.json();
       if(!r.ok) throw new Error(d.detail || r.statusText);
       fields = d.fields || {};
+      driftState = null; // ny annons - räkna om driftsplitten från grunden
       var fick = Object.keys(fields).filter(function(k){ return fields[k]; });
       st.textContent = fick.length ? ("Hämtade: "+fick.join(", ")+".") : "Hittade inga fält - fyll i manuellt nedan.";
       renderFragor();
@@ -290,6 +299,7 @@
     }catch(e){
       st.textContent = "Kunde inte hämta: "+e.message+". Du kan ändå fylla i manuellt nedan.";
       fields = {};
+      driftState = null;
       renderFragor();
       $("card-fragor").classList.remove("hidden");
       stepIdx = 0; visaSteg();
@@ -389,6 +399,16 @@
   // === Beräkna ==============================================================
   var ranta = null, kontantPct = null, computed = null;
 
+  // Delar upp en total driftkostnad i fyra justerbara poster med grova schablonandelar
+  // (uppvärmning tyngst, sen hushållsel, vatten/avlopp, sophämtning).
+  var DRIFT_ANDEL = { varme: 0.45, el: 0.20, vatten: 0.20, sopor: 0.15 };
+  function splitDrift(total){
+    var s = {};
+    Object.keys(DRIFT_ANDEL).forEach(function(k){ s[k] = Math.max(0, Math.round(total * DRIFT_ANDEL[k] / 50) * 50); });
+    return s;
+  }
+  function driftSum(s){ return s.varme + s.el + s.vatten + s.sopor; }
+
   $("o_berakna").addEventListener("click", function(){
     saveProfil(); saveAnnonsguide();
     var steg = aktivaSteg();
@@ -409,12 +429,15 @@
     var brutto = num($("p_brutto").value), netto = num($("p_netto").value), spar = num($("p_spar").value);
     var stress = ranta + (C.DEF_STRESS - C.DEF_RANTA);
 
-    // Drift: känd driftkostnad, annars uppskattad från boarea via schablon.
-    var driftKand = num(getField("driftkostnad"));
-    var uppvSchablon = 0, uppvKand = driftKand > 0;
-    if(!driftKand && boarea){
-      driftKand = Math.round(boarea * C.DRIFT_KVM_AR / 12);
+    // Drift: känd driftkostnad, annars uppskattad från boarea via schablon - delas
+    // upp i fyra justerbara poster (driftState) första gången, sen styr sliders resten.
+    var driftKandUrsprung = num(getField("driftkostnad"));
+    var kand = driftKandUrsprung > 0;
+    if(!driftState){
+      var driftDefault = driftKandUrsprung || (boarea ? Math.round(boarea * C.DRIFT_KVM_AR / 12) : 3000);
+      driftState = splitDrift(driftDefault);
     }
+    var driftKand = driftSum(driftState);
 
     // Renovering: livslängdsmotor
     var senastAr = {}; Object.keys(renovBucket).forEach(function(k){ senastAr[k] = bucketToYear(renovBucket[k]); });
@@ -447,7 +470,7 @@
     renderEkonomi(res);
     renderLan(res);
     renderRenov(renov);
-    renderDrift(driftKand, uppvKand, boarea);
+    renderDrift(kand, boarea);
   }
 
   function bandOf(ratio){ return ratio > C.BAND_TIGHT ? "nej" : (ratio > C.BAND_JA ? "tight" : "ja"); }
@@ -510,14 +533,32 @@
     $("sub-renov").innerHTML = html;
   }
 
-  function renderDrift(driftMan, kand, boarea){
+  var DRIFT_LABELS = { varme:"Uppvärmning", el:"Hushållsel", vatten:"Vatten/avlopp", sopor:"Sophämtning" };
+
+  function renderDrift(kand, boarea){
+    var total = driftSum(driftState);
     var html = '<div class="shead"><h3><span class="dot ja"></span>Drift</h3></div>'+
-      '<div><div class="mainstat">'+kr0(driftMan)+'<span class="unit">kr/mån</span></div>'+
-      '<div class="statline">uppvärmning, vatten, sophämtning m.m.</div></div>';
+      '<div><div class="mainstat">'+kr0(total)+'<span class="unit">kr/mån</span></div>'+
+      '<div class="statline">uppvärmning, el, vatten, sophämtning</div></div>';
     if(!kand){
-      html += '<div class="tip">Driftkostnad saknades i annonsen - uppskattad från boarea ('+kr0(boarea)+' kvm × '+C.DRIFT_KVM_AR+' kr/kvm/år, schablon).</div>';
+      html += '<div class="tip">Driftkostnad saknades i annonsen - uppskattad från boarea ('+kr0(boarea)+' kvm × '+C.DRIFT_KVM_AR+' kr/kvm/år, schablon) och delad i fyra poster. Justera med reglagen om du vet bättre.</div>';
+    } else {
+      html += '<div class="tip">Annonsens driftkostnad delad i fyra poster efter grov schablon. Justera med reglagen om du vet fördelningen bättre.</div>';
     }
+    Object.keys(DRIFT_LABELS).forEach(function(key){
+      var val = driftState[key];
+      var max = Math.max(300, Math.round(val * 2.5 / 50) * 50, 300);
+      html += '<div class="sliderow"><div class="sl-top"><span>'+DRIFT_LABELS[key]+'</span><b id="dv-'+key+'">'+kr0(val)+' kr</b></div>'+
+        '<input type="range" id="ds-'+key+'" min="0" max="'+max+'" step="50" value="'+val+'"></div>';
+    });
     $("sub-drift").innerHTML = html;
+    Object.keys(DRIFT_LABELS).forEach(function(key){
+      $("ds-"+key).addEventListener("input", function(e){
+        driftState[key] = num(e.target.value);
+        saveAnnonsguide();
+        render();
+      });
+    });
   }
 
   function row(k, v){ return '<div class="r"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
