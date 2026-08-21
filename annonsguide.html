@@ -45,6 +45,13 @@
   .groupbox .grouptitle{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--green-dk);margin:0 0 4px}
   .groupbox .groupsay{font-size:12.5px;color:var(--ink-soft);margin:0 0 14px}
   .groupbox.hidden{display:none}
+  .cfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px}
+  .backlink{font-size:13px;font-weight:600;color:var(--ink-soft);background:none;border:0;cursor:pointer;font-family:inherit;padding:8px 0}
+  .backlink:hover{color:var(--ink)}
+  .backlink.hidden{visibility:hidden}
+  .stepdots{display:flex;gap:6px;margin:0 0 16px}
+  .stepdots span{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .stepdots span.on{background:var(--green);width:18px;border-radius:4px;transition:.2s}
 
   .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;width:100%}
   .seg button{font-family:inherit;font-size:12.5px;font-weight:600;padding:10px 10px;border:0;background:transparent;color:var(--ink-soft);cursor:pointer;flex:1}
@@ -122,7 +129,8 @@
   <!-- KORT 2: FRÅGOR -->
   <section class="card hidden" id="card-fragor">
     <h2>2. Fyll i det som saknas</h2>
-    <p class="say" id="fragor-say">Fälten nedan visas bara om vi inte kunde läsa av dem ur annonsen.</p>
+    <p class="say" id="fragor-say">Ett steg i taget - bara det som saknas i annonsen frågar vi om.</p>
+    <div class="stepdots" id="stepdots"></div>
 
     <div class="groupbox hidden" id="grp-saknat">
       <div class="grouptitle">Saknades i annonsen</div>
@@ -172,7 +180,10 @@
       </div>
     </div>
 
-    <button class="btn go" id="o_berakna">Visa resultat</button>
+    <div class="cfoot">
+      <button class="backlink hidden" id="o_tillbaka" type="button">← Tillbaka</button>
+      <button class="btn go" id="o_berakna">Nästa</button>
+    </div>
   </section>
 
   <!-- RESULTAT -->
@@ -262,12 +273,14 @@
       st.textContent = fick.length ? ("Hämtade: "+fick.join(", ")+".") : "Hittade inga fält - fyll i manuellt nedan.";
       renderFragor();
       $("card-fragor").classList.remove("hidden");
+      stepIdx = 0; visaSteg();
       $("card-fragor").scrollIntoView({ behavior:"smooth", block:"start" });
     }catch(e){
       st.textContent = "Kunde inte hämta: "+e.message+". Du kan ändå fylla i manuellt nedan.";
       fields = {};
       renderFragor();
       $("card-fragor").classList.remove("hidden");
+      stepIdx = 0; visaSteg();
     }
   });
 
@@ -332,11 +345,33 @@
 
   function num(v){ if(v==null||v==="") return 0; var n = parseFloat(String(v).replace(/\s/g,"").replace(",", ".")); return isFinite(n) ? n : 0; }
 
+  // === Steg-navigering: ett groupbox i taget ===============================
+  var ALLA_STEG = ["grp-saknat", "grp-renov", "grp-ekonomi", "grp-risk"];
+  var stepIdx = 0;
+
+  function aktivaSteg(){
+    return ALLA_STEG.map($).filter(function(el){ return !el.classList.contains("hidden"); });
+  }
+  function visaSteg(){
+    var steg = aktivaSteg();
+    if(stepIdx >= steg.length) stepIdx = steg.length - 1;
+    if(stepIdx < 0) stepIdx = 0;
+    steg.forEach(function(el, i){ el.style.display = (i === stepIdx) ? "" : "none"; });
+    $("o_tillbaka").classList.toggle("hidden", stepIdx === 0);
+    $("o_berakna").textContent = (stepIdx === steg.length - 1) ? "Visa resultat" : "Nästa";
+    var dots = $("stepdots"); dots.innerHTML = "";
+    steg.forEach(function(el, i){ var d = document.createElement("span"); if(i===stepIdx) d.className="on"; dots.appendChild(d); });
+    steg[stepIdx].scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+  $("o_tillbaka").addEventListener("click", function(){ stepIdx--; visaSteg(); });
+
   // === Beräkna ==============================================================
   var ranta = null, kontantPct = null, computed = null;
 
   $("o_berakna").addEventListener("click", function(){
     saveProfil(); saveAnnonsguide();
+    var steg = aktivaSteg();
+    if(stepIdx < steg.length - 1){ stepIdx++; visaSteg(); return; }
     ranta = num($("p_ranta").value) || C.DEF_RANTA;
     kontantPct = C.DEF_KONTANT * 100;
     render();
