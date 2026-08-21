@@ -258,7 +258,7 @@
       <section class="card">
         <h2><span class="num">1</span>Köp & engångskostnader</h2>
         <div class="body">
-          <div class="field"><label>Hämta från Booli<small>Klistra in en annonslänk</small></label><div class="unit"><input class="inp" id="booliUrl" type="url" placeholder="https://www.booli.se/bostad/..." style="width:200px;text-align:left"></div></div>
+          <div class="field"><label>Hämta från Booli/Hemnet<small>Klistra in en annonslänk</small></label><div class="unit"><input class="inp" id="booliUrl" type="url" placeholder="https://www.booli.se/... eller hemnet.se/..." style="width:200px;text-align:left"></div></div>
           <div style="margin:4px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <button class="lilbtn" onclick="hamtaFranBooli()">Hämta uppgifter</button>
             <span class="hint" id="booliStatus" style="display:none;margin:0;flex:1 1 200px"></span>
@@ -726,7 +726,7 @@ const PARSER_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
 async function hamtaFranBooli(){
   const status = $('booliStatus'); status.style.display = 'block';
   const url = $('booliUrl').value.trim();
-  if(!url){ status.textContent = 'Klistra in en Booli-länk först.'; return; }
+  if(!url){ status.textContent = 'Klistra in en Booli- eller Hemnet-länk först.'; return; }
   status.textContent = 'Hämtar...';
   try{
     const r = await fetch(PARSER_API + '?url=' + encodeURIComponent(url));

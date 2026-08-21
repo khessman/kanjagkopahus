@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>kanjagköpahus.se - räkna ut om du har råd att köpa huset</title>
-<meta name="description" content="Klistra in en Booli-länk, eller fyll i siffrorna själv, och bli guidad steg för steg: objektet, driftkostnad, renovering, din ekonomi - och se direkt om du har råd.">
+<meta name="description" content="Klistra in en Booli- eller Hemnet-länk, eller fyll i siffrorna själv, och bli guidad steg för steg: objektet, driftkostnad, renovering, din ekonomi - och se direkt om du har råd.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -199,15 +199,15 @@
   </div>
 
   <h1>Har du råd att köpa huset?</h1>
-  <p class="lead">Vi går igenom det steg för steg - klistra in en Booli-länk, eller fyll i siffrorna själv för att göra en kalkyl. Allt räknas i din webbläsare och sparas bara där.</p>
+  <p class="lead">Vi går igenom det steg för steg - klistra in en Booli- eller Hemnet-länk, eller fyll i siffrorna själv för att göra en kalkyl. Allt räknas i din webbläsare och sparas bara där.</p>
 
   <!-- KORT 1 · OBJEKTET -->
   <section class="card" data-card="0">
     <div class="cardmain">
       <div class="chead"><h2>1 · Objektet</h2></div>
-      <p class="say">Klistra in en Booli-länk så hämtas pris, driftkostnad och Boolis värdering. Eller fyll i själv under Detaljerat.</p>
+      <p class="say">Klistra in en Booli- eller Hemnet-länk så hämtas pris, driftkostnad m.m. automatiskt. Eller fyll i själv under Detaljerat.</p>
       <div class="linkrow">
-        <div class="field"><label for="o_url">Booli-länk</label><input type="url" id="o_url" placeholder="https://www.booli.se/..."></div>
+        <div class="field"><label for="o_url">Booli- eller Hemnet-länk</label><input type="url" id="o_url" placeholder="https://www.booli.se/... eller https://www.hemnet.se/..."></div>
         <button class="btn go sm" type="button" id="o_hamta">Hämta</button>
       </div>
       <div class="status" id="o_status"></div>
@@ -667,7 +667,7 @@
     var okPris=utg>0, okEkon=num("p_netto")>0&&num("p_brutto")>0&&num("p_spar")>=0;
     if(!okPris || !okEkon){
       $("v_needs").style.display="block"; $("v_body").style.display="none";
-      $("v_needs").textContent = !okPris ? "Fyll i ett utgångspris i steg 1 (Booli-länk eller Detaljerat)." : "Fyll i din ekonomi i steg 6 för att se svaret.";
+      $("v_needs").textContent = !okPris ? "Fyll i ett utgångspris i steg 1 (Booli-/Hemnet-länk eller Detaljerat)." : "Fyll i din ekonomi i steg 6 för att se svaret.";
       return;
     }
     $("v_needs").style.display="none"; $("v_body").style.display="block";
@@ -709,7 +709,7 @@
   // === Booli-hämtning =====================================================
   $("o_hamta").addEventListener("click", async function(){
     var url=$("o_url").value.trim(), st=$("o_status");
-    if(!url){ st.textContent="Klistra in en Booli-länk först."; return; }
+    if(!url){ st.textContent="Klistra in en Booli- eller Hemnet-länk först."; return; }
     st.textContent="Hämtar...";
     try{
       var r=await fetch(PARSER_API+"?url="+encodeURIComponent(url)); var d=await r.json();
@@ -851,7 +851,7 @@
     saveState();
   }
   function requiredOk(from){
-    if(from===0 && !(num("o_pris")>0)){ $("o_status").textContent="Fyll i ett utgångspris (Booli-länk eller Detaljerat) innan du går vidare."; return false; }
+    if(from===0 && !(num("o_pris")>0)){ $("o_status").textContent="Fyll i ett utgångspris (Booli-/Hemnet-länk eller Detaljerat) innan du går vidare."; return false; }
     if(from===5 && !(num("p_netto")>0&&num("p_brutto")>0)){ return false; }
     return true;
   }

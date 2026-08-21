@@ -108,8 +108,8 @@
 
     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px">
       <div style="flex:1;min-width:200px">
-        <label for="booliDocUrl" style="font-size:12.5px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:5px">Booli-länk <span style="font-weight:400">- hämta dokument automatiskt från mäklaren (best-effort)</span></label>
-        <input type="url" id="booliDocUrl" placeholder="https://www.booli.se/..." style="font-family:inherit;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%">
+        <label for="booliDocUrl" style="font-size:12.5px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:5px">Booli- eller Hemnet-länk <span style="font-weight:400">- hämta dokument automatiskt från mäklaren (best-effort)</span></label>
+        <input type="url" id="booliDocUrl" placeholder="https://www.booli.se/... eller https://www.hemnet.se/..." style="font-family:inherit;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%">
       </div>
       <button class="go" type="button" id="booliDocBtn" style="padding:11px 20px;font-size:14px">Hämta dokument</button>
     </div>
@@ -249,7 +249,7 @@
     });
   });
 
-  // === Auto-hämta dokument från mäklaren via Booli-länk (best-effort) =======
+  // === Auto-hämta dokument från mäklaren via Booli-/Hemnet-länk (best-effort) ==
   // Anropar booli-parsern: /docs hittar mäklarlänk + PDF:er, /docfetch proxar
   // varje PDF (med CORS) så pdf.js kan läsa den. Faller något -> ladda upp själv.
   var PARSER_BASE = "https://kjkh-booliparser.kalle-hessman.workers.dev";
@@ -267,7 +267,7 @@
   if (booliDocBtn) booliDocBtn.addEventListener("click", async function(){
     var url = document.getElementById("booliDocUrl").value.trim();
     var st = document.getElementById("booliDocStatus");
-    if(!url){ st.textContent = "Klistra in en Booli-länk först."; return; }
+    if(!url){ st.textContent = "Klistra in en Booli- eller Hemnet-länk först."; return; }
     booliDocBtn.disabled = true;
     st.textContent = "Söker dokument hos mäklaren…";
     try{
@@ -782,7 +782,7 @@
     }
   })();
 
-  // Förifyll Booli-länken om användaren redan klistrat in en i guiden.
+  // Förifyll annonslänken om användaren redan klistrat in en i guiden.
   (function(){
     var field = document.getElementById("booliDocUrl");
     if (field.value.trim()) return;
