@@ -1,4 +1,5 @@
 import { SYSTEM_PROMPT, buildUserMessage, RESPONSE_SCHEMA, PRICE_TABLE } from "./prompt.js";
+import { ANNONS_SYSTEM_PROMPT, buildAnnonsMessage, ANNONS_SCHEMA } from "./annonsprompt.js";
 
 // Cloudflare Worker: tar emot dokumenttexter, kör AI-analysen och returnerar
 // strikt JSON. I MOCK-läge svarar den utan att anropa någon AI-leverantör.
@@ -30,6 +31,11 @@ export default {
     // --- Prislista: kategorier + schabloner för "Fyll i själv"-läget (gratis) ---
     if (body.action === "prices") {
       return json({ kategorier: priceList() }, 200, cors);
+    }
+
+    // --- Annonstolkning: läser mäklartexten (gratis, cachad per text) ---
+    if (body.action === "annons") {
+      return handleAnnons(body, env, cors, request);
     }
 
     // Förväntat: { besiktning, energirapport, energideklaration, fragelista }
@@ -280,6 +286,125 @@ async function sha256hex(strval) {
 // --- Skarpt AI-anrop (aktiveras när MOCK=false) ---------------------------
 // Just nu skrivet mot Anthropics Messages-API. Byt endast denna funktion om du
 // väljer en annan leverantör. Nyckeln kommer från env.AI_API_KEY (wrangler secret).
+// --- Annonstolkning -------------------------------------------------------
+// Gratis, men samma bromsar som resten: storleksgräns, cache per exakt text
+// (samma annons körs aldrig två gånger) och KV-rate-limit per IP.
+const ANNONS_MAX_LEN = 12000;
+
+async function handleAnnons(body, env, cors, request) {
+  const beskrivning = str(body.beskrivning);
+  if (!beskrivning) {
+    return json({ error: "Annonstexten saknas." }, 400, cors);
+  }
+  if (beskrivning.length > ANNONS_MAX_LEN) {
+    return json({ error: "Annonstexten är för lång för att tolkas." }, 413, cors);
+  }
+
+  const input = {
+    beskrivning,
+    byggar: num(body.byggar),
+    boarea: num(body.boarea),
+    pris: num(body.pris),
+    uppvarmning: str(body.uppvarmning),
+    energiklass: str(body.energiklass),
+  };
+
+  const cacheable = env.MOCK !== "true";
+  const cache = caches.default;
+  // Nyckeln täcker både texten och de kända fakta som går in i prompten, så ett
+  // objekt med annat byggår inte får ett cachat svar som gällde ett annat hus.
+  const cacheKey = new Request(
+    "https://kjkh-cache/annons/" + (await sha256hex(JSON.stringify(input)))
+  );
+
+  if (cacheable) {
+    const hit = await cache.match(cacheKey);
+    if (hit) {
+      const cached = await hit.json();
+      cached._cache = "hit";
+      return json(cached, 200, cors);
+    }
+  }
+
+  if (cacheable && env.RL_KV) {
+    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+    if (await tooManyRequests(env.RL_KV, ip, 6, 60)) {
+      return json(
+        { error: "För många tolkningar på kort tid. Vänta en minut och försök igen." },
+        429,
+        cors
+      );
+    }
+  }
+
+  try {
+    const result = env.MOCK === "true" ? mockAnnons() : await runAnnonsAI(input, env);
+    result.friskrivning = ANNONS_SCHEMA.friskrivning; // aldrig modellens version
+    if (cacheable) {
+      try {
+        await cache.put(
+          cacheKey,
+          new Response(JSON.stringify(result), {
+            headers: {
+              "content-type": "application/json",
+              "Cache-Control": "max-age=2592000", // 30 dagar
+            },
+          })
+        );
+      } catch { /* cache-fel ska aldrig fälla ett lyckat svar */ }
+    }
+    return json(result, 200, cors);
+  } catch (err) {
+    return json({ error: "Tolkningen misslyckades.", detalj: String(err) }, 502, cors);
+  }
+}
+
+async function runAnnonsAI(input, env) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": env.AI_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 2000,
+      system: [{ type: "text", text: ANNONS_SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+      messages: [{ role: "user", content: buildAnnonsMessage(input) }],
+    }),
+  });
+
+  if (!res.ok) throw new Error(`AI ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  if (data?.stop_reason === "max_tokens") {
+    throw new Error("Svaret blev för långt (max_tokens).");
+  }
+  const text = data?.content?.[0]?.text ?? "";
+  try {
+    return JSON.parse(extractJson(text));
+  } catch (e) {
+    throw new Error(`Kunde inte tolka AI-svaret som JSON: ${String(e)}`);
+  }
+}
+
+function mockAnnons() {
+  return {
+    antytt: [
+      {
+        formulering: "charmigt originalskick",
+        betyder: "Kök och badrum är sannolikt inte renoverade sedan byggåret.",
+        styrka: "trolig",
+      },
+    ],
+    saknas: [
+      { amne: "Dränering", varfor: "Äldre hus med källare, men dräneringen nämns inte." },
+    ],
+    fragor: ["Är dräneringen gjord, och i så fall vilket år?"],
+    friskrivning: ANNONS_SCHEMA.friskrivning,
+  };
+}
+
 async function runAI(docs, env) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -374,6 +499,12 @@ function mockAnalysis(docs) {
 // --- Hjälpare -------------------------------------------------------------
 function str(v) {
   return typeof v === "string" ? v : "";
+}
+
+// Tal ur otrodd JSON: returnerar null för allt som inte är ett ändligt tal.
+function num(v) {
+  const n = typeof v === "number" ? v : parseFloat(String(v ?? "").replace(/\s/g, ""));
+  return Number.isFinite(n) ? n : null;
 }
 
 function json(obj, status, headers) {
