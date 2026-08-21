@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>kanjagköpahus.se - annonsguiden (experiment)</title>
+<meta name="description" content="Klistra in en Booli- eller Hemnet-länk och få en regelbaserad sammanställning av ekonomi, lån, renoveringsbehov och drift - utan AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--gold:#9a7b22;--gold-soft:#f3ecd4}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 90px}
+  a{color:var(--green)}
+  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(24px,5vw,32px);letter-spacing:-.01em;margin:0 0 4px;line-height:1.1;text-wrap:balance}
+  .lead{color:var(--ink-soft);font-size:14.5px;margin:0 0 22px;max-width:64ch}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--green-dk);background:var(--green-soft);border-radius:20px;padding:5px 12px;margin-bottom:12px}
+  .tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+  /* Kort (indata) */
+  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:24px 26px;box-shadow:0 8px 24px -12px rgba(28,37,32,.18);margin-bottom:16px}
+  .card.hidden{display:none}
+  .card h2{font-family:"Fraunces",serif;font-weight:600;font-size:20px;margin:0 0 4px}
+  .say{color:var(--ink-soft);font-size:13.5px;margin:0 0 16px;max-width:56ch}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+  .field:last-child{margin-bottom:0}
+  .field label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
+  .field .hint{font-size:11px;color:var(--ink-soft);font-weight:400}
+  input[type=text],input[type=number],input[type=url],select{font-family:inherit;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
+  input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
+  .linkrow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:6px}
+  .linkrow .field{flex:1;min-width:200px;margin:0}
+  .btn{font-family:inherit;font-weight:700;cursor:pointer;border:0;border-radius:11px;transition:.15s}
+  .btn.go{font-size:15px;background:var(--green);color:#fff;padding:12px 22px}
+  .btn.go:hover{background:var(--green-dk);transform:translateY(-1px)}
+  .btn.go:disabled{opacity:.5;cursor:default;transform:none}
+  .status{font-size:13px;color:var(--ink-soft);margin-top:8px;min-height:1.2em}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:600px){.two{grid-template-columns:1fr}}
+
+  .groupbox{border:1.5px solid var(--line);border-radius:12px;padding:16px 18px 4px;margin:4px 0 16px;background:var(--paper)}
+  .groupbox .grouptitle{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--green-dk);margin:0 0 4px}
+  .groupbox .groupsay{font-size:12.5px;color:var(--ink-soft);margin:0 0 14px}
+  .groupbox.hidden{display:none}
+
+  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;width:100%}
+  .seg button{font-family:inherit;font-size:12.5px;font-weight:600;padding:10px 10px;border:0;background:transparent;color:var(--ink-soft);cursor:pointer;flex:1}
+  .seg button.on{background:var(--green);color:#fff}
+
+  /* Resultat: huvudkort + delkort */
+  .hero{background:var(--paper-2);border:1px solid var(--line);border-radius:22px;padding:26px 24px 30px;box-shadow:0 14px 40px -20px rgba(20,30,24,.35);margin-top:8px}
+  .hero.hidden{display:none}
+  .verdict{border-radius:16px;padding:22px 24px;text-align:center;margin-bottom:22px}
+  .verdict.ja{background:var(--green-soft);color:var(--green-dk);border:1px solid var(--green)}
+  .verdict.tight{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold)}
+  .verdict.nej{background:var(--terra-soft);color:var(--terra);border:1px solid var(--terra)}
+  .verdict .vlbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;opacity:.75}
+  .verdict .vbig{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(24px,6vw,34px);line-height:1.1;margin:6px 0;text-wrap:balance}
+  .verdict .vsub{font-size:13.5px;opacity:.9;max-width:60ch;margin:0 auto}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.rgrid{grid-template-columns:1fr}}
+  .sub{background:var(--paper);border:1px solid var(--line);border-radius:15px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px}
+  .sub h3{font-family:"Fraunces",serif;font-weight:600;font-size:16.5px;margin:0;display:flex;align-items:center;gap:8px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .dot.ja{background:var(--green)}.dot.tight{background:var(--gold)}.dot.nej{background:var(--terra)}
+  .mainstat{font-family:"Fraunces",serif;font-weight:600;font-size:21px;font-variant-numeric:tabular-nums}
+  .mainstat .unit{font-size:.5em;font-weight:500;color:var(--ink-soft);margin-left:3px}
+  .statline{font-size:12.5px;color:var(--ink-soft)}
+  .sliderow{display:flex;flex-direction:column;gap:4px;margin-top:2px}
+  .sliderow .sl-top{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft)}
+  .sliderow .sl-top b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:4px;background:var(--line)}
+  input[type=range]::-moz-range-track{height:6px;border-radius:4px;background:var(--line)}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:var(--paper-2);border:3px solid var(--green);margin-top:-7px;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--paper-2);border:3px solid var(--green);cursor:pointer}
+  .tip{font-size:12px;line-height:1.5;color:var(--ink-soft);background:var(--paper-2);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:8px 10px}
+  .tip.risk{border-left-color:var(--terra)}
+  .tip b{color:var(--ink);font-weight:700}
+  details.dd{border-top:1px dashed var(--line);padding-top:10px;margin-top:2px}
+  details.dd summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--green-dk);list-style:none;display:flex;align-items:center;gap:6px}
+  details.dd summary::-webkit-details-marker{display:none}
+  details.dd summary::before{content:"+";font-size:13px;width:14px}
+  details.dd[open] summary::before{content:"–"}
+  details.dd .ddbody{padding:10px 0 2px}
+  .brk{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:8px}
+  .brk .r{background:var(--paper-2);display:flex;justify-content:space-between;padding:7px 10px;font-size:12.5px}
+  .brk .r .k{color:var(--ink-soft)}
+  .brk .r .v{font-weight:600;font-variant-numeric:tabular-nums}
+  .comptable{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}
+  .comptable td{padding:5px 4px;border-bottom:1px solid var(--line)}
+  .comptable tr:last-child td{border-bottom:0}
+  .comptable td:first-child{color:var(--ink-soft)}
+  .comptable td:last-child{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .urg{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:20px;margin-left:6px}
+  .urg.akut{background:var(--terra-soft);color:var(--terra)}
+  .urg.snart{background:var(--gold-soft);color:var(--gold)}
+  .urg.sikt,.urg.okand{background:var(--green-soft);color:var(--green-dk)}
+  .footdisc{margin-top:20px;font-size:12.5px;color:var(--ink-soft);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="tag">Experiment · ingen AI</span>
+  <h1>Annonsguiden</h1>
+  <p class="lead">Klistra in en Booli- eller Hemnet-länk. Vi hämtar det som går ur annonsen, frågar bara om det som saknas, och räknar fram en regelbaserad helhetsbild - samma indata ger alltid samma resultat.</p>
+
+  <!-- KORT 1: LÄNK -->
+  <section class="card" id="card-link">
+    <h2>1. Länk till annonsen</h2>
+    <p class="say">Booli eller Hemnet.</p>
+    <div class="linkrow">
+      <div class="field"><input type="url" id="o_url" placeholder="https://www.booli.se/... eller https://www.hemnet.se/..."></div>
+      <button class="btn go" id="o_hamta">Hämta</button>
+    </div>
+    <div class="status" id="o_status"></div>
+  </section>
+
+  <!-- KORT 2: FRÅGOR -->
+  <section class="card hidden" id="card-fragor">
+    <h2>2. Fyll i det som saknas</h2>
+    <p class="say" id="fragor-say">Fälten nedan visas bara om vi inte kunde läsa av dem ur annonsen.</p>
+
+    <div class="groupbox hidden" id="grp-saknat">
+      <div class="grouptitle">Saknades i annonsen</div>
+      <div id="saknat-fields"></div>
+    </div>
+
+    <div class="groupbox" id="grp-renov">
+      <div class="grouptitle">Renoveringsstatus</div>
+      <div class="groupsay">Bara de delar som annonsens byggår gör aktuella. Lämna tomt om du inte vet - då antar vi byggåret.</div>
+      <div id="renov-fields"></div>
+    </div>
+
+    <div class="groupbox" id="grp-ekonomi">
+      <div class="grouptitle">Din ekonomi</div>
+      <div class="groupsay">Sparas i webbläsaren, delas med guide.html om du använt den.</div>
+      <div class="two">
+        <div class="field"><label for="p_brutto">Bruttoinkomst <span class="hint">(kr/mån, hushåll)</span></label><input type="number" id="p_brutto" inputmode="numeric"></div>
+        <div class="field"><label for="p_netto">Nettoinkomst <span class="hint">(kr/mån, hushåll)</span></label><input type="number" id="p_netto" inputmode="numeric"></div>
+        <div class="field"><label for="p_spar">Sparat kapital <span class="hint">(kr)</span></label><input type="number" id="p_spar" inputmode="numeric"></div>
+        <div class="field"><label for="p_ranta">Dagens ränta <span class="hint">(%)</span></label><input type="number" id="p_ranta" inputmode="decimal" step="0.05"></div>
+      </div>
+    </div>
+
+    <div class="groupbox" id="grp-risk">
+      <div class="grouptitle">Riskaptit</div>
+      <div class="groupsay">Fasta frågor, styr buffertkrav och tolkning av marginalen.</div>
+      <div class="field"><label>Hur kännbart vore en oväntad utgift på 30 000 kr?</label>
+        <div class="seg" data-seg="risk_utgift">
+          <button data-val="latt" type="button">Obetydligt</button>
+          <button data-val="medel" type="button" class="on">Märkbart</button>
+          <button data-val="tungt" type="button">Kännbart</button>
+        </div>
+      </div>
+      <div class="field"><label>Hur bekväm är du med rörlig ränta?</label>
+        <div class="seg" data-seg="risk_ranta">
+          <button data-val="bekvam" type="button">Bekväm</button>
+          <button data-val="neutral" type="button" class="on">Neutral</button>
+          <button data-val="obekvam" type="button">Obekväm</button>
+        </div>
+      </div>
+      <div class="field"><label>Tidshorisont i huset</label>
+        <div class="seg" data-seg="risk_horisont">
+          <button data-val="kort" type="button">&lt; 5 år</button>
+          <button data-val="mellan" type="button" class="on">5–10 år</button>
+          <button data-val="lang" type="button">10+ år</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn go" id="o_berakna">Visa resultat</button>
+  </section>
+
+  <!-- RESULTAT -->
+  <div class="hero hidden" id="hero">
+    <div class="verdict" id="verdict">
+      <div class="vlbl">Helhetsbedömning</div>
+      <div class="vbig" id="v-big"></div>
+      <div class="vsub" id="v-sub"></div>
+    </div>
+    <div class="rgrid">
+      <div class="sub" id="sub-ekonomi"></div>
+      <div class="sub" id="sub-lan"></div>
+      <div class="sub" id="sub-renov"></div>
+      <div class="sub" id="sub-drift"></div>
+    </div>
+  </div>
+
+  <div class="footdisc">Grov vägledning, inte lånelöfte eller rådgivning. Alla beräkningar är regelbaserade (ingen AI) - samma indata ger alltid samma resultat.</div>
+</div>
+
+<script src="affordability.js"></script>
+<script src="renovlivslangd.js"></script>
+<script>
+(function(){
+  "use strict";
+  var PARSER_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
+  var C = KJKH_AFF.C;
+  var $ = function(id){ return document.getElementById(id); };
+  var kr = function(n){ if(n==null||!isFinite(n)) return "-"; return Math.round(n).toLocaleString("sv-SE")+" kr"; };
+  var kr0 = function(n){ if(n==null||!isFinite(n)) return "-"; return Math.round(n).toLocaleString("sv-SE"); };
+  var pct = function(n){ return (Math.round(n*10)/10).toLocaleString("sv-SE")+" %"; };
+
+  var HEATING_OPTS = [
+    ["luftvatten","Luft/vatten-värmepump"],["bergvarme","Bergvärme"],["luftluft","Luft/luft-värmepump"],
+    ["elpanna","Direktel / elpanna"],["pellets","Pellets"],["ved","Ved"],["fjarrvarme","Fjärrvärme"]
+  ];
+
+  // === State ===============================================================
+  var fields = {};      // senast hämtade fält från booliparser
+  var extraFields = {}; // svar på de villkorade "saknat"-frågorna
+  var renovSenast = {}; // svar på renoveringsfrågorna, { kok: 2019, ... }
+  var risk = { risk_utgift:"medel", risk_ranta:"neutral", risk_horisont:"mellan" };
+
+  function loadProfil(){
+    var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
+    ["p_brutto","p_netto","p_spar","p_ranta"].forEach(function(id){ if(p[id]!=null) $(id).value=p[id]; });
+    if(!$("p_ranta").value) $("p_ranta").value = C.DEF_RANTA;
+  }
+  function saveProfil(){
+    var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
+    ["p_brutto","p_netto","p_spar","p_ranta"].forEach(function(id){ p[id]=$(id).value; });
+    try{ localStorage.setItem("kjkh:profil", JSON.stringify(p)); }catch(e){}
+  }
+  function loadAnnonsguide(){
+    var s={}; try{ s=JSON.parse(localStorage.getItem("kjkh:annonsguide")||"{}"); }catch(e){}
+    if(s.risk) risk = s.risk;
+    if(s.renovSenast) renovSenast = s.renovSenast;
+    if(s.extraFields) extraFields = s.extraFields;
+  }
+  function saveAnnonsguide(){
+    try{ localStorage.setItem("kjkh:annonsguide", JSON.stringify({ risk:risk, renovSenast:renovSenast, extraFields:extraFields })); }catch(e){}
+  }
+  loadProfil(); loadAnnonsguide();
+
+  document.querySelectorAll(".seg").forEach(function(seg){
+    seg.addEventListener("click", function(e){
+      var b = e.target.closest("button"); if(!b) return;
+      var key = seg.getAttribute("data-seg");
+      seg.querySelectorAll("button").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on");
+      risk[key] = b.getAttribute("data-val");
+      saveAnnonsguide();
+    });
+  });
+
+  // === Kort 1: hämta annons ================================================
+  $("o_hamta").addEventListener("click", async function(){
+    var url = $("o_url").value.trim(), st = $("o_status");
+    if(!url){ st.textContent = "Klistra in en Booli- eller Hemnet-länk först."; return; }
+    st.textContent = "Hämtar...";
+    try{
+      var r = await fetch(PARSER_API+"?url="+encodeURIComponent(url));
+      var d = await r.json();
+      if(!r.ok) throw new Error(d.detail || r.statusText);
+      fields = d.fields || {};
+      var fick = Object.keys(fields).filter(function(k){ return fields[k]; });
+      st.textContent = fick.length ? ("Hämtade: "+fick.join(", ")+".") : "Hittade inga fält - fyll i manuellt nedan.";
+      renderFragor();
+      $("card-fragor").classList.remove("hidden");
+      $("card-fragor").scrollIntoView({ behavior:"smooth", block:"start" });
+    }catch(e){
+      st.textContent = "Kunde inte hämta: "+e.message+". Du kan ändå fylla i manuellt nedan.";
+      fields = {};
+      renderFragor();
+      $("card-fragor").classList.remove("hidden");
+    }
+  });
+
+  // === Kort 2: villkorade frågor ===========================================
+  function renderFragor(){
+    var saknat = [];
+    if(!fields.uppvarmning) saknat.push({ id:"uppvarmning", label:"Uppvärmningsform", type:"select" });
+    if(!fields.driftkostnad) saknat.push({ id:"driftkostnad", label:"Driftkostnad (kr/mån, exkl. uppvärmning om möjligt)", type:"number" });
+    if(!fields.boarea) saknat.push({ id:"boarea", label:"Boarea (kvm)", type:"number" });
+    if(!fields.pris) saknat.push({ id:"pris", label:"Utgångspris (kr)", type:"number" });
+    if(!fields.byggar) saknat.push({ id:"byggar", label:"Byggår", type:"number" });
+
+    var grpSaknat = $("grp-saknat"), holder = $("saknat-fields");
+    holder.innerHTML = "";
+    if(saknat.length === 0){ grpSaknat.classList.add("hidden"); }
+    else{
+      grpSaknat.classList.remove("hidden");
+      saknat.forEach(function(f){
+        var div = document.createElement("div"); div.className = "field";
+        var label = document.createElement("label"); label.textContent = f.label; label.htmlFor = "sk_"+f.id;
+        div.appendChild(label);
+        if(f.type === "select"){
+          var sel = document.createElement("select"); sel.id = "sk_"+f.id;
+          HEATING_OPTS.forEach(function(o){ var opt=document.createElement("option"); opt.value=o[0]; opt.textContent=o[1]; sel.appendChild(opt); });
+          if(extraFields[f.id]) sel.value = extraFields[f.id];
+          sel.addEventListener("change", function(){ extraFields[f.id]=sel.value; saveAnnonsguide(); });
+          div.appendChild(sel);
+        } else {
+          var inp = document.createElement("input"); inp.type = "number"; inp.id = "sk_"+f.id; inp.inputMode = "numeric";
+          if(extraFields[f.id]) inp.value = extraFields[f.id];
+          inp.addEventListener("change", function(){ extraFields[f.id]=inp.value; saveAnnonsguide(); });
+          div.appendChild(inp);
+        }
+        holder.appendChild(div);
+      });
+    }
+
+    // Renoveringsfrågor - bara de komponenter byggåret gör aktuella
+    var byggar = num(fields.byggar) || num(extraFields.byggar);
+    var renovHolder = $("renov-fields"), grpRenov = $("grp-renov");
+    renovHolder.innerHTML = "";
+    var relevanta = Object.keys(KJKH_RENOV.C.LIVSLANGD).filter(function(key){
+      return KJKH_RENOV.needsQuestion(key, byggar);
+    });
+    if(relevanta.length === 0){ grpRenov.classList.add("hidden"); }
+    else{
+      grpRenov.classList.remove("hidden");
+      var row = document.createElement("div"); row.className = "two"; renovHolder.appendChild(row);
+      relevanta.forEach(function(key){
+        var namn = KJKH_RENOV.C.LIVSLANGD[key].namn;
+        var div = document.createElement("div"); div.className = "field";
+        var label = document.createElement("label"); label.textContent = namn+" - senast renoverat (år)"; label.htmlFor = "rv_"+key;
+        div.appendChild(label);
+        var inp = document.createElement("input"); inp.type = "number"; inp.id = "rv_"+key; inp.inputMode = "numeric"; inp.placeholder = byggar ? String(byggar) : "";
+        if(renovSenast[key]) inp.value = renovSenast[key];
+        inp.addEventListener("change", function(){ renovSenast[key] = num(inp.value) || null; saveAnnonsguide(); });
+        div.appendChild(inp);
+        row.appendChild(div);
+      });
+    }
+  }
+
+  function num(v){ if(v==null||v==="") return 0; var n = parseFloat(String(v).replace(/\s/g,"").replace(",", ".")); return isFinite(n) ? n : 0; }
+
+  // === Beräkna ==============================================================
+  var ranta = null, kontantPct = null, computed = null;
+
+  $("o_berakna").addEventListener("click", function(){
+    saveProfil(); saveAnnonsguide();
+    ranta = num($("p_ranta").value) || C.DEF_RANTA;
+    kontantPct = C.DEF_KONTANT * 100;
+    render();
+    $("hero").classList.remove("hidden");
+    $("hero").scrollIntoView({ behavior:"smooth", block:"start" });
+  });
+
+  function getField(id){ return fields[id] || extraFields[id]; }
+
+  function render(){
+    var pris = num(getField("pris"));
+    var byggar = num(getField("byggar"));
+    var boarea = num(getField("boarea"));
+    var brutto = num($("p_brutto").value), netto = num($("p_netto").value), spar = num($("p_spar").value);
+    var stress = ranta + (C.DEF_STRESS - C.DEF_RANTA);
+
+    // Drift: känd driftkostnad, annars uppskattad från boarea via schablon.
+    var driftKand = num(getField("driftkostnad"));
+    var uppvSchablon = 0, uppvKand = driftKand > 0;
+    if(!driftKand && boarea){
+      driftKand = Math.round(boarea * C.DRIFT_KVM_AR / 12);
+    }
+
+    // Renovering: livslängdsmotor
+    var renov = KJKH_RENOV.bedomRenov({ byggar: byggar, senast: renovSenast });
+
+    // Buffertkrav skärps av riskaptit-svaret om "tungt".
+    var bufferOverride = null;
+    if(risk.risk_utgift === "tungt") bufferOverride = "skarp"; // hanteras nedan via andel
+
+    var kontantAndel = kontantPct/100;
+    var res = KJKH_AFF.bedom({
+      B: pris, brutto: brutto, netto: netto, spar: spar,
+      ranta: ranta/100, stress: stress/100,
+      renov: renov.mid, driftMan: driftKand,
+      kontantAndel: kontantAndel,
+      bufferKravOverride: bufferOverride ? Math.max(C.BUFFER_FAST*1.3, C.BUFFER_KNAPP*1.3*pris*(1-kontantAndel)) : null,
+    });
+    computed = res;
+
+    // --- Verdict ---
+    var vEl = $("verdict");
+    vEl.className = "verdict " + res.band;
+    var vTxt = { ja:"Ser bra ut", tight:"Går - men tight", nej:"Kärvt läge" }[res.band];
+    $("v-big").textContent = vTxt;
+    var ratio = netto>0 ? res.boendeStress/netto : 1;
+    var ratioNorm = netto>0 ? res.boendeMan/netto : 1;
+    var renovNote = renov.aktuella.length ? " Renoveringsbehov inom några år väger in i marginalen." : "";
+    $("v-sub").innerHTML = "Boendekostnaden landar på <b>"+Math.round(ratioNorm*100)+"%</b> av nettoinkomsten vid "+pct(ranta)+" ränta, <b>"+Math.round(ratio*100)+"%</b> vid stresstest ("+pct(stress)+")."+renovNote;
+
+    renderEkonomi(res);
+    renderLan(res);
+    renderRenov(renov);
+    renderDrift(driftKand, uppvKand, boarea);
+  }
+
+  function bandOf(ratio){ return ratio > C.BAND_TIGHT ? "nej" : (ratio > C.BAND_JA ? "tight" : "ja"); }
+
+  function renderEkonomi(res){
+    var netto = num($("p_netto").value);
+    var kvar = res.kvarAttLeva;
+    var band = bandOf(netto>0 ? res.boendeStress/netto : 1);
+    var html = '<div class="shead"><h3><span class="dot '+band+'"></span>Ekonomi</h3></div>'+
+      '<div><div class="mainstat">'+kr0(kvar)+'<span class="unit">kr kvar/mån</span></div>'+
+      '<div class="statline">efter boendekostnad vid stresstest</div></div>';
+    if(res.buffer < res.bufferKrav){
+      html += '<div class="tip risk">Buffert efter kontantinsats: <b>'+kr(res.buffer)+'</b> - under rekommenderat golv ('+kr(res.bufferKrav)+').</div>';
+    } else {
+      html += '<div class="tip">Buffert efter kontantinsats: <b>'+kr(res.buffer)+'</b> - över rekommenderat golv ('+kr(res.bufferKrav)+').</div>';
+    }
+    if(risk.risk_utgift === "tungt"){
+      html += '<div class="tip risk"><b>Riskaptit: låg.</b> Du angav att en oväntad utgift på 30 000 kr skulle kännas kännbar - buffertkravet är därför skärpt.</div>';
+    }
+    html += '<details class="dd"><summary>Detaljer</summary><div class="ddbody"><div class="brk">'+
+      row("Kontantbehov vid tillträde", kr(res.kontantbehov))+
+      row("Kontanter tillgängliga", kr(res.kontanterTillg))+
+      row("Boendekostnad, dagens ränta", kr(res.boendeMan)+"/mån")+
+      row("Boendekostnad, stress", kr(res.boendeStress)+"/mån")+
+      '</div></div></details>';
+    $("sub-ekonomi").innerHTML = html;
+  }
+
+  function renderLan(res){
+    var band = res.skuldkvot > C.SKULD_GRANS ? "tight" : "ja";
+    var html = '<div class="shead"><h3><span class="dot '+band+'"></span>Lån</h3></div>'+
+      '<div><div class="mainstat">'+kr0(res.lan)+'<span class="unit">kr lån</span></div>'+
+      '<div class="statline">skuldkvot '+(Math.round(res.skuldkvot*10)/10).toLocaleString("sv-SE")+' × bruttoinkomst</div></div>'+
+      '<div class="sliderow"><div class="sl-top"><span>Ränta</span><b id="ranta-val">'+pct(ranta)+'</b></div>'+
+      '<input type="range" id="s_ranta" min="1.5" max="7" step="0.05" value="'+ranta+'"></div>'+
+      '<div class="sliderow"><div class="sl-top"><span>Kontantinsats</span><b id="kontant-val">'+kontantPct+' %</b></div>'+
+      '<input type="range" id="s_kontant" min="'+(C.KONTANT_MIN*100)+'" max="40" step="1" value="'+kontantPct+'"></div>'+
+      '<details class="dd"><summary>Detaljer</summary><div class="ddbody"><div class="brk">'+
+      row("Kontantinsats", kr(res.kiKrav))+
+      row("Lagfart + pantbrev", kr(res.lagfart+res.pantbrevKost))+
+      row("Amortering", pct(res.amort*100)+"/år · "+kr(res.amortMan)+"/mån")+
+      '</div></div></details>';
+    $("sub-lan").innerHTML = html;
+    $("s_ranta").addEventListener("input", function(e){ ranta = num(e.target.value); render(); });
+    $("s_kontant").addEventListener("input", function(e){ kontantPct = num(e.target.value); render(); });
+  }
+
+  function renderRenov(renov){
+    var band = renov.aktuella.some(function(it){ return it.urgency==="akut"; }) ? "nej" : (renov.aktuella.length ? "tight" : "ja");
+    var html = '<div class="shead"><h3><span class="dot '+band+'"></span>Renovering</h3></div>'+
+      '<div><div class="mainstat">'+(renov.lo?kr0(renov.lo)+"–"+kr0(renov.hi):"0")+'<span class="unit">kr</span></div>'+
+      '<div class="statline">'+(renov.aktuella.length ? renov.aktuella.length+" del(ar) aktuella inom 5 år" : "inget akut enligt livslängdstabellen")+'</div></div>';
+    var urgLabel = { akut:"Akut", snart:"Inom 5 år", sikt:"På sikt", okand:"Okänt byggår" };
+    html += '<details class="dd"><summary>Per komponent</summary><div class="ddbody"><table class="comptable">'+
+      renov.items.map(function(it){
+        return "<tr><td>"+it.namn+' <span class="urg '+it.urgency+'">'+urgLabel[it.urgency]+'</span></td><td>'+
+          (it.urgency==="akut"||it.urgency==="snart"||it.urgency==="okand" ? kr0(it.lo)+"–"+kr0(it.hi)+" kr" : "—")+"</td></tr>";
+      }).join("")+
+      '</table></div></details>';
+    $("sub-renov").innerHTML = html;
+  }
+
+  function renderDrift(driftMan, kand, boarea){
+    var html = '<div class="shead"><h3><span class="dot ja"></span>Drift</h3></div>'+
+      '<div><div class="mainstat">'+kr0(driftMan)+'<span class="unit">kr/mån</span></div>'+
+      '<div class="statline">uppvärmning, vatten, sophämtning m.m.</div></div>';
+    if(!kand){
+      html += '<div class="tip">Driftkostnad saknades i annonsen - uppskattad från boarea ('+kr0(boarea)+' kvm × '+C.DRIFT_KVM_AR+' kr/kvm/år, schablon).</div>';
+    }
+    $("sub-drift").innerHTML = html;
+  }
+
+  function row(k, v){ return '<div class="r"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+})();
+</script>
+</body>
+</html>
