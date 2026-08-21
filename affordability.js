@@ -45,6 +45,10 @@
     FAST_PCT: 0.0075, FAST_TAK: 10425,
     RESE_SCHABLON: 25, RESE_TROSK: 11000, RESE_SKATT: 30,
 
+    // Schablon driftkostnad kr/kvm/år för normalvilla (källor: Boio, Hitta Lånet,
+    // Svenska Mäklarhuset, Villaägarna - spann 350-450, vi använder mitten).
+    DRIFT_KVM_AR: 400,
+
     // Grov snittskatt för att uppskatta nettoinkomst från bruttoinkomst.
     // Ingen hänsyn till jobbskatteavdrag/grundavdrag - bara kommunalskatt + statlig skatt över brytpunkten.
     KOMMUNALSKATT: 0.32,
