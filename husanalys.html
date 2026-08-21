@@ -286,6 +286,10 @@
           if(!pr.ok) throw new Error("nås ej");
           var blob = await pr.blob();
           if(blob.size > 12*1024*1024) throw new Error("för stor");
+          // Länken kan peka på en generisk artikelsida hos mäklaren istället för
+          // en riktig PDF (samma nyckelord matchar båda) - upptäck det HÄR, innan
+          // pdf.js kraschar längre fram med ett obegripligt "Invalid PDF structure".
+          if(!/pdf/i.test(blob.type)) throw new Error("inte en PDF");
           setFileForKey(key, new File([blob], doc.typ + ".pdf", { type: blob.type || "application/pdf" }));
           fick.push(doc.typ);
         }catch(e){ fel.push(doc.typ); }
