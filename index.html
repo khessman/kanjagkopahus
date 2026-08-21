@@ -14,7 +14,7 @@
   body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:900px;margin:0 auto;padding:32px 20px 90px}
   a{color:var(--green)}
-  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+  .topbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
   .topbar a.logo{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:#fff;background:var(--green);border:0;border-radius:32px;padding:20px 34px 20px 26px;box-shadow:0 6px 20px -8px rgba(18,64,42,.6);transition:.15s}
   .topbar a.logo:hover{background:var(--green-dk)}
   .logo svg{flex:none;width:34px;height:34px}
@@ -150,6 +150,9 @@
     .cardmain{flex-basis:auto;max-width:none}
     .carddetail{flex-basis:auto;border-left:0;border-top:1px dashed var(--line);padding-left:0;padding-top:16px;margin-top:18px}
     .two{grid-template-columns:1fr}
+    .toolbar{width:100%}
+    .bindrow{grid-template-columns:1fr 1fr}
+    input.budinput{width:130px;font-size:20px}
   }
   @media print{body{background:#fff}.toolbar,.menu,.footdisc{display:none}.card{box-shadow:none;break-inside:avoid}}
 </style>
