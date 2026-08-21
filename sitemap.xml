@@ -2,8 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://xn--kanjagkpahus-bjb.se/</loc>
-    <lastmod>2026-08-19</lastmod>
+    <lastmod>2026-08-21</lastmod>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://xn--kanjagkpahus-bjb.se/guide.html</loc>
+    <lastmod>2026-08-21</lastmod>
+    <priority>0.95</priority>
   </url>
   <url>
     <loc>https://xn--kanjagkpahus-bjb.se/kalkylator.html</loc>

@@ -4,25 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>kanjagköpahus.se - räkna ut om du har råd att köpa huset</title>
-<meta name="description" content="Klistra in en Booli-länk, eller fyll i siffrorna själv, och bli guidad steg för steg: objektet, driftkostnad, renovering, din ekonomi - och se direkt om du har råd.">
+<meta name="description" content="Räkna ut om du har råd att köpa huset. Välj att bli guidad steg för steg, eller räkna själv i den fullständiga kalkylatorn.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--gold:#9a7b22;--gold-soft:#f3ecd4}
+  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f}
   *{box-sizing:border-box}
   body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:900px;margin:0 auto;padding:32px 20px 90px}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 90px}
   a{color:var(--green)}
-  .topbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+  @view-transition{navigation:auto}
+  .topbar{position:relative;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;margin-bottom:34px;view-transition-name:sitehead}
+  .topbar .menu{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+  @media(max-width:560px){.topbar .menu{position:static;transform:none}}
   .topbar a.logo{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:#fff;background:var(--green);border:0;border-radius:32px;padding:20px 34px 20px 26px;box-shadow:0 6px 20px -8px rgba(18,64,42,.6);transition:.15s}
   .topbar a.logo:hover{background:var(--green-dk)}
   .logo svg{flex:none;width:34px;height:34px}
   .logo .lname{font-family:"Fraunces",serif;font-weight:600;font-size:28px;letter-spacing:-.01em;line-height:1}
   .logo .lname b{color:#a6e6bd;font-weight:600}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  button.tool,a.tool{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--paper-2);color:var(--ink);border:1.5px solid var(--line);padding:9px 14px;border-radius:10px;transition:.15s;text-decoration:none;display:inline-block}
-  button.tool:hover,a.tool:hover{border-color:var(--ink);transform:translateY(-1px)}
+  a.tool{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--paper-2);color:var(--ink);border:1.5px solid var(--line);padding:9px 14px;border-radius:10px;transition:.15s;text-decoration:none;display:inline-block}
+  a.tool:hover{border-color:var(--ink);transform:translateY(-1px)}
+  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,5.5vw,42px);letter-spacing:-.01em;margin:0 0 10px;line-height:1.08;text-align:center}
+  .lead{color:var(--ink-soft);font-size:16px;margin:0 auto 40px;max-width:52ch;text-align:center}
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:40px}
+  @media(max-width:700px){.choices{grid-template-columns:1fr}}
+  .choice{display:flex;flex-direction:column;background:var(--paper-2);border:1px solid var(--line);border-radius:18px;padding:30px 28px;box-shadow:0 8px 24px -12px rgba(28,37,32,.18);text-decoration:none;color:var(--ink);transition:.15s}
+  .choice:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 12px 28px -12px rgba(28,37,32,.28)}
+  .choice .tag{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--green-dk);background:var(--green-soft);padding:5px 11px;border-radius:20px;margin-bottom:14px}
+  .choice h2{font-family:"Fraunces",serif;font-weight:600;font-size:24px;margin:0 0 8px;letter-spacing:-.01em}
+  .choice p{color:var(--ink-soft);font-size:14px;margin:0 0 18px;flex:1}
+  .choice .cta{font-weight:700;font-size:14.5px;color:var(--green)}
+  .choice:hover .cta{color:var(--green-dk)}
   .menu{position:relative}
   .menu summary{list-style:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:var(--paper-2);border:1.5px solid var(--line);border-radius:10px;padding:9px 14px;color:var(--ink);white-space:nowrap;transition:.15s}
   .menu summary:hover{border-color:var(--ink);transform:translateY(-1px)}
@@ -33,128 +46,9 @@
   .menupanel a{display:block;font-size:13px;font-weight:500;text-decoration:none;color:var(--ink);padding:7px 8px;border-radius:7px}
   .menupanel a:hover{background:var(--green-soft);color:var(--green-dk)}
   .menupanel hr{border:0;border-top:1px solid var(--line);margin:6px 2px}
-  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(24px,5vw,34px);letter-spacing:-.01em;margin:0 0 4px;line-height:1.1}
-  .lead{color:var(--ink-soft);font-size:15px;margin:0 0 24px;max-width:60ch}
-  /* Kort */
-  .card{display:flex;gap:22px;width:894px;max-width:100%;margin:0 auto 18px;background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:24px 26px;box-shadow:0 8px 24px -12px rgba(28,37,32,.18)}
-  .card.hidden{display:none}
-  .card.on{animation:fade .28s ease}
-  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-  .cardmain{flex:1 1 520px;max-width:520px;min-width:0}
-  .carddetail{flex:0 0 300px;display:block;border-left:1px solid var(--line);padding-left:22px}
-  .chead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:4px}
-  .chead h2{font-family:"Fraunces",serif;font-weight:600;font-size:21px;margin:0}
-  .say{color:var(--ink-soft);font-size:13.5px;margin:0 0 16px;max-width:48ch}
-  .dhead{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--ink-soft);margin:0 0 12px}
-  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
-  .field:last-child{margin-bottom:0}
-  .field label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
-  .field .hint{font-size:11px;color:var(--ink-soft);font-weight:400}
-  input[type=text],input[type=number],input[type=url],select{font-family:inherit;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
-  input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .row2{display:flex;gap:10px}.row2 .field{flex:1;margin:0}.row2 .unit{width:100px;flex:none}
-  .linkrow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:6px}
-  .linkrow .field{flex:1;min-width:170px;margin:0}
-  .btn{font-family:inherit;font-weight:700;cursor:pointer;border:0;border-radius:11px;transition:.15s}
-  .btn.go{font-size:15px;background:var(--green);color:#fff;padding:12px 22px}
-  .btn.go:hover{background:var(--green-dk);transform:translateY(-1px)}
-  .btn.go.sm{font-size:14px;padding:11px 18px}
-  .btn.ghost{font-size:13.5px;font-weight:600;background:var(--paper-2);border:1.5px solid var(--line);color:var(--ink);padding:10px 15px}
-  .btn.ghost:hover{border-color:var(--ink)}
-  .status{font-size:13px;color:var(--ink-soft);margin-top:8px;min-height:1.2em}
-  .fakta{font-size:13px;color:var(--ink);margin-top:12px;padding:10px 13px;background:var(--green-soft);border-radius:9px;display:none}
-  .fakta.on{display:block}
-  .cfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:20px}
-  .backlink{font-size:13px;font-weight:600;color:var(--ink-soft);background:none;border:0;cursor:pointer;font-family:inherit}
-  .backlink:hover{color:var(--ink)}
-  /* Val-knappar (renovering) */
-  .picks{display:flex;flex-direction:column;gap:9px}
-  .pickbtn{text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:13px 15px;cursor:pointer;font-family:inherit;transition:.15s}
-  .pickbtn:hover{border-color:var(--green)}
-  .pickbtn.sel{border-color:var(--green);background:var(--green-soft)}
-  .pickbtn b{display:block;font-size:14.5px;margin-bottom:2px}
-  .pickbtn span{font-size:12px;color:var(--ink-soft)}
-  /* Verdict + slider */
-  .verdict{border-radius:14px;padding:20px 22px;text-align:center;margin-bottom:18px}
-  .verdict .big{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,7vw,42px);line-height:1}
-  .verdict .vsub{font-size:13.5px;margin-top:7px;opacity:.9}
-  .verdict.ja{background:var(--green-soft);color:var(--green-dk);border:1px solid var(--green)}
-  .verdict.tight{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold)}
-  .verdict.nej{background:var(--terra-soft);color:var(--terra);border:1px solid var(--terra)}
-  .budline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:10px}
-  .budline .k{font-size:13px;color:var(--ink-soft)}
-  .budline .v{font-family:"Fraunces",serif;font-weight:600;font-size:24px}
-  input.budinput{font-family:"Fraunces",serif;font-weight:600;font-size:24px;text-align:right;border:1.5px solid transparent;background:transparent;padding:2px 6px;border-radius:8px;width:170px;color:var(--ink)}
-  input.budinput:hover{border-color:var(--line)}
-  input.budinput:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 2px var(--green-soft)}
-  .budtrack{position:relative;padding-top:5px}
-  .budtrack .grad{position:absolute;left:0;right:0;top:16px;height:6px;border-radius:4px;pointer-events:none}
-  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;position:relative;z-index:1;margin:0}
-  input[type=range]::-webkit-slider-runnable-track{height:6px;background:transparent;border-radius:4px}
-  input[type=range]::-moz-range-track{height:6px;background:transparent;border-radius:4px}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--ink);margin-top:-7px;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer}
-  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer}
-  .field.picks2{display:flex;flex-direction:row;gap:8px}
-  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
-  .seg button{font-family:inherit;font-size:12.5px;font-weight:600;padding:9px 13px;border:0;background:transparent;color:var(--ink-soft);cursor:pointer;flex:1}
-  .seg button.on{background:var(--green);color:#fff}
-  .calcbtn{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
-  .subhead{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--green);margin:16px 0 8px;padding-top:14px;border-top:1px dashed var(--line)}
-  .subhead:first-of-type{border-top:0;padding-top:0;margin-top:0}
-  .sumline{display:flex;justify-content:space-between;align-items:baseline;background:var(--green-soft);color:var(--green-dk);padding:9px 12px;border-radius:9px;margin-top:8px;font-size:13px}
-  .sumline b{font-family:"Fraunces",serif;font-size:16px}
-  .marks{position:relative;height:32px;margin-top:2px;font-size:11px;color:var(--ink-soft)}
-  .marks .mk{position:absolute;transform:translateX(-50%);text-align:center;white-space:nowrap}
-  .marks .mk .tick{display:block;width:1.5px;height:8px;background:var(--ink-soft);margin:0 auto 3px;opacity:.5}
-  .marks .mk b{font-weight:700;color:var(--ink)}
-  .brk{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .brk .c{background:var(--paper-2);padding:9px 12px}
-  .brk .c .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:600}
-  .brk .c .v{font-size:14.5px;font-weight:600;margin-top:1px}
-  .brk .c .v.neg{color:var(--terra)}
-  .disc{margin-top:14px;font-size:11.5px;color:var(--ink-soft);line-height:1.6}
-  /* Kort 8 · resultat i detalj */
-  .reshero{background:var(--green);color:#fff;border-radius:14px;padding:22px 24px;margin:6px 0 14px}
-  .reshero .reslbl{font-size:13px;opacity:.8}
-  .reshero .resbig{font-family:"Fraunces",serif;font-size:clamp(30px,6vw,46px);font-weight:600;line-height:1;margin:4px 0 2px;letter-spacing:-.02em}
-  .reshero .resbig span{font-size:.42em;font-weight:500;opacity:.75;margin-left:4px}
-  .reshero .resnote{font-size:12.5px;opacity:.85;margin-top:6px}
-  .resrows{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:8px}
-  .resrows .rr{display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px}
-  .resrows .rr:last-child{border-bottom:0}
-  .resrows .rr .k{color:var(--ink-soft)}
-  .resrows .rr .v{font-weight:700;font-size:15.5px;white-space:nowrap}
-  .resrows .rr.accent{background:var(--green-soft)}
-  .resrows .rr.accent .v{color:var(--green-dk)}
-  .resrows .rr.sub{padding:8px 16px;font-size:12.5px;background:var(--paper)}
-  .resrows .rr.sub .v{font-size:13px;font-weight:600;color:var(--ink-soft)}
-  .restable{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0 18px}
-  .restable th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:600;padding:7px 10px;border-bottom:1px solid var(--line)}
-  .restable th.r,.restable td.r{text-align:right}
-  .restable td{padding:8px 10px;border-bottom:1px solid var(--line)}
-  .restable tr:last-child td{border-bottom:0}
-  .restable tr.hl td{background:var(--green-soft)}
-  .bindrow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
-  .bindrow .field{margin:0}
-  @media(max-width:600px){.bindrow{grid-template-columns:1fr 1fr}}
-  .crosslink{margin:14px 0 0;padding:12px 16px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--terra);border-radius:12px;transition:.15s}
-  .crosslink:hover{border-color:var(--terra)}
-  .crosslink .psst{font-family:"Fraunces",serif;font-style:italic;font-size:14px;color:var(--terra);font-weight:600}
-  .crosslink a{color:var(--green);font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--green-soft)}
-  .crosslink a:hover{border-bottom-color:var(--green)}
+  .otherlinks{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:30px}
   .footdisc{margin-top:20px;font-size:12.5px;color:var(--ink-soft);text-align:center}
-  @media(max-width:760px){
-    .wrap{padding:24px 14px 70px}
-    .card{flex-direction:column;width:auto;gap:0;padding:20px 18px}
-    .cardmain{flex-basis:auto;max-width:none}
-    .carddetail{flex-basis:auto;border-left:0;border-top:1px dashed var(--line);padding-left:0;padding-top:16px;margin-top:18px}
-    .two{grid-template-columns:1fr}
-    .toolbar{width:100%}
-    .bindrow{grid-template-columns:1fr 1fr}
-    input.budinput{width:130px;font-size:20px}
-  }
-  @media print{body{background:#fff}.toolbar,.menu,.footdisc{display:none}.card{box-shadow:none;break-inside:avoid}}
+  @media(max-width:600px){.wrap{padding:24px 14px 70px}}
 </style>
 </head>
 <body>
@@ -164,14 +58,11 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
       <span class="lname">kanjag<b>köpahus</b>.se</span>
     </a>
-    <div class="toolbar">
-      <button class="tool" type="button" id="btnPrint">⎙ Skriv ut</button>
-      <button class="tool" type="button" id="btnReset">↺ Nollställ</button>
-      <a class="tool" href="om.html">Om sidan</a>
-      <details class="menu">
-        <summary>Verktyg &amp; guider ▾</summary>
+    <details class="menu">
+      <summary>Verktyg &amp; guider ▾</summary>
       <div class="menupanel">
         <p class="mlabel">Verktyg</p>
+        <a href="guide.html">Kom igång (guidat)</a>
         <a href="kalkylator.html">Fullständig kalkylator</a>
         <a href="spara-kontantinsats.html">Spara ihop kontantinsatsen</a>
         <a href="byta-varmesystem.html">Byta värmesystem</a>
@@ -190,675 +81,33 @@
         <a href="om.html">Om sidan</a>
         <a href="integritetspolicy.html">Integritetspolicy</a>
       </div>
-      </details>
-    </div>
+    </details>
   </div>
 
   <h1>Har du råd att köpa huset?</h1>
-  <p class="lead">Vi går igenom det steg för steg - klistra in en Booli-länk, eller fyll i siffrorna själv för att göra en kalkyl. Allt räknas i din webbläsare och sparas bara där.</p>
+  <p class="lead">Allt räknas i din webbläsare och sparas bara där.</p>
 
-  <!-- KORT 1 · OBJEKTET -->
-  <section class="card" data-card="0">
-    <div class="cardmain">
-      <div class="chead"><h2>1 · Objektet</h2></div>
-      <p class="say">Klistra in en Booli-länk så hämtas pris, driftkostnad och Boolis värdering. Eller fyll i själv under Detaljerat.</p>
-      <div class="linkrow">
-        <div class="field"><label for="o_url">Booli-länk</label><input type="url" id="o_url" placeholder="https://www.booli.se/..."></div>
-        <button class="btn go sm" type="button" id="o_hamta">Hämta</button>
-      </div>
-      <div class="status" id="o_status"></div>
-      <div class="fakta" id="o_fakta"></div>
-      <div class="cfoot"><span></span><button class="btn go" type="button" data-next>Nästa →</button></div>
-    </div>
-    <div class="carddetail">
-      <p class="dhead">Detaljerat</p>
-      <div class="field"><label for="o_pris">Utgångspris <span class="hint">(kr)</span></label><input type="number" id="o_pris" inputmode="numeric" placeholder="t.ex. 3950000"></div>
-      <div class="field"><label for="o_vard">Boolis värdering <span class="hint">(kr, valfritt)</span></label><input type="number" id="o_vard" inputmode="numeric" placeholder="t.ex. 4200000"></div>
-      <div class="field"><label for="o_pantbrev">Befintliga pantbrev <span class="hint">(kr, från Booli)</span></label><input type="number" id="o_pantbrev" inputmode="numeric" placeholder="0"></div>
-    </div>
-  </section>
+  <div class="choices">
+    <a class="choice" href="guide.html">
+      <span class="tag">Rekommenderas</span>
+      <h2>Guidad</h2>
+      <p>Vi ställer några frågor och gör resten åt dig - klistra in en Booli-länk så hämtas det mesta automatiskt. Snabbast om du bara vill ha ett svar.</p>
+      <span class="cta">Kom igång steg för steg →</span>
+    </a>
+    <a class="choice" href="kalkylator.html">
+      <span class="tag">För dig som vill gräva djupare</span>
+      <h2>Räkna själv</h2>
+      <p>Den fullständiga kalkylatorn med alla detaljer synliga direkt - uppvärmning, ränteantaganden, prisanalys och mer. För dig som vill ha full kontroll.</p>
+      <span class="cta">Öppna kalkylatorn →</span>
+    </a>
+  </div>
 
-  <!-- KORT 2 · DRIFTKOSTNAD -->
-  <section class="card hidden" data-card="1">
-    <div class="cardmain">
-      <div class="chead"><h2>2 · Driftkostnad</h2></div>
-      <p class="say">Uppvärmning, vatten, sophämtning, försäkring m.m. Fylls i automatiskt som en grov schablon om vi vet boarean - ändra gärna om du vet bättre.</p>
-      <div class="field"><label for="o_boarea">Boarea <span class="hint">(kvm, för schablonen)</span></label><input type="number" id="o_boarea" inputmode="numeric" placeholder="t.ex. 120"></div>
-      <div class="field"><label>Räkna på</label><div class="seg" id="d_mode"><button type="button" class="on" data-m="total">Totalsumma</button><button type="button" data-m="detaljerad">Detaljerad summa</button></div></div>
-      <div class="field"><label>Driftkostnad</label><div class="row2"><div class="field"><input type="number" id="o_drift" inputmode="numeric" placeholder="t.ex. 3500"></div><div class="field unit"><select id="o_driftunit"><option value="man">kr/mån</option><option value="ar">kr/år</option></select></div></div></div>
-      <p class="hint" id="o_driftautohint" style="margin:2px 0 0"></p>
-      <div class="sumline" id="d_sumline"><span>Total driftkostnad används</span><b id="d_sum">-</b></div>
-      <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><button class="btn go" type="button" data-next>Nästa →</button></div>
-    </div>
-    <div class="carddetail">
-      <p class="dhead">Detaljerat</p>
-      <p class="subhead">Uppvärmning</p>
-      <div class="field"><label for="d_varmeform">Uppvärmningsform</label>
-        <select id="d_varmeform">
-          <option value="luftvatten">Luft/vatten-värmepump</option>
-          <option value="bergvarme">Bergvärme</option>
-          <option value="luftluft">Luft/luft-värmepump</option>
-          <option value="elpanna">Direktel / elpanna</option>
-          <option value="pellets">Pellets</option>
-          <option value="ved">Ved</option>
-          <option value="fjarrvarme">Fjärrvärme</option>
-          <option value="manual">Egen siffra (kr/mån)</option>
-        </select>
-      </div>
-      <div class="field" id="d_varmebehovRow"><label for="d_varmebehov">Värmebehov <span class="hint">(kWh/år)</span></label><input type="number" id="d_varmebehov" inputmode="numeric" placeholder="t.ex. 20000"></div>
-      <div class="field" id="d_varmemanRow" style="display:none"><label for="d_varmeman">Egen uppvärmningskostnad <span class="hint">(kr/mån)</span></label><input type="number" id="d_varmeman" inputmode="numeric" placeholder="1500"></div>
-      <div class="field"><label for="o_tax">Taxeringsvärde <span class="hint">(kr, för fastighetsavgift)</span></label><input type="number" id="o_tax" inputmode="numeric" placeholder="t.ex. 1400000"></div>
+  <div class="otherlinks">
+    <a class="tool" href="om.html">Om sidan</a>
+    <a class="tool" href="integritetspolicy.html">Integritetspolicy</a>
+  </div>
 
-      <p class="subhead">Vatten &amp; avlopp</p>
-      <div class="field"><label>Hushåll <span class="hint">(personer × l/dygn)</span></label><div class="row2"><div class="field unit"><input type="number" id="d_wpersons" inputmode="numeric" placeholder="3"></div><div class="field"><input type="number" id="d_wlpd" inputmode="numeric" placeholder="140"></div></div></div>
-      <div class="field"><label for="d_wfast">Fast VA-avgift <span class="hint">(kr/år)</span></label><input type="number" id="d_wfast" inputmode="numeric" placeholder="4000"></div>
-      <div class="field"><label for="d_wprice">Rörligt pris <span class="hint">(kr/m³)</span></label><input type="number" id="d_wprice" inputmode="numeric" placeholder="45"></div>
-      <div class="field"><label for="d_wgarden">Bevattning <span class="hint">(m³/år)</span></label><input type="number" id="d_wgarden" inputmode="numeric" placeholder="0"></div>
-
-      <p class="subhead">Sophämtning</p>
-      <div class="field"><label for="d_tgrund">Grundavgift <span class="hint">(kr/år)</span></label><input type="number" id="d_tgrund" inputmode="numeric" placeholder="2400"></div>
-      <div class="field"><label for="d_tkarl">Kärlstorlek</label><select id="d_tkarl"><option value="140">140 liter</option><option value="190">190 liter</option><option value="240">240 liter</option><option value="370">370 liter</option></select></div>
-      <div class="field"><label for="d_tfreq">Tömningsfrekvens</label><select id="d_tfreq"><option value="1">Varannan vecka</option><option value="0.6">Var 4:e vecka</option><option value="1.8">Varje vecka</option></select></div>
-      <div class="field"><label for="d_tmat">Matavfall</label><select id="d_tmat"><option value="sorterar">Sorterar i kärl</option><option value="hemkompost">Hemkompost</option><option value="osorterat">Osorterat</option></select></div>
-
-      <p class="subhead">Övrigt</p>
-      <div class="field"><label for="d_el">Hushållsel <span class="hint">(kr/mån)</span></label><input type="number" id="d_el" inputmode="numeric" placeholder="600"></div>
-      <div class="field"><label for="d_fors">Villaförsäkring <span class="hint">(kr/mån)</span></label><input type="number" id="d_fors" inputmode="numeric" placeholder="500"></div>
-      <div class="field"><label for="d_bredband">Bredband &amp; TV <span class="hint">(kr/mån)</span></label><input type="number" id="d_bredband" inputmode="numeric" placeholder="450"></div>
-      <div class="field"><label for="d_samf">Samfällighet <span class="hint">(kr/mån)</span></label><input type="number" id="d_samf" inputmode="numeric" placeholder="0"></div>
-      <div class="field"><label for="d_underhall">Underhållsbuffert <span class="hint">(kr/mån)</span></label><input type="number" id="d_underhall" inputmode="numeric" placeholder="1500"></div>
-      <div class="field"><label for="d_ovrigt">Övrigt <span class="hint">(kr/mån)</span></label><input type="number" id="d_ovrigt" inputmode="numeric" placeholder="0"></div>
-    </div>
-  </section>
-
-  <!-- KORT 3 · RENOVERING -->
-  <section class="card hidden" data-card="2">
-    <div class="cardmain" style="max-width:none;flex:1 1 100%">
-      <div class="chead"><h2>3 · Renovering</h2></div>
-      <p class="say">Renovering äter av din kontantinsats, så det påverkar vad du har råd att buda. Hur noga vill du gå?</p>
-      <div class="picks">
-        <button class="pickbtn" type="button" data-renov="skip"><b>Hoppa över</b><span>Räkna utan renoveringsbehov för nu.</span></button>
-        <button class="pickbtn" type="button" data-renov="rough"><b>Grov siffra</b><span>Jag skriver in vad jag tror det kostar.</span></button>
-        <button class="pickbtn" type="button" data-renov="deep"><b>Gör en renoveringsanalys</b><span>Ladda upp besiktning m.m. och få en överslagskalkyl. Öppnas i eget läge, kommer tillbaka hit.</span></button>
-      </div>
-      <div class="field" id="renovRough" style="display:none;margin-top:15px"><label for="o_renov">Renoveringsbehov <span class="hint">(kr)</span></label><input type="number" id="o_renov" inputmode="numeric" placeholder="0"><span class="hint" id="o_renovnote"></span></div>
-      <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><button class="btn go" type="button" data-next>Nästa →</button></div>
-    </div>
-  </section>
-
-  <!-- KORT 4 · PENDLING -->
-  <section class="card hidden" data-card="3">
-    <div class="cardmain">
-      <div class="chead"><h2>4 · Pendling</h2></div>
-      <p class="say">Extra pendlingskostnad jämfört med där du bor nu. Skriv in själv, eller räkna ut den under Detaljerat.</p>
-      <div class="field"><label for="o_pendel">Pendling &amp; resor <span class="hint">(kr/mån, mer än där du bor nu)</span></label><input type="number" id="o_pendel" inputmode="numeric" placeholder="0"></div>
-      <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><button class="btn go" type="button" data-next>Nästa →</button></div>
-    </div>
-    <div class="carddetail">
-      <p class="dhead">Detaljerat</p>
-      <div class="field"><label for="c_home">Hemadress</label><input type="text" id="c_home" placeholder="Objektets adress"></div>
-      <div class="field"><label for="c_work">Jobbadress</label><input type="text" id="c_work" placeholder="Arbetsplatsens adress"></div>
-      <div class="calcbtn">
-        <button class="btn ghost" type="button" id="c_auto">Beräkna automatiskt</button>
-        <button class="btn ghost" type="button" id="c_maps">Öppna i Google Maps</button>
-      </div>
-      <div class="status" id="c_routeStatus"></div>
-      <div class="field"><label>Enkel resa</label><div class="row2"><div class="field"><input type="number" id="c_km" inputmode="decimal" step="0.1" placeholder="0"><span class="hint">km</span></div><div class="field"><input type="number" id="c_min" inputmode="numeric" placeholder="0"><span class="hint">minuter</span></div></div></div>
-      <div class="field"><label for="c_days">Arbetsdagar / månad</label><input type="number" id="c_days" inputmode="numeric" placeholder="21"></div>
-      <div class="field"><label for="c_type">Fordon</label><select id="c_type"><option value="bensin">Bensin</option><option value="diesel">Diesel</option><option value="el">Elbil</option></select></div>
-      <div class="field"><label>Förbrukning / pris</label><div class="row2"><div class="field"><input type="number" id="c_cons" inputmode="decimal" step="0.1" placeholder="7 l/100km"></div><div class="field"><input type="number" id="c_price" inputmode="decimal" step="0.1" placeholder="19 kr/l"></div></div></div>
-      <div class="sumline" id="c_sumline"><span>Beräknad kostnad</span><b id="c_out">-</b></div>
-      <p class="hint" id="c_avdrag" style="margin:6px 0 0"></p>
-      <button class="btn go sm" type="button" id="c_apply" style="margin-top:10px;width:100%">Använd i pendling ovan</button>
-      <div class="crosslink">
-        <span class="psst">Psst</span>
-        Ska du köpa elbil? Kolla
-        <a href="https://skajagköpaelbil.nu" target="_blank" rel="noopener">skajagköpaelbil.nu</a>
-        - liknande kalkyl fast för elbil.
-      </div>
-    </div>
-  </section>
-
-  <!-- KORT 5 · LÅN, RÄNTA & AMORTERING -->
-  <section class="card hidden" data-card="4">
-    <div class="cardmain">
-      <div class="chead"><h2>5 · Lån, ränta &amp; amortering</h2></div>
-      <p class="say">Antaganden om ränta och kontantinsats - avgör hur mycket lån och amortering blir.</p>
-      <div class="two">
-        <div class="field"><label for="p_ranta">Ränta <span class="hint">(%/år)</span></label><input type="number" id="p_ranta" inputmode="decimal" step="0.1" placeholder="4.5"></div>
-        <div class="field"><label for="p_stress">Stressränta <span class="hint">(%)</span></label><input type="number" id="p_stress" inputmode="decimal" step="0.1" placeholder="7"></div>
-      </div>
-      <div class="field"><label for="p_kontant">Kontantinsats <span class="hint">(%, minst 10 % från 2026)</span></label><input type="number" id="p_kontant" inputmode="decimal" step="1" min="10" placeholder="15"></div>
-      <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><button class="btn go" type="button" data-next>Nästa →</button></div>
-    </div>
-    <div class="carddetail">
-      <p class="dhead">Detaljerat</p>
-      <div class="field"><label>Antal låntagare <span class="hint">(styr ränteavdragströskeln)</span></label><div class="seg" id="p_lantagare"><button type="button" data-n="1">1 person</button><button type="button" class="on" data-n="2">2 personer</button></div></div>
-      <div class="field"><label>Amortering</label><div class="seg" id="p_amortmode"><button type="button" class="on" data-m="auto">Enligt krav</button><button type="button" data-m="manual">Egen nivå</button></div></div>
-      <div class="field" id="p_amortpctRow" style="display:none"><label for="p_amortpct">Egen amorteringsnivå <span class="hint">(%/år)</span></label><input type="number" id="p_amortpct" inputmode="decimal" step="0.5" placeholder="2"></div>
-      <div class="sumline"><span>Belåningsgrad / amortering</span><b id="p_info">-</b></div>
-    </div>
-  </section>
-
-  <!-- KORT 6 · EKONOMI -->
-  <section class="card hidden" data-card="5">
-    <div class="cardmain" style="max-width:none;flex:1 1 100%">
-      <div class="chead"><h2>6 · Din ekonomi</h2></div>
-      <p class="say">Hushållets siffror - de behövs för att räkna ut om objektet går ihop. Sparas bara i din webbläsare.</p>
-      <div class="field"><label for="p_brutto">Bruttoinkomst hushåll <span class="hint">(kr/mån, före skatt)</span></label><input type="number" id="p_brutto" inputmode="numeric" placeholder="t.ex. 65000"></div>
-      <div class="field"><label>Antal som bidrar med inkomst</label><div class="seg" id="p_personer"><button type="button" class="on" data-n="1">1 person</button><button type="button" data-n="2">2 personer</button></div></div>
-      <div class="two">
-        <div class="field"><label for="p_netto">Nettoinkomst <span class="hint">(kr/mån)</span></label><input type="number" id="p_netto" inputmode="numeric" placeholder="t.ex. 48000"></div>
-        <div class="field"><label for="p_spar">Sparande <span class="hint">(kr)</span></label><input type="number" id="p_spar" inputmode="numeric" placeholder="t.ex. 600000"></div>
-      </div>
-      <p class="hint" id="p_nettohint" style="margin:6px 0 10px"></p>
-      <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><button class="btn go" type="button" data-next>Se om du har råd →</button></div>
-    </div>
-  </section>
-
-  <!-- KORT 7 · HAR DU RÅD -->
-  <section class="card hidden" data-card="6">
-    <div class="cardmain">
-      <div class="chead"><h2>7 · Har du råd?</h2></div>
-      <div id="v_needs" class="say" style="display:none"></div>
-      <div id="v_body">
-        <div class="verdict" id="verdict"><div class="big" id="v_big">-</div><div class="vsub" id="v_sub"></div></div>
-        <p class="say" style="margin-bottom:6px">Dra i reglaget och testa olika bud.</p>
-        <div class="budline"><span class="k">Ditt bud</span><input type="number" class="budinput" id="s_val" inputmode="numeric" step="25000"></div>
-        <div class="budtrack"><div class="grad" id="s_grad"></div><input type="range" id="s_bud" min="0" max="100" value="50"></div>
-        <div class="marks" id="s_marks"></div>
-        <div class="disc" id="bandinfo" style="margin-top:14px"></div>
-        <div class="field" style="margin-top:14px"><label for="o_namn">Namn på objektet</label><input type="text" id="o_namn" placeholder="t.ex. Björkvägen 4"></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
-          <button class="btn go" type="button" id="o_save">Spara objekt</button>
-          <a class="btn ghost" href="jamfor.html" style="text-decoration:none;display:inline-flex;align-items:center">Jämför objekt →</a>
-        </div>
-        <div class="status" id="o_savenote"></div>
-      </div>
-      <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><button class="btn go" type="button" data-next>Månadskostnad i detalj →</button></div>
-    </div>
-    <div class="carddetail">
-      <p class="dhead">Månadsutgift</p>
-      <div class="reshero">
-        <div class="reslbl">Månadsutgift, brutto</div>
-        <div class="resbig" id="res_main2">-</div>
-        <div class="resnote" id="res_note2"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- KORT 8 · MÅNADSKOSTNAD I DETALJ -->
-  <section class="card hidden" data-card="7">
-    <div class="cardmain" style="max-width:none;flex:1 1 100%">
-      <div class="chead"><h2>8 · Så blir månadskostnaden</h2></div>
-      <p class="say">Vid ditt valda bud, med de siffror du fyllt i tidigare.</p>
-      <div class="reshero">
-        <div class="reslbl">Månadsutgift, brutto</div>
-        <div class="resbig" id="res_main">-</div>
-        <div class="resnote" id="res_note"></div>
-      </div>
-      <div class="resrows" id="resrows"></div>
-
-      <p class="subhead" style="border-top:0;margin-top:20px">Så räknar vi</p>
-      <div class="brk" id="brk"></div>
-      <div class="disc" id="disc"></div>
-
-      <p class="subhead">Om räntan ändras</p>
-      <table class="restable" id="res_stress"><thead><tr><th>Ränta</th><th class="r">Före avdrag/mån</th><th class="r">Efter avdrag/mån</th><th class="r">Skillnad</th></tr></thead><tbody></tbody></table>
-
-      <p class="subhead">Bindningstider jämförda</p>
-      <p class="say" style="margin-bottom:10px">Förslagen nedan utgår från din ränta på steg 5 med lite påslag för längre bindning (så bankerna brukar prisa det) - skriv över med bankens faktiska listräntor om du har dem.</p>
-      <div class="bindrow">
-        <div class="field"><label for="rb_3m">3 mån</label><input type="number" id="rb_3m" inputmode="decimal" step="0.01"></div>
-        <div class="field"><label for="rb_1a">1 år</label><input type="number" id="rb_1a" inputmode="decimal" step="0.01"></div>
-        <div class="field"><label for="rb_3a">3 år</label><input type="number" id="rb_3a" inputmode="decimal" step="0.01"></div>
-        <div class="field"><label for="rb_5a">5 år</label><input type="number" id="rb_5a" inputmode="decimal" step="0.01"></div>
-      </div>
-      <table class="restable" id="res_bind"><thead><tr><th>Bindning</th><th class="r">Ränta</th><th class="r">Före avdrag/mån</th><th class="r">Efter avdrag/mån</th></tr></thead><tbody></tbody></table>
-
-      <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><span></span></div>
-    </div>
-  </section>
-
-  <div class="footdisc">Grov vägledning, inte lånelöfte eller rådgivning. © Snake Hessman 2026 · <a href="kalkylator.html">Kalkylator &amp; verktyg</a> · <a href="integritetspolicy.html">Integritetspolicy</a></div>
+  <div class="footdisc">Grov vägledning, inte lånelöfte eller rådgivning. © Snake Hessman 2026</div>
 </div>
-
-<script src="affordability.js"></script>
-<script>
-(function(){
-  "use strict";
-  var PARSER_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/parse";
-  var ROUTE_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/route";
-  var C = KJKH_AFF.C, AVDRAG_TAK = C.AVDRAG_TAK;
-  var DEF_RANTA = C.DEF_RANTA, DEF_STRESS = C.DEF_STRESS, DEF_KONTANT = C.DEF_KONTANT * 100;
-  var BAND_COLOR = { ja:"#1f5c3d", tight:"#9a7b22", nej:"#b4561f" };
-
-  function $(id){ return document.getElementById(id); }
-  function num(el){ var v=(typeof el==="string"?$(el):el); if(!v) return 0; var n=parseFloat(String(v.value).replace(/\s/g,"").replace(",",".")); return isFinite(n)?n:0; }
-  function kr(n){ if(n==null||!isFinite(n)) return "-"; return Math.round(n).toLocaleString("sv-SE")+" kr"; }
-  function kr0(n){ if(n==null||!isFinite(n)) return "-"; return Math.round(n).toLocaleString("sv-SE"); }
-  function pct(n){ return (Math.round(n*10)/10).toLocaleString("sv-SE")+" %"; }
-
-  // === Persistens =========================================================
-  var PROFIL_IDS=["p_brutto","p_netto","p_spar","p_ranta","p_stress","p_kontant","p_amortpct"];
-  var OBJ_IDS=["o_url","o_pris","o_vard","o_drift","o_pendel","o_pantbrev","o_renov","o_namn","o_tax",
-    "d_varmeform","d_varmebehov","d_varmeman","d_wpersons","d_wlpd","d_wfast","d_wprice","d_wgarden",
-    "d_tgrund","d_tkarl","d_tfreq","d_tmat","d_el","d_fors","d_bredband","d_samf","d_underhall","d_ovrigt",
-    "c_home","c_work","c_km","c_min","c_days","c_type","c_cons","c_price",
-    "rb_3m","rb_1a","rb_3a","rb_5a","o_boarea"];
-  var _renovMode=null, _amortMode="auto", _nLantagare=2, _personer=1, _driftMode="total", revealed=0, _adress="";
-  function loadState(){
-    var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
-    PROFIL_IDS.forEach(function(id){ if(p[id]!=null) $(id).value=p[id]; });
-    if(!$("p_ranta").value) $("p_ranta").value=DEF_RANTA;
-    if(!$("p_stress").value) $("p_stress").value=DEF_STRESS;
-    if(!$("p_kontant").value) $("p_kontant").value=DEF_KONTANT;
-    var w={}; try{ w=JSON.parse(localStorage.getItem("kjkh:wizard")||"{}"); }catch(e){}
-    OBJ_IDS.forEach(function(id){ if(w[id]!=null) $(id).value=w[id]; });
-    if(w.driftunit) $("o_driftunit").value=w.driftunit;
-    if(w.adress) _adress=w.adress;
-    if(w.renovMode) setRenov(w.renovMode, true);
-    if(w.amortMode) setAmortMode(w.amortMode, true);
-    if(w.nLantagare) setLantagare(w.nLantagare, true);
-    if(w.personer) setPersoner(w.personer, true);
-    if(w.driftMode) setDriftMode(w.driftMode, true);
-    if(typeof w.revealed==="number") revealed=w.revealed;
-    // Renov från renoveringsanalysen
-    try{ var r=JSON.parse(localStorage.getItem("kjkh:renovtotal")||"null");
-      if(r&&r.mid&&(w.renovMode==="deep"||!$("o_renov").value)){ $("o_renov").value=Math.round(r.mid); $("o_renovnote").textContent="Från din renoveringsanalys ("+kr(r.lo)+" – "+kr(r.hi)+")."; }
-    }catch(e){}
-    updateVarmeRows(); updateAmortRow(); updateDriftSum();
-  }
-  function saveState(){
-    var p={}; PROFIL_IDS.forEach(function(id){ p[id]=$(id).value; });
-    try{ localStorage.setItem("kjkh:profil", JSON.stringify(p)); }catch(e){}
-    var w={}; OBJ_IDS.forEach(function(id){ w[id]=$(id).value; });
-    w.driftunit=$("o_driftunit").value; w.adress=_adress; w.renovMode=_renovMode; w.revealed=revealed; w.bud=currentBud();
-    w.amortMode=_amortMode; w.nLantagare=_nLantagare; w.personer=_personer; w.driftMode=_driftMode;
-    try{ localStorage.setItem("kjkh:wizard", JSON.stringify(w)); }catch(e){}
-  }
-
-  // === Driftkostnad (delad motor: affordability.js) =======================
-  function heatDetailMan(){
-    var form=$("d_varmeform").value;
-    if(form==="manual") return num("d_varmeman");
-    return KJKH_AFF.heatingYrFor(form, num("d_varmebehov"))/12;
-  }
-  function waterMan(){
-    var w=KJKH_AFF.waterYr({ persons:num("d_wpersons"), lpd:num("d_wlpd"), fast:num("d_wfast"), price:num("d_wprice"), garden:num("d_wgarden") });
-    return w.kr/12;
-  }
-  function trashMan(){
-    return KJKH_AFF.trashYr({ grund:num("d_tgrund"), karl:$("d_tkarl").value, freq:parseFloat($("d_tfreq").value)||1, mat:$("d_tmat").value }) / 12;
-  }
-  function ovrigtMan(){ return num("d_el")+num("d_fors")+num("d_bredband")+num("d_samf")+num("d_underhall")+num("d_ovrigt"); }
-  function favgMan(){ return KJKH_AFF.fastighetsavgift(num("o_tax"))/12; }
-  function driftDelarMan(){ return heatDetailMan()+waterMan()+trashMan()+ovrigtMan()+favgMan(); }
-  function driftBasMan(){ var v=num("o_drift"); return $("o_driftunit").value==="ar"?v/12:v; }
-  function driftMan(){ return _driftMode==="detaljerad" ? driftDelarMan() : driftBasMan(); }
-  function updateVarmeRows(){
-    var manual=$("d_varmeform").value==="manual";
-    $("d_varmebehovRow").style.display = manual?"none":"flex";
-    $("d_varmemanRow").style.display = manual?"flex":"none";
-  }
-  function setDriftMode(mode, silent){
-    _driftMode=mode;
-    document.querySelectorAll("#d_mode button").forEach(function(b){ b.classList.toggle("on", b.dataset.m===mode); });
-    if(!silent){ updateDriftSum(); recompute(); }
-  }
-  function updateDriftSum(){
-    $("d_sumline").className="sumline";
-    $("d_sumline").querySelector("span").textContent = _driftMode==="detaljerad" ? "Detaljerad driftkostnad används" : "Total driftkostnad används";
-    $("d_sum").textContent = kr(driftMan())+"/mån";
-  }
-  // Fyller i en grov schablon (kr/kvm/år) i totalsumman så fort boarean är känd,
-  // men bara om fältet är tomt - rör aldrig ett värde som redan finns (Booli eller eget).
-  function updateDriftAuto(){
-    var area=num("o_boarea"), est=Math.round(area*C.DRIFT_KVM_AR/12);
-    if(area>0 && !(num("o_drift")>0)){
-      $("o_drift").value=est;
-      $("o_driftunit").value="man";
-    }
-    $("o_driftautohint").textContent = (area>0 && num("o_drift")===est && $("o_driftunit").value==="man")
-      ? "Schablon: "+area+" kvm × "+kr(C.DRIFT_KVM_AR)+"/kvm/år (grovt, varierar mycket med uppvärmning och elområde) - ändra ovan om du vet bättre."
-      : "";
-  }
-
-  // === Pendling =============================================================
-  function commuteCalc(){
-    return KJKH_AFF.commute({ kmEnkel:num("c_km"), minEnkel:num("c_min"), days:num("c_days")||21, cons:num("c_cons"), price:num("c_price") });
-  }
-  function updateCommuteOut(){
-    var c=commuteCalc();
-    $("c_out").textContent = kr(c.netMan)+"/mån";
-    $("c_avdrag").textContent = c.taxBenMan>0 ? "Reseavdraget ger dessutom ≈ "+kr0(c.taxBenMan)+"/mån i skatteåterbäring en gång om året - inte medräknat i kostnaden ovan, eftersom du ändå behöver betala drivmedlet varje månad." : "";
-  }
-  function vehicleDefaults(){
-    var t=$("c_type").value;
-    if(t==="el"){ $("c_cons").value=18; $("c_price").value=2.0; }
-    else if(t==="diesel"){ $("c_cons").value=5.5; $("c_price").value=22; }
-    else { $("c_cons").value=7; $("c_price").value=19; }
-  }
-
-  // Allt löpande som inte är ränta/amortering: drift + pendling.
-  function lopandeMan(){ return driftMan()+num("o_pendel"); }
-  function bedom(B){
-    var amortOverride = _amortMode==="manual" ? num("p_amortpct")/100 : null;
-    return KJKH_AFF.bedom({ B:B, brutto:num("p_brutto"), netto:num("p_netto"), spar:num("p_spar"),
-      ranta:num("p_ranta")/100, stress:num("p_stress")/100, renov:num("o_renov"),
-      pantBefintlig:num("o_pantbrev"), driftMan:lopandeMan(), kontantAndel:num("p_kontant")/100,
-      nLantagare:_nLantagare, amortOverride:amortOverride });
-  }
-  function priser(mult){ return KJKH_AFF.priser(num("o_pris"), num("o_vard"), mult); }
-  function budFromSlider(){ var p=priser(3),t=num("s_bud")/100; return Math.round((p.min+t*(p.max-p.min))/25000)*25000; }
-  function sliderFromBud(bud){ var p=priser(3); if(p.max===p.min)return 50; return Math.max(0,Math.min(100,(bud-p.min)/(p.max-p.min)*100)); }
-  var _bud=0;
-  function currentBud(){ return _bud; }
-  // Enda källan till sanning för "bud" - både slider och sifferfält skriver hit.
-  function setBud(v){
-    var p=priser(3);
-    v=Math.max(p.min,Math.min(p.max,Math.round(v)));
-    _bud=v;
-    if(document.activeElement!==$("s_val")) $("s_val").value=v;
-    $("s_bud").value=sliderFromBud(v);
-  }
-  function renderMarks(){
-    var p=priser(3),box=$("s_marks");
-    var leftOf=function(val){ return Math.max(0,Math.min(100,(val-p.min)/(p.max-p.min)*100)); };
-    var pts=[{val:p.utg,label:"Utgångspris",bold:true,left:leftOf(p.utg)}];
-    if(p.vard&&Math.abs(p.vard-p.utg)>p.max*0.03){
-      pts.push({val:p.vard,label:"Boolis värd.",bold:false,left:leftOf(p.vard)});
-    }
-    var stacked = pts.length>1 && Math.abs(pts[1].left-pts[0].left)<16;
-    if(stacked) pts[1].row=1;
-    box.style.height = stacked ? "58px" : "32px";
-    box.innerHTML = pts.map(function(pt){
-      var top = pt.row ? (pt.row*30)+"px" : "0";
-      return '<div class="mk" style="left:'+pt.left+'%;top:'+top+'"><span class="tick"></span>'+(pt.bold?'<b>':'')+pt.label+(pt.bold?'</b>':'')+'<br>'+kr(pt.val)+'</div>';
-    }).join("");
-  }
-  function renderGrad(){
-    var p=priser(3), steps=24, stops=[];
-    for(var i=0;i<=steps;i++){
-      var bud=p.min+(p.max-p.min)*(i/steps);
-      var r=bedom(bud);
-      stops.push(BAND_COLOR[r.band]+" "+(i/steps*100).toFixed(1)+"%");
-    }
-    $("s_grad").style.background="linear-gradient(to right,"+stops.join(",")+")";
-  }
-
-  function renderRes(){
-    if(!$("res_main")) return;
-    if(!(num("o_pris")>0)){
-      $("res_main").textContent="-"; $("res_note").textContent="Fyll i utgångspris och ekonomi ovan för att se detaljer.";
-      if($("res_main2")){ $("res_main2").textContent="-"; $("res_note2").textContent=""; }
-      $("resrows").innerHTML=""; $("res_stress").querySelector("tbody").innerHTML=""; $("res_bind").querySelector("tbody").innerHTML="";
-      return;
-    }
-    var bud=currentBud(), r=bedom(bud);
-    var rantaManRaw=r.lan*r.ranta/12;
-    var nettoRantaMan=KJKH_AFF.ranteManad(r.lan, r.ranta, r.nLantagare);
-    var drift=driftMan(), pendel=num("o_pendel");
-    var bruttoMan=rantaManRaw+r.amortMan+drift;
-    var nettoMan=nettoRantaMan+r.amortMan+drift;
-    var verkligMan=nettoRantaMan+drift;
-    var totalMan=nettoMan+pendel;
-
-    var mainHtml=kr0(bruttoMan)+' <span>kr/mån</span>';
-    var noteTxt="Vid bud "+kr(bud)+" · "+kr0(verkligMan)+" kr/mån i verklig kostnad (exkl. amortering).";
-    $("res_main").innerHTML=mainHtml;
-    $("res_note").textContent=noteTxt;
-    if($("res_main2")){ $("res_main2").innerHTML=mainHtml; $("res_note2").textContent=noteTxt; }
-    function rr(k,v,cls){ return '<div class="rr'+(cls?" "+cls:"")+'"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
-    $("resrows").innerHTML =
-      rr("Månadsutgift, brutto", kr(bruttoMan)) +
-      rr("Månadsutgift efter ränteavdrag", kr(nettoMan), "accent") +
-      rr("Verklig boendekostnad (exkl. amortering)", kr(verkligMan)) +
-      rr("varav ränta (netto)", kr(nettoRantaMan), "sub") +
-      rr("varav amortering", kr(r.amortMan), "sub") +
-      rr("varav drift", kr(drift), "sub") +
-      rr("Pendling", kr(pendel), "sub") +
-      rr("Totalt inkl. pendling", kr(totalMan), "accent");
-
-    var base=nettoMan, srows="";
-    [0,1,2,3].forEach(function(d){
-      var rate=r.ranta+d/100;
-      var fore=r.lan*rate/12+r.amortMan+drift;
-      var m=KJKH_AFF.ranteManad(r.lan, rate, r.nLantagare)+r.amortMan+drift;
-      var diff=m-base;
-      srows+='<tr class="'+(d===0?"hl":"")+'"><td>'+pct(rate*100)+(d===0?" (vald)":"")+'</td><td class="r">'+kr(fore)+'</td><td class="r">'+kr(m)+'</td><td class="r">'+(d===0?"–":"+"+kr0(diff))+'</td></tr>';
-    });
-    $("res_stress").querySelector("tbody").innerHTML=srows;
-
-    // Förslag: högre ränta ju längre bindning, som bankerna brukar prissätta.
-    var RB_DELTA={rb_3m:0, rb_1a:0.5, rb_3a:1.0, rb_5a:2.0};
-    var binds=[["3 mån","rb_3m"],["1 år","rb_1a"],["3 år","rb_3a"],["5 år","rb_5a"]];
-    var brows="";
-    binds.forEach(function(b){
-      var id=b[1], forslag=r.ranta*100+RB_DELTA[id];
-      $(id).placeholder=forslag.toFixed(2);
-      var val=num(id);
-      var rate=val>0?val/100:forslag/100;
-      var fore=r.lan*rate/12+r.amortMan+drift;
-      var m=KJKH_AFF.ranteManad(r.lan, rate, r.nLantagare)+r.amortMan+drift;
-      brows+='<tr><td>'+b[0]+(val>0?"":" (förslag)")+'</td><td class="r">'+pct(rate*100)+'</td><td class="r">'+kr(fore)+'</td><td class="r">'+kr(m)+'</td></tr>';
-    });
-    $("res_bind").querySelector("tbody").innerHTML=brows;
-  }
-
-  function recompute(){
-    updateVarmeRows(); updateDriftAuto(); updateDriftSum(); updateCommuteOut(); updateAmortRow(); updateNettoEst(); renderRes();
-    // Fakta-rutan på objekt-kortet
-    var utg=num("o_pris"), fk=$("o_fakta");
-    if(utg||_adress){ fk.className="fakta on";
-      fk.innerHTML=(_adress?'<b>'+_adress.replace(/[<>&]/g,"")+'</b><br>':'')+(utg?"Utgångspris "+kr(utg):"utgångspris saknas")+(num("o_vard")?" · Boolis värdering "+kr(num("o_vard")):"")+(lopandeMan()?" · löpande "+kr(lopandeMan())+"/mån":""); }
-    else fk.className="fakta";
-
-    // Resultatkortet
-    var okPris=utg>0, okEkon=num("p_netto")>0&&num("p_brutto")>0&&num("p_spar")>=0;
-    if(!okPris || !okEkon){
-      $("v_needs").style.display="block"; $("v_body").style.display="none";
-      $("v_needs").textContent = !okPris ? "Fyll i ett utgångspris i steg 1 (Booli-länk eller Detaljerat)." : "Fyll i din ekonomi i steg 6 för att se svaret.";
-      return;
-    }
-    $("v_needs").style.display="none"; $("v_body").style.display="block";
-    var bud=currentBud();
-    renderMarks(); renderGrad();
-    var r=bedom(bud);
-    var vb=$("verdict"),big=$("v_big"),sub=$("v_sub");
-    vb.className="verdict "+r.band;
-    if(r.band==="ja"){ big.textContent="Ja"; sub.textContent="Rymms med marginal, även vid stressränta "+pct(r.stress*100)+"."; }
-    else if(r.band==="tight" && r.buffer<r.bufferKrav && !r.hardFail){ big.textContent="Det är tight"; sub.textContent="Marginalen på kontanterna efter renovering är knapp - "+kr(r.buffer)+" buffert, du bör ha minst "+kr(r.bufferKrav)+"."; }
-    else if(r.band==="tight"){ big.textContent="Det är tight"; sub.textContent="Det går, men marginalen är tunn vid stressränta "+pct(r.stress*100)+"."; }
-    else if(r.hardFail){ big.textContent="Nej"; sub.textContent="Kontanterna räcker inte: du behöver "+kr(r.kontantbehov)+" vid tillträde (utöver renoveringen)."; }
-    else { big.textContent="Nej"; sub.textContent="Månadskostnaden blir för hög mot din nettoinkomst vid stressränta."; }
-    $("bandinfo").innerHTML =
-      "<b style='color:"+BAND_COLOR.ja+"'>● Grönt</b> = boendekostnad vid stressränta ("+pct(C.DEF_STRESS)+") är högst "+pct(C.BAND_JA*100)+" av nettoinkomsten, och kontantbufferten efter renovering är minst "+kr(r.bufferKrav)+" (störst av "+kr(C.BUFFER_FAST)+" och "+pct(C.BUFFER_KNAPP*100)+" av kontantbehovet).<br>"+
-      "<b style='color:"+BAND_COLOR.tight+"'>● Gult</b> = kvoten är över "+pct(C.BAND_JA*100)+" (men högst "+pct(C.BAND_TIGHT*100)+"), eller så är kontantbufferten under "+kr(r.bufferKrav)+".<br>"+
-      "<b style='color:"+BAND_COLOR.nej+"'>● Rött</b> = kvoten är över "+pct(C.BAND_TIGHT*100)+", eller så räcker inte kontanterna vid tillträde.<br>"+
-      "Tumreglar - mellan tumme och pekfinger, inte lånelöfte eller rådgivning.";
-    function c(l,v,neg){ return '<div class="c"><div class="l">'+l+'</div><div class="v'+(neg?' neg':'')+'">'+v+'</div></div>'; }
-    $("brk").innerHTML=
-      c("Kontantinsats ("+pct(r.kontantAndel*100)+")",kr(r.kiKrav))+
-      c("Lagfart (1,5 %)",kr(r.lagfart))+
-      c("Pantbrev (nya)",r.pantbrevKost?kr(r.pantbrevKost):"0 kr")+
-      c("Kontantbehov vid tillträde",kr(r.kontantbehov))+
-      c("Kontanter efter renov.",kr(r.kontanterTillg),r.kontanterTillg<r.kontantbehov)+
-      c("Bolån ("+pct(r.belaning*100)+")",kr(r.lan))+
-      c("Amortering",pct(r.amort*100)+"/år · "+kr(r.amortMan)+"/mån")+
-      c("Drift + pendling",kr(lopandeMan())+"/mån")+
-      c("Månad ("+pct(r.ranta*100)+")",kr(r.boendeMan))+
-      c("Månad (stress "+pct(r.stress*100)+")",kr(r.boendeStress))+
-      c("Kvar att leva på",kr(r.kvarAttLeva),r.kvarAttLeva<0);
-    $("disc").textContent="Antaganden: kontantinsats "+pct(r.kontantAndel*100)+", lagfart 1,5 % + pantbrev 2 % på nya pantbrev, amortering enligt belåningsgrad och skuldkvot (eller egen nivå), ränteavdrag 30 % (21 % över "+kr(AVDRAG_TAK)+" ränta/år/person, "+_nLantagare+" låntagare). Renovering dras från kontanterna. Drift och pendling läggs på månadskostnaden. Grov modell.";
-    saveState();
-  }
-
-  // === Booli-hämtning =====================================================
-  $("o_hamta").addEventListener("click", async function(){
-    var url=$("o_url").value.trim(), st=$("o_status");
-    if(!url){ st.textContent="Klistra in en Booli-länk först."; return; }
-    st.textContent="Hämtar...";
-    try{
-      var r=await fetch(PARSER_API+"?url="+encodeURIComponent(url)); var d=await r.json();
-      if(!r.ok) throw new Error(d.detail||r.statusText);
-      var f=d.fields||{}, fick=[];
-      if(f.pris){ $("o_pris").value=f.pris; fick.push("pris"); }
-      if(f.vardering){ $("o_vard").value=f.vardering; fick.push("värdering"); }
-      if(f.boarea){ $("o_boarea").value=f.boarea; fick.push("boarea"); }
-      if(f.driftkostnad){ $("o_drift").value=f.driftkostnad; $("o_driftunit").value="man"; setDriftMode("total", true); fick.push("driftkostnad"); }
-      if(f.pantbrev){ $("o_pantbrev").value=f.pantbrev; fick.push("pantbrev"); }
-      if(f.taxeringsvarde){ $("o_tax").value=f.taxeringsvarde; fick.push("taxeringsvärde"); }
-      if(f.uppvarmning){ $("d_varmeform").value=f.uppvarmning; fick.push("uppvärmning"); }
-      if(f.adress){ _adress=f.adress; if(!$("o_namn").value) $("o_namn").value=f.adress; if(!$("c_home").value) $("c_home").value=f.adress; }
-      st.textContent=(_adress?_adress+" — ":"")+(fick.length?("hämtade "+fick.join(", ")+". Stämmer adressen? Kontrollera resten under Detaljerat."):"hittade inga fält - fyll i under Detaljerat.");
-      var utg=num("o_pris"); if(utg) setBud(utg);
-      recompute();
-    }catch(e){ st.textContent="Kunde inte hämta: "+e.message+". Fyll i under Detaljerat."; }
-  });
-
-  // === Pendling: autoroute + tillämpa =====================================
-  $("c_auto").addEventListener("click", async function(){
-    var status=$("c_routeStatus"); var home=$("c_home").value.trim(), work=$("c_work").value.trim();
-    if(!home||!work){ status.textContent="Fyll i både hemadress och jobbadress först."; return; }
-    status.textContent="Beräknar...";
-    try{
-      var r=await fetch(ROUTE_API+"?from="+encodeURIComponent(home)+"&to="+encodeURIComponent(work));
-      if(!r.ok) throw new Error((await r.json()).detail||r.statusText);
-      var d=await r.json();
-      $("c_km").value=d.km; $("c_min").value=d.min;
-      status.textContent=d.km+" km · "+d.min+" min (enkel resa, bilväg).";
-      recompute();
-    }catch(e){ status.textContent="Kunde inte beräkna: "+e.message; }
-  });
-  $("c_maps").addEventListener("click", function(){
-    var o=encodeURIComponent($("c_home").value||""), d=encodeURIComponent($("c_work").value||"");
-    window.open("https://www.google.com/maps/dir/?api=1&origin="+o+"&destination="+d+"&travelmode=driving","_blank");
-  });
-  $("c_type").addEventListener("change", function(){ vehicleDefaults(); recompute(); });
-  $("c_apply").addEventListener("click", function(){ $("o_pendel").value=Math.round(commuteCalc().netMan); recompute(); });
-
-  // === Renoveringsval =====================================================
-  function setRenov(mode, silent){
-    _renovMode=mode;
-    document.querySelectorAll(".pickbtn").forEach(function(b){ b.classList.toggle("sel", b.dataset.renov===mode); });
-    $("renovRough").style.display = (mode==="rough"||mode==="deep") ? "block" : "none";
-    if(mode==="skip") $("o_renov").value=0;
-    if(mode==="deep" && !silent){
-      saveState();
-      try{ localStorage.setItem("kjkh:renovReturn", JSON.stringify({url:"index.html", label:"guiden", ts:Date.now()})); }catch(e){}
-      location.href="husanalys.html"; return;
-    }
-    if(!silent) recompute();
-  }
-  document.querySelectorAll(".pickbtn").forEach(function(b){ b.addEventListener("click", function(){ setRenov(b.dataset.renov); }); });
-
-  // === Lån: antal låntagare + amorteringsläge =============================
-  function updateAmortRow(){
-    $("p_amortpctRow").style.display = _amortMode==="manual" ? "flex" : "none";
-    var ltv = num("o_pris")>0 ? 1-num("p_kontant")/100 : 0;
-    var rate = _amortMode==="manual" ? num("p_amortpct")/100 : KJKH_AFF.amortRate(ltv);
-    $("p_info").textContent = pct((1-num("p_kontant")/100)*100)+" belåning · "+pct(rate*100)+"/år amortering";
-  }
-  function setLantagare(n, silent){
-    _nLantagare=+n;
-    document.querySelectorAll("#p_lantagare button").forEach(function(b){ b.classList.toggle("on", +b.dataset.n===_nLantagare); });
-    if(!silent) recompute();
-  }
-  function setAmortMode(mode, silent){
-    _amortMode=mode;
-    document.querySelectorAll("#p_amortmode button").forEach(function(b){ b.classList.toggle("on", b.dataset.m===mode); });
-    if(!silent) updateAmortRow();
-    if(!silent) recompute();
-  }
-  document.querySelectorAll("#p_lantagare button").forEach(function(b){ b.addEventListener("click", function(){ setLantagare(b.dataset.n); }); });
-  document.querySelectorAll("#p_amortmode button").forEach(function(b){ b.addEventListener("click", function(){ setAmortMode(b.dataset.m); }); });
-
-  // === Ekonomi: nettoschablon (auto, tills man skriver eget netto) ========
-  var _nettoAuto=true;
-  function updateNettoEst(){
-    if(!(num("p_brutto")>0)){ $("p_nettohint").textContent=""; return; }
-    var est=KJKH_AFF.nettoSchablon(num("p_brutto"), _personer);
-    if(_nettoAuto && document.activeElement!==$("p_netto")) $("p_netto").value=Math.round(est);
-    $("p_nettohint").textContent = _nettoAuto
-      ? "Uppskattat via schablonskatt (32 % kommunalskatt + 20 % statlig över ca 600 000 kr/år/person, delat om ni är två). Inget hänsyn till jobbskatteavdrag eller grundavdrag - skriv i fältet ovan om du vet ditt exakta netto."
-      : "Eget värde. Schablonen ovan skulle ge "+kr(est)+"/mån.";
-  }
-  function setPersoner(n, silent){
-    _personer=+n;
-    document.querySelectorAll("#p_personer button").forEach(function(b){ b.classList.toggle("on", +b.dataset.n===_personer); });
-    if(!silent){ updateNettoEst(); recompute(); }
-  }
-  document.querySelectorAll("#p_personer button").forEach(function(b){ b.addEventListener("click", function(){ setPersoner(b.dataset.n); }); });
-  document.querySelectorAll("#d_mode button").forEach(function(b){ b.addEventListener("click", function(){ setDriftMode(b.dataset.m); }); });
-  $("p_netto").addEventListener("input", function(){ _nettoAuto = !(num("p_netto")>0); });
-
-  // === Spara objekt =======================================================
-  $("o_save").addEventListener("click", function(){
-    var bud=currentBud(), r=bedom(bud);
-    var namn=($("o_namn").value.trim() || ("Objekt "+kr(num("o_pris"))));
-    var obj={ id:Date.now(), namn:namn, ts:Date.now(),
-      sum:{ pris:num("o_pris"), lan:r.lan, kontantbehov:r.kontantbehov, manad:r.boendeMan, renov:num("o_renov") },
-      objektanalys:{ url:$("o_url").value.trim(), utgangspris:num("o_pris"), vardering:num("o_vard"),
-        bud:bud, band:r.band, boendeMan:r.boendeMan, boendeStress:r.boendeStress, kvarAttLeva:r.kvarAttLeva } };
-    try{ var arr=JSON.parse(localStorage.getItem("kjkh:objekt")||"[]"); arr.unshift(obj);
-      localStorage.setItem("kjkh:objekt", JSON.stringify(arr.slice(0,20)));
-      $("o_savenote").textContent="Sparat som \""+namn+"\". Öppna \"Jämför objekt\" för att ställa två mot varandra.";
-    }catch(e){ $("o_savenote").textContent="Kunde inte spara (lagring full?)."; }
-  });
-
-  // === Toolbar: skriv ut / nollställ ======================================
-  $("btnPrint").addEventListener("click", function(){ window.print(); });
-  $("btnReset").addEventListener("click", function(){
-    if(!confirm("Nollställa alla uppgifter och börja om?")) return;
-    try{ localStorage.removeItem("kjkh:profil"); localStorage.removeItem("kjkh:wizard"); }catch(e){}
-    location.reload();
-  });
-
-  // === Kort: reveal + navigering ==========================================
-  var cards=[].slice.call(document.querySelectorAll(".card"));
-  function showUpTo(n){
-    revealed=Math.max(revealed,n);
-    cards.forEach(function(card,i){ card.classList.toggle("hidden", i>revealed); });
-  }
-  function gotoCard(i){
-    showUpTo(i);
-    var el=cards[i]; el.classList.remove("on"); void el.offsetWidth; el.classList.add("on");
-    el.scrollIntoView({ behavior:"smooth", block:"start" });
-    saveState();
-  }
-  function requiredOk(from){
-    if(from===0 && !(num("o_pris")>0)){ $("o_status").textContent="Fyll i ett utgångspris (Booli-länk eller Detaljerat) innan du går vidare."; return false; }
-    if(from===5 && !(num("p_netto")>0&&num("p_brutto")>0)){ return false; }
-    return true;
-  }
-  cards.forEach(function(card){
-    var i=+card.dataset.card;
-    var nx=card.querySelector("[data-next]"); if(nx) nx.addEventListener("click", function(){ if(requiredOk(i)) gotoCard(i+1); });
-    var bk=card.querySelector("[data-back]"); if(bk) bk.addEventListener("click", function(){ gotoCard(Math.max(0,i-1)); });
-  });
-
-  // === Lyssnare + init ====================================================
-  PROFIL_IDS.forEach(function(id){ $(id).addEventListener("input", recompute); });
-  OBJ_IDS.forEach(function(id){ $(id).addEventListener("input", recompute); });
-  $("o_driftunit").addEventListener("change", recompute);
-  $("d_varmeform").addEventListener("change", function(){ updateVarmeRows(); recompute(); });
-  ["d_tkarl","d_tfreq","d_tmat"].forEach(function(id){ $(id).addEventListener("change", recompute); });
-  $("s_bud").addEventListener("input", function(){ setBud(budFromSlider()); recompute(); });
-  $("s_val").addEventListener("input", function(){ setBud(num("s_val")); recompute(); });
-  $("o_pris").addEventListener("change", function(){ var utg=num("o_pris"); if(utg) setBud(utg); recompute(); });
-
-  loadState();
-  // Tillbaka från renoveringsanalysen? Visa fram till renov-kortet och scrolla dit.
-  var _franRenov=(localStorage.getItem("kjkh:wizard")||"").indexOf('"renovMode":"deep"')>=0;
-  if(_franRenov) revealed=Math.max(revealed,2);
-  showUpTo(revealed);
-  if(num("o_pris")) setBud(num("o_pris"));
-  recompute();
-  if(_franRenov && cards[2]){
-    setTimeout(function(){ cards[2].scrollIntoView({ behavior:"smooth", block:"start" }); }, 60);
-  }
-})();
-</script>
 </body>
 </html>

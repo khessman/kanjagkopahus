@@ -20,22 +20,32 @@
   body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;font-feature-settings:"tnum" 1,"lnum" 1;line-height:1.45;-webkit-font-smoothing:antialiased}
   img{max-width:100%;height:auto}
   .wrap{max-width:1180px;margin:0 auto;padding:32px 20px 80px;width:100%}
-  header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:8px}
-  .title h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,4vw,44px);line-height:1.02;margin:0;letter-spacing:-.01em}
-  .title .sub{color:var(--ink-soft);font-size:14px;margin-top:6px;max-width:46ch}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
-  button.tool{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--paper-2);color:var(--ink);border:1.5px solid var(--line);padding:9px 14px;border-radius:10px;transition:.15s}
-  button.tool:hover{border-color:var(--ink);transform:translateY(-1px)}
-  button.tool.primary{background:var(--green);color:#fff;border-color:var(--green)}
-  button.tool.primary:hover{background:var(--green-dk)}
+  @view-transition{navigation:auto}
+  .topbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;view-transition-name:sitehead}
+  .topbar a.logo{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:#fff;background:var(--green);border:0;border-radius:32px;padding:20px 34px 20px 26px;box-shadow:0 6px 20px -8px rgba(18,64,42,.6);transition:.15s}
+  .topbar a.logo:hover{background:var(--green-dk)}
+  .logo svg{flex:none;width:34px;height:34px}
+  .logo .lname{font-family:"Fraunces",serif;font-weight:600;font-size:28px;letter-spacing:-.01em;line-height:1}
+  .logo .lname b{color:#a6e6bd;font-weight:600}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button.tool,a.tool{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--paper-2);color:var(--ink);border:1.5px solid var(--line);padding:9px 14px;border-radius:10px;transition:.15s;text-decoration:none;display:inline-block}
+  button.tool:hover,a.tool:hover{border-color:var(--ink);transform:translateY(-1px)}
+  button.tool.primary,a.tool.primary{background:var(--green);color:#fff;border-color:var(--green)}
+  button.tool.primary:hover,a.tool.primary:hover{background:var(--green-dk)}
+  .menu{position:relative}
+  .menu summary{list-style:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:var(--paper-2);border:1.5px solid var(--line);border-radius:10px;padding:9px 14px;color:var(--ink);white-space:nowrap;transition:.15s}
+  .menu summary:hover{border-color:var(--ink);transform:translateY(-1px)}
+  .menu summary::-webkit-details-marker{display:none}
+  .menu[open] summary{border-color:var(--ink)}
+  .menupanel{position:absolute;right:0;top:calc(100% + 6px);background:var(--paper-2);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px -12px rgba(28,37,32,.25);padding:10px;min-width:220px;z-index:10}
+  .menupanel .mlabel{font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--ink-soft);opacity:.7;padding:8px 8px 2px}
+  .menupanel a{display:block;font-size:13px;font-weight:500;text-decoration:none;color:var(--ink);padding:7px 8px;border-radius:7px}
+  .menupanel a:hover{background:var(--green-soft);color:var(--green-dk)}
+  .menupanel hr{border:0;border-top:1px solid var(--line);margin:6px 2px}
+  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(26px,4vw,40px);line-height:1.05;margin:0 0 4px;letter-spacing:-.01em}
+  .lead{color:var(--ink-soft);font-size:14px;margin:0 0 8px;max-width:56ch}
   .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:28px;align-items:start}
   @media(max-width:920px){.grid{grid-template-columns:1fr}}
-  .topnav{display:flex;flex-direction:column;gap:10px;padding:16px 0 6px;margin-top:4px}
-  .topnav a{font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);background:var(--paper-2);border:1.5px solid var(--line);border-radius:20px;padding:7px 13px;white-space:nowrap;transition:.15s}
-  .topnav a:hover{border-color:var(--ink);transform:translateY(-1px)}
-  .topnav a.active{background:var(--green);color:#fff;border-color:var(--green)}
-  .navgroup{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-  .navlabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--ink-soft);opacity:.65}
   .objektrad{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 2px}
   .objlabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--ink-soft);opacity:.65}
   .objkort{display:flex;flex-direction:column;background:var(--paper-2);border:1px solid var(--line);border-radius:11px;overflow:hidden;min-width:160px;box-shadow:var(--shadow)}
@@ -204,46 +214,40 @@
 <body>
 <div class="wrap">
 
-  <header class="top">
-    <div class="title">
-      <h1>Husbudget</h1>
-      <div class="sub">Köpkostnader och löpande månadskostnader för småhus. Räknar med 2026 års regler: bolånetak 90 %, amorteringskrav 1–2 %, ränteavdrag 30/21 %.</div>
-    </div>
+  <div class="topbar">
+    <a class="logo" href="index.html">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="lname">kanjag<b>köpahus</b>.se</span>
+    </a>
     <div class="toolbar">
       <button class="tool primary" onclick="saveObjekt()">Spara objekt</button>
-      <button class="tool" onclick="window.print()">⎙ Skriv ut</button>
-      <button class="tool" onclick="resetAll()">↺ Nollställ</button>
+      <button class="tool" type="button" onclick="window.print()">⎙ Skriv ut</button>
+      <button class="tool" type="button" onclick="resetAll()">↺ Nollställ</button>
+      <details class="menu">
+        <summary>Verktyg &amp; guider ▾</summary>
+        <div class="menupanel">
+          <p class="mlabel">Verktyg</p>
+          <a href="guide.html">Kom igång (guidat)</a>
+          <a href="spara-kontantinsats.html">Spara ihop kontantinsatsen</a>
+          <a href="byta-varmesystem.html">Byta värmesystem</a>
+          <a href="husanalys.html">Renoveringsanalys</a>
+          <a href="jamfor.html">Jämför objekt</a>
+          <hr>
+          <p class="mlabel">Guider</p>
+          <a href="budgivning.html">Budgivning</a>
+          <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a>
+          <a href="besiktning.html">Besiktning</a>
+          <a href="dolda-fel.html">Dolda fel</a>
+          <a href="energiklass.html">Energiklass</a>
+          <a href="visningschecklista.html">Visningschecklista</a>
+          <a href="driftkostnader.html">Driftkostnader</a>
+          <hr>
+          <a href="om.html">Om sidan</a>
+          <a href="integritetspolicy.html">Integritetspolicy</a>
+        </div>
+      </details>
     </div>
-  </header>
-
-  <nav class="topnav">
-    <div class="navgroup">
-      <span class="navlabel">Verktyg</span>
-      <a href="kalkylator.html" class="active">Kalkylator</a>
-      <a href="index.html">Kom igång (guidat)</a>
-      <a href="spara-kontantinsats.html">Kontantinsats</a>
-      <a href="byta-varmesystem.html">Byta värmesystem</a>
-      <a href="husanalys.html">Renoveringsanalys</a>
-      <a href="jamfor.html">Jämför objekt</a>
-    </div>
-    <div class="navgroup">
-      <span class="navlabel">Guider</span>
-      <a href="budgivning.html">Budgivning</a>
-      <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a>
-      <a href="besiktning.html">Besiktning</a>
-      <a href="dolda-fel.html">Dolda fel</a>
-      <a href="energiklass.html">Energiklass</a>
-      <a href="visningschecklista.html">Visningschecklista</a>
-      <a href="driftkostnader.html">Driftkostnader</a>
-      <a href="om.html">Om sidan</a>
-    </div>
-  </nav>
-
-  <a class="betatip" href="husanalys.html">
-    <span class="bt-tag">Nytt</span>
-    <span class="bt-text">Testa <b>Renoveringsanalys</b>: ladda upp besiktning och energideklaration och få en saklig överslagskalkyl på vad huset kan behöva åtgärdas för.</span>
-    <span class="bt-arrow">→</span>
-  </a>
+  </div>
 
   <div id="objektRad" class="objektrad" style="display:none"></div>
 
@@ -956,7 +960,7 @@ function renderObjekt(){
     const m = (o.sum&&o.sum.manad)? kr0(Math.round(o.sum.manad))+' kr/mån' : '';
     const nm=(o.namn||'').replace(/"/g,'&quot;');
     return '<div class="objkort"><div class="objhead"><input class="objnamn" value="'+nm+'" placeholder="Namnge" onchange="renameObjekt('+o.id+',this.value)"></div><div class="objbody"><div class="objmeta">'+m+'</div><div class="objbtns"><button onclick="loadObjekt('+o.id+')">Ladda</button><button class="del" onclick="deleteObjekt('+o.id+')" title="Ta bort">×</button></div></div></div>';
-  }).join('') + '<a class="objmer" href="jamfor.html">Jämför →</a>';
+  }).join('') + '<a class="tool primary" href="jamfor.html">Jämför →</a>';
 }
 
 function resetAll(){ if(confirm('Nollställa alla fält till noll?')){ document.querySelectorAll('input[type=number]').forEach(el=>el.value=0); calc(); } }
