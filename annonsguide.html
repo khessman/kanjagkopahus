@@ -578,16 +578,20 @@
       '<div><div class="mainstat">'+kr0(total)+'<span class="unit">kr/mån</span></div>'+
       '<div class="statline">uppvärmning, el, vatten, sophämtning</div></div>';
     if(!kand){
-      html += '<div class="tip">Driftkostnad saknades i annonsen - uppskattad från boarea ('+kr0(boarea)+' kvm × '+C.DRIFT_KVM_AR+' kr/kvm/år, schablon) och delad i fyra poster. Justera med reglagen om du vet bättre.</div>';
+      html += '<div class="tip">Driftkostnad saknades i annonsen - uppskattad från boarea ('+kr0(boarea)+' kvm × '+C.DRIFT_KVM_AR+' kr/kvm/år, schablon) och delad i fyra poster. Justera under Detaljer om du vet bättre.</div>';
     } else {
-      html += '<div class="tip">Annonsens driftkostnad delad i fyra poster efter grov schablon. Justera med reglagen om du vet fördelningen bättre.</div>';
+      html += '<div class="tip">Annonsens driftkostnad delad i fyra poster efter grov schablon. Justera under Detaljer om du vet fördelningen bättre.</div>';
     }
+    var wasOpen = document.querySelector("#sub-drift details.dd");
+    wasOpen = wasOpen ? wasOpen.open : false;
+    html += '<details class="dd"'+(wasOpen?" open":"")+'><summary>Detaljer</summary><div class="ddbody">';
     Object.keys(DRIFT_LABELS).forEach(function(key){
       var val = driftState[key];
       var max = Math.max(300, Math.round(val * 2.5 / 50) * 50, 300);
       html += '<div class="sliderow"><div class="sl-top"><span>'+DRIFT_LABELS[key]+'</span><b id="dv-'+key+'">'+kr0(val)+' kr</b></div>'+
         '<input type="range" id="ds-'+key+'" min="0" max="'+max+'" step="50" value="'+val+'"></div>';
     });
+    html += '</div></details>';
     $("sub-drift").innerHTML = html;
     Object.keys(DRIFT_LABELS).forEach(function(key){
       $("ds-"+key).addEventListener("input", function(e){
