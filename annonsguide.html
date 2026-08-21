@@ -139,7 +139,7 @@
 
     <div class="groupbox" id="grp-renov">
       <div class="grouptitle">Renoveringsstatus</div>
-      <div class="groupsay">Bara de delar som annonsens byggår gör aktuella. Lämna tomt om du inte vet - då antar vi byggåret.</div>
+      <div class="groupsay">Bara de delar som annonsens byggår gör aktuella. Vet du inte - välj "Vet ej", vi räknar då från byggåret.</div>
       <div id="renov-fields"></div>
     </div>
 
@@ -220,11 +220,23 @@
     ["luftvatten","Luft/vatten-värmepump"],["bergvarme","Bergvärme"],["luftluft","Luft/luft-värmepump"],
     ["elpanna","Direktel / elpanna"],["pellets","Pellets"],["ved","Ved"],["fjarrvarme","Fjärrvärme"]
   ];
+  // Grova hinkar istället för exakt årtal - de flesta vet inte exakt år, men kan
+  // oftast avgöra "har det gjorts, ungefär hur länge sen". yr = ungefärligt antal år sedan.
+  var RENOV_BUCKETS = [
+    { val:"okand", label:"Vet ej / knappast", yr:null },
+    { val:"nyligen", label:"Ja, senaste ~10 åren", yr:5 },
+    { val:"lange", label:"Ja, men längre sen", yr:15 },
+  ];
+  function bucketToYear(bucket, nu){
+    nu = nu || new Date().getFullYear();
+    var def = RENOV_BUCKETS.filter(function(b){ return b.val===bucket; })[0];
+    return (def && def.yr != null) ? (nu - def.yr) : null;
+  }
 
   // === State ===============================================================
   var fields = {};      // senast hämtade fält från booliparser
   var extraFields = {}; // svar på de villkorade "saknat"-frågorna
-  var renovSenast = {}; // svar på renoveringsfrågorna, { kok: 2019, ... }
+  var renovBucket = {}; // svar på renoveringsfrågorna, { kok:"nyligen", ... } - se RENOV_BUCKETS
   var risk = { risk_utgift:"medel", risk_ranta:"neutral", risk_horisont:"mellan" };
 
   function loadProfil(){
@@ -240,11 +252,11 @@
   function loadAnnonsguide(){
     var s={}; try{ s=JSON.parse(localStorage.getItem("kjkh:annonsguide")||"{}"); }catch(e){}
     if(s.risk) risk = s.risk;
-    if(s.renovSenast) renovSenast = s.renovSenast;
+    if(s.renovBucket) renovBucket = s.renovBucket;
     if(s.extraFields) extraFields = s.extraFields;
   }
   function saveAnnonsguide(){
-    try{ localStorage.setItem("kjkh:annonsguide", JSON.stringify({ risk:risk, renovSenast:renovSenast, extraFields:extraFields })); }catch(e){}
+    try{ localStorage.setItem("kjkh:annonsguide", JSON.stringify({ risk:risk, renovBucket:renovBucket, extraFields:extraFields })); }catch(e){}
   }
   loadProfil(); loadAnnonsguide();
 
@@ -328,17 +340,26 @@
     if(relevanta.length === 0){ grpRenov.classList.add("hidden"); }
     else{
       grpRenov.classList.remove("hidden");
-      var row = document.createElement("div"); row.className = "two"; renovHolder.appendChild(row);
       relevanta.forEach(function(key){
         var namn = KJKH_RENOV.C.LIVSLANGD[key].namn;
         var div = document.createElement("div"); div.className = "field";
-        var label = document.createElement("label"); label.textContent = namn+" - senast renoverat (år)"; label.htmlFor = "rv_"+key;
+        var label = document.createElement("label"); label.textContent = namn;
         div.appendChild(label);
-        var inp = document.createElement("input"); inp.type = "number"; inp.id = "rv_"+key; inp.inputMode = "numeric"; inp.placeholder = byggar ? String(byggar) : "";
-        if(renovSenast[key]) inp.value = renovSenast[key];
-        inp.addEventListener("change", function(){ renovSenast[key] = num(inp.value) || null; saveAnnonsguide(); });
-        div.appendChild(inp);
-        row.appendChild(div);
+        var seg = document.createElement("div"); seg.className = "seg";
+        var cur = renovBucket[key] || "okand";
+        RENOV_BUCKETS.forEach(function(b){
+          var btn = document.createElement("button"); btn.type = "button"; btn.textContent = b.label;
+          if(b.val === cur) btn.classList.add("on");
+          btn.addEventListener("click", function(){
+            seg.querySelectorAll("button").forEach(function(x){ x.classList.remove("on"); });
+            btn.classList.add("on");
+            renovBucket[key] = b.val;
+            saveAnnonsguide();
+          });
+          seg.appendChild(btn);
+        });
+        div.appendChild(seg);
+        renovHolder.appendChild(div);
       });
     }
   }
@@ -396,7 +417,8 @@
     }
 
     // Renovering: livslängdsmotor
-    var renov = KJKH_RENOV.bedomRenov({ byggar: byggar, senast: renovSenast });
+    var senastAr = {}; Object.keys(renovBucket).forEach(function(k){ senastAr[k] = bucketToYear(renovBucket[k]); });
+    var renov = KJKH_RENOV.bedomRenov({ byggar: byggar, senast: senastAr });
 
     // Buffertkrav skärps av riskaptit-svaret om "tungt".
     var bufferOverride = null;
