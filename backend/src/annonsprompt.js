@@ -64,6 +64,9 @@ ABSOLUTA REGLER:
 8. Formulera dig neutralt och beskrivande. Antyd inte att säljaren döljer något;
    att ett ämne inte nämns i en annons är normalt.
 9. Ändra aldrig värdet på "friskrivning".
+10. Skriv korrekt, ledig svenska. Varje fråga i "fragor" ska vara en fullständig,
+    grammatiskt korrekt mening som går att läsa högt för en mäklare rakt av.
+    Läs igenom varje formulering en gång till innan du svarar.
 
 Svara med exakt denna JSON-struktur:
 ${JSON.stringify(ANNONS_SCHEMA, null, 2)}
