@@ -66,6 +66,9 @@
   .status{font-size:13px;color:var(--ink-soft);margin-top:8px;min-height:1.2em}
   .fakta{font-size:13px;color:var(--ink);margin-top:12px;padding:10px 13px;background:var(--green-soft);border-radius:9px;display:none}
   .fakta.on{display:block}
+  .fakta .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+  .fakta .chip{font-size:11px;font-weight:600;color:var(--green-dk);background:var(--paper-2);border:1px solid var(--line);border-radius:20px;padding:3px 9px}
+  .field label .fromad{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--green-dk);background:var(--green-soft);border-radius:20px;padding:2px 7px;margin-left:6px}
   .cfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:20px}
   .backlink{font-size:13px;font-weight:600;color:var(--ink-soft);background:none;border:0;cursor:pointer;font-family:inherit}
   .backlink:hover{color:var(--ink)}
@@ -455,6 +458,8 @@
     "c_home","c_work","c_km","c_min","c_days","c_type","c_cons","c_price",
     "rb_3m","rb_1a","rb_3a","rb_5a","o_boarea"];
   var _renovMode=null, _amortMode="auto", _nLantagare=2, _personer=1, _driftMode="total", _buffertAuto=true, revealed=0, _adress="";
+  // Vilka fält som fylldes automatiskt från annonsen, så användaren ser vad som återstår.
+  var _fromAd={}, _energiklass="";
   function loadState(){
     var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
     PROFIL_IDS.forEach(function(id){ if(p[id]!=null) $(id).value=p[id]; });
@@ -465,6 +470,8 @@
     OBJ_IDS.forEach(function(id){ if(w[id]!=null) $(id).value=w[id]; });
     if(w.driftunit) $("o_driftunit").value=w.driftunit;
     if(w.adress) _adress=w.adress;
+    if(w.energiklass) _energiklass=w.energiklass;
+    if(w.fromAd) { _fromAd=w.fromAd; markFromAd(); }
     if(w.renovMode) setRenov(w.renovMode, true);
     if(w.amortMode) setAmortMode(w.amortMode, true);
     if(w.nLantagare) setLantagare(w.nLantagare, true);
@@ -482,6 +489,7 @@
     try{ localStorage.setItem("kjkh:profil", JSON.stringify(p)); }catch(e){}
     var w={}; OBJ_IDS.forEach(function(id){ w[id]=$(id).value; });
     w.driftunit=$("o_driftunit").value; w.adress=_adress; w.renovMode=_renovMode; w.revealed=revealed; w.bud=currentBud();
+    w.energiklass=_energiklass; w.fromAd=_fromAd;
     w.amortMode=_amortMode; w.nLantagare=_nLantagare; w.personer=_personer; w.driftMode=_driftMode;
     try{ localStorage.setItem("kjkh:wizard", JSON.stringify(w)); }catch(e){}
   }
@@ -660,7 +668,13 @@
     // Fakta-rutan på objekt-kortet
     var utg=num("o_pris"), fk=$("o_fakta");
     if(utg||_adress){ fk.className="fakta on";
-      fk.innerHTML=(_adress?'<b>'+_adress.replace(/[<>&]/g,"")+'</b><br>':'')+(utg?"Utgångspris "+kr(utg):"utgångspris saknas")+(num("o_vard")?" · Boolis värdering "+kr(num("o_vard")):"")+(lopandeMan()?" · löpande "+kr(lopandeMan())+"/mån":""); }
+      var chips=[];
+      if(_energiklass) chips.push("Energiklass "+_energiklass.replace(/[<>&]/g,""));
+      if(num("o_tax")) chips.push("Taxeringsvärde "+kr(num("o_tax")));
+      if(num("o_pantbrev")) chips.push("Pantbrev "+kr(num("o_pantbrev")));
+      if(num("o_boarea")) chips.push(kr0(num("o_boarea"))+" kvm");
+      fk.innerHTML=(_adress?'<b>'+_adress.replace(/[<>&]/g,"")+'</b><br>':'')+(utg?"Utgångspris "+kr(utg):"utgångspris saknas")+(num("o_vard")?" · Boolis värdering "+kr(num("o_vard")):"")+(lopandeMan()?" · löpande "+kr(lopandeMan())+"/mån":"")+
+        (chips.length?'<div class="chips">'+chips.map(function(c){ return '<span class="chip">'+c+'</span>'; }).join("")+'</div>':""); }
     else fk.className="fakta";
 
     // Resultatkortet
@@ -706,6 +720,19 @@
     saveState();
   }
 
+  // Märker fälten som annonsen redan svarat på, så bara resten kräver handpåläggning.
+  function markFromAd(){
+    document.querySelectorAll("label .fromad").forEach(function(t){ t.remove(); });
+    Object.keys(_fromAd).forEach(function(id){
+      var el=$(id); if(!el) return;
+      var lbl=document.querySelector('label[for="'+id+'"]');
+      if(!lbl && el.closest(".field")) lbl=el.closest(".field").querySelector("label");
+      if(!lbl || lbl.querySelector(".fromad")) return;
+      var tag=document.createElement("span"); tag.className="fromad"; tag.textContent="från annonsen";
+      lbl.appendChild(tag);
+    });
+  }
+
   // === Booli-hämtning =====================================================
   $("o_hamta").addEventListener("click", async function(){
     var url=$("o_url").value.trim(), st=$("o_status");
@@ -715,15 +742,18 @@
       var r=await fetch(PARSER_API+"?url="+encodeURIComponent(url)); var d=await r.json();
       if(!r.ok) throw new Error(d.detail||r.statusText);
       var f=d.fields||{}, fick=[];
-      if(f.pris){ $("o_pris").value=f.pris; fick.push("pris"); }
-      if(f.vardering){ $("o_vard").value=f.vardering; fick.push("värdering"); }
-      if(f.boarea){ $("o_boarea").value=f.boarea; fick.push("boarea"); }
-      if(f.driftkostnad){ $("o_drift").value=f.driftkostnad; $("o_driftunit").value="man"; setDriftMode("total", true); fick.push("driftkostnad"); }
-      if(f.pantbrev){ $("o_pantbrev").value=f.pantbrev; fick.push("pantbrev"); }
-      if(f.taxeringsvarde){ $("o_tax").value=f.taxeringsvarde; fick.push("taxeringsvärde"); }
-      if(f.uppvarmning){ $("d_varmeform").value=f.uppvarmning; fick.push("uppvärmning"); }
+      _fromAd={};
+      if(f.pris){ $("o_pris").value=f.pris; fick.push("pris"); _fromAd.o_pris=1; }
+      if(f.vardering){ $("o_vard").value=f.vardering; fick.push("värdering"); _fromAd.o_vard=1; }
+      if(f.boarea){ $("o_boarea").value=f.boarea; fick.push("boarea"); _fromAd.o_boarea=1; }
+      if(f.driftkostnad){ $("o_drift").value=f.driftkostnad; $("o_driftunit").value="man"; setDriftMode("total", true); fick.push("driftkostnad"); _fromAd.o_drift=1; }
+      if(f.pantbrev){ $("o_pantbrev").value=f.pantbrev; fick.push("pantbrev"); _fromAd.o_pantbrev=1; }
+      if(f.taxeringsvarde){ $("o_tax").value=f.taxeringsvarde; fick.push("taxeringsvärde"); _fromAd.o_tax=1; }
+      if(f.uppvarmning){ $("d_varmeform").value=f.uppvarmning; fick.push("uppvärmning"); _fromAd.d_varmeform=1; }
+      if(f.energiklass){ _energiklass=String(f.energiklass); fick.push("energiklass"); }
       if(f.adress){ _adress=f.adress; if(!$("o_namn").value) $("o_namn").value=f.adress; if(!$("c_home").value) $("c_home").value=f.adress; }
-      st.textContent=(_adress?_adress+" — ":"")+(fick.length?("hämtade "+fick.join(", ")+". Stämmer adressen? Kontrollera resten under Detaljerat."):"hittade inga fält - fyll i under Detaljerat.");
+      markFromAd();
+      st.textContent=(_adress?_adress+" — ":"")+(fick.length?("hämtade "+fick.join(", ")+". Fälten är märkta \"från annonsen\" - du behöver bara fylla i resten."):"hittade inga fält - fyll i under Detaljerat.");
       var utg=num("o_pris"); if(utg) setBud(utg);
       recompute();
     }catch(e){ st.textContent="Kunde inte hämta: "+e.message+". Fyll i under Detaljerat."; }
@@ -864,6 +894,10 @@
   // === Lyssnare + init ====================================================
   PROFIL_IDS.forEach(function(id){ $(id).addEventListener("input", recompute); });
   OBJ_IDS.forEach(function(id){ $(id).addEventListener("input", recompute); });
+  // Skriver användaren över ett hämtat värde är det inte längre "från annonsen".
+  OBJ_IDS.forEach(function(id){
+    $(id).addEventListener("input", function(){ if(_fromAd[id]){ delete _fromAd[id]; markFromAd(); } });
+  });
   $("o_driftunit").addEventListener("change", recompute);
   $("d_varmeform").addEventListener("change", function(){ updateVarmeRows(); recompute(); });
   ["d_tkarl","d_tfreq","d_tmat"].forEach(function(id){ $(id).addEventListener("change", recompute); });
