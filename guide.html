@@ -102,6 +102,9 @@
   .seg button.on{background:var(--green);color:#fff}
   .calcbtn{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
   .subhead{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--green);margin:16px 0 8px;padding-top:14px;border-top:1px dashed var(--line)}
+  .groupbox{border:1.5px solid var(--line);border-radius:12px;padding:16px 18px 4px;margin:4px 0 14px;background:var(--paper)}
+  .groupbox .grouptitle{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--green-dk);margin:0 0 4px}
+  .groupbox .groupsay{font-size:12.5px;color:var(--ink-soft);margin:0 0 14px}
   .subhead:first-of-type{border-top:0;padding-top:0;margin-top:0}
   .sumline{display:flex;justify-content:space-between;align-items:baseline;background:var(--green-soft);color:var(--green-dk);padding:9px 12px;border-radius:9px;margin-top:8px;font-size:13px}
   .sumline b{font-family:"Fraunces",serif;font-size:16px}
@@ -350,8 +353,13 @@
       <div class="field"><label>Antal som bidrar med inkomst</label><div class="seg" id="p_personer"><button type="button" class="on" data-n="1">1 person</button><button type="button" data-n="2">2 personer</button></div></div>
       <div class="field"><label for="p_netto">Nettoinkomst <span class="hint">(kr/mån)</span></label><input type="number" id="p_netto" inputmode="numeric" placeholder="t.ex. 48000"></div>
       <p class="hint" id="p_nettohint" style="margin:6px 0 10px"></p>
-      <div class="field"><label for="p_spar">Sparande <span class="hint">(kr)</span></label><input type="number" id="p_spar" inputmode="numeric" placeholder="t.ex. 600000"></div>
-      <p class="hint" style="margin:6px 0 10px">Allt sparat du kan tänka dig lägga in - det ska räcka till kontantinsats, ev. renovering och en buffert för oförutsedda utgifter. Räkna inte med pengar du behöver ha kvar för annat.</p>
+      <div class="groupbox">
+        <p class="grouptitle">Sparande &amp; buffert</p>
+        <p class="groupsay">Din sparpott ska räcka till tre saker: kontantinsats, ev. renovering - och en buffert som blir kvar efter det. Räkna inte med pengar du behöver ha kvar för annat.</p>
+        <div class="field"><label for="p_spar">Sparande <span class="hint">(kr, totalt)</span></label><input type="number" id="p_spar" inputmode="numeric" placeholder="t.ex. 600000"></div>
+        <div class="field"><label for="p_buffert">Minsta buffert du vill ha kvar <span class="hint">(kr, utöver kontantinsats och renovering)</span></label><input type="number" id="p_buffert" inputmode="numeric"></div>
+        <p class="hint" id="p_buffertHint" style="margin:6px 0 10px"></p>
+      </div>
       <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><button class="btn go" type="button" data-next>Se om du har råd →</button></div>
     </div>
   </section>
@@ -440,13 +448,13 @@
   function pct(n){ return (Math.round(n*10)/10).toLocaleString("sv-SE")+" %"; }
 
   // === Persistens =========================================================
-  var PROFIL_IDS=["p_brutto","p_netto","p_spar","p_ranta","p_stress","p_kontant","p_amortpct"];
+  var PROFIL_IDS=["p_brutto","p_netto","p_spar","p_ranta","p_stress","p_kontant","p_amortpct","p_buffert"];
   var OBJ_IDS=["o_url","o_pris","o_vard","o_drift","o_pendel","o_pantbrev","o_renov","o_namn","o_tax",
     "d_varmeform","d_varmebehov","d_varmeman","d_wpersons","d_wlpd","d_wfast","d_wprice","d_wgarden",
     "d_tgrund","d_tkarl","d_tfreq","d_tmat","d_el","d_fors","d_bredband","d_samf","d_underhall","d_ovrigt",
     "c_home","c_work","c_km","c_min","c_days","c_type","c_cons","c_price",
     "rb_3m","rb_1a","rb_3a","rb_5a","o_boarea"];
-  var _renovMode=null, _amortMode="auto", _nLantagare=2, _personer=1, _driftMode="total", revealed=0, _adress="";
+  var _renovMode=null, _amortMode="auto", _nLantagare=2, _personer=1, _driftMode="total", _buffertAuto=true, revealed=0, _adress="";
   function loadState(){
     var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
     PROFIL_IDS.forEach(function(id){ if(p[id]!=null) $(id).value=p[id]; });
@@ -544,10 +552,11 @@
   function lopandeMan(){ return driftMan()+num("o_pendel"); }
   function bedom(B){
     var amortOverride = _amortMode==="manual" ? num("p_amortpct")/100 : null;
+    var buffertOverride = _buffertAuto ? null : num("p_buffert");
     return KJKH_AFF.bedom({ B:B, brutto:num("p_brutto"), netto:num("p_netto"), spar:num("p_spar"),
       ranta:num("p_ranta")/100, stress:num("p_stress")/100, renov:num("o_renov"),
       pantBefintlig:num("o_pantbrev"), driftMan:lopandeMan(), kontantAndel:num("p_kontant")/100,
-      nLantagare:_nLantagare, amortOverride:amortOverride });
+      nLantagare:_nLantagare, amortOverride:amortOverride, bufferKravOverride:buffertOverride });
   }
   function priser(mult){ return KJKH_AFF.priser(num("o_pris"), num("o_vard"), mult); }
   function budFromSlider(){ var p=priser(3),t=num("s_bud")/100; return Math.round((p.min+t*(p.max-p.min))/25000)*25000; }
@@ -647,7 +656,7 @@
   }
 
   function recompute(){
-    updateVarmeRows(); updateDriftAuto(); updateDriftSum(); updateCommuteOut(); updateAmortRow(); updateNettoEst(); renderRes();
+    updateVarmeRows(); updateDriftAuto(); updateDriftSum(); updateCommuteOut(); updateAmortRow(); updateNettoEst(); updateBuffertEst(); renderRes();
     // Fakta-rutan på objekt-kortet
     var utg=num("o_pris"), fk=$("o_fakta");
     if(utg||_adress){ fk.className="fakta on";
@@ -672,8 +681,11 @@
     else if(r.band==="tight"){ big.textContent="Det är tight"; sub.textContent="Det går, men marginalen är tunn vid stressränta "+pct(r.stress*100)+"."; }
     else if(r.hardFail){ big.textContent="Nej"; sub.textContent="Kontanterna räcker inte: du behöver "+kr(r.kontantbehov)+" vid tillträde (utöver renoveringen)."; }
     else { big.textContent="Nej"; sub.textContent="Månadskostnaden blir för hög mot din nettoinkomst vid stressränta."; }
+    var bufferForklaring = _buffertAuto
+      ? "störst av "+kr(C.BUFFER_FAST)+" och "+pct(C.BUFFER_KNAPP*100)+" av kontantbehovet"
+      : "ditt egna angivna buffertkrav från kort 6";
     $("bandinfo").innerHTML =
-      "<b style='color:"+BAND_COLOR.ja+"'>● Grönt</b> = boendekostnad vid stressränta ("+pct(C.DEF_STRESS)+") är högst "+pct(C.BAND_JA*100)+" av nettoinkomsten, och kontantbufferten efter renovering är minst "+kr(r.bufferKrav)+" (störst av "+kr(C.BUFFER_FAST)+" och "+pct(C.BUFFER_KNAPP*100)+" av kontantbehovet).<br>"+
+      "<b style='color:"+BAND_COLOR.ja+"'>● Grönt</b> = boendekostnad vid stressränta ("+pct(C.DEF_STRESS)+") är högst "+pct(C.BAND_JA*100)+" av nettoinkomsten, och kontantbufferten efter renovering är minst "+kr(r.bufferKrav)+" ("+bufferForklaring+").<br>"+
       "<b style='color:"+BAND_COLOR.tight+"'>● Gult</b> = kvoten är över "+pct(C.BAND_JA*100)+" (men högst "+pct(C.BAND_TIGHT*100)+"), eller så är kontantbufferten under "+kr(r.bufferKrav)+".<br>"+
       "<b style='color:"+BAND_COLOR.nej+"'>● Rött</b> = kvoten är över "+pct(C.BAND_TIGHT*100)+", eller så räcker inte kontanterna vid tillträde.<br>"+
       "Tumreglar - mellan tumme och pekfinger, inte lånelöfte eller rådgivning.";
@@ -789,9 +801,20 @@
     document.querySelectorAll("#p_personer button").forEach(function(b){ b.classList.toggle("on", +b.dataset.n===_personer); });
     if(!silent){ updateNettoEst(); recompute(); }
   }
+  // Buffertkrav: störst av C.BUFFER_FAST och C.BUFFER_KNAPP av kontantbehovet. Uppskattas
+  // här utifrån utgångspriset (riktiga budet väljs först på kort 7) - fylls i tills man skriver eget.
+  function updateBuffertEst(){
+    if(!(num("o_pris")>0)){ $("p_buffertHint").textContent=""; return; }
+    var r=bedom(num("o_pris"));
+    if(_buffertAuto && document.activeElement!==$("p_buffert")) $("p_buffert").value=Math.round(r.bufferKrav);
+    $("p_buffertHint").textContent = _buffertAuto
+      ? "Automatiskt: störst av "+kr(C.BUFFER_FAST)+" och "+pct(C.BUFFER_KNAPP*100)+" av kontantbehovet - just nu "+kr(r.bufferKrav)+" utifrån utgångspriset (uppdateras när du väljer bud på kort 7). Skriv ett eget belopp om du vill bestämma själv."
+      : "Eget värde. Används som ditt buffertkrav oavsett vilket bud du väljer.";
+  }
   document.querySelectorAll("#p_personer button").forEach(function(b){ b.addEventListener("click", function(){ setPersoner(b.dataset.n); }); });
   document.querySelectorAll("#d_mode button").forEach(function(b){ b.addEventListener("click", function(){ setDriftMode(b.dataset.m); }); });
   $("p_netto").addEventListener("input", function(){ _nettoAuto = !(num("p_netto")>0); });
+  $("p_buffert").addEventListener("input", function(){ _buffertAuto = !(num("p_buffert")>0); });
 
   // === Spara objekt =======================================================
   $("o_save").addEventListener("click", function(){

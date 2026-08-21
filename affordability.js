@@ -195,8 +195,9 @@
     var bufferAndel = kontantbehov > 0 ? buffer / kontantbehov : 1;
     // Buffertkrav: störst av en fast kronsumma och en andel av kontantbehovet -
     // skyddar mot att en liten andel blir försumbar på ett dyrt hus, och att en fast
-    // kronsumma blir orimligt hög andel på ett billigt hus.
-    var bufferKrav = Math.max(C.BUFFER_FAST, C.BUFFER_KNAPP * kontantbehov);
+    // kronsumma blir orimligt hög andel på ett billigt hus. bufferKravOverride ersätter
+    // hela beräkningen om användaren själv angett hur stor buffert de vill ha.
+    var bufferKrav = i.bufferKravOverride != null ? i.bufferKravOverride : Math.max(C.BUFFER_FAST, C.BUFFER_KNAPP * kontantbehov);
     var band;
     if (hardFail || ratio > C.BAND_TIGHT) band = "nej";
     else if (ratio > C.BAND_JA || buffer < bufferKrav) band = "tight";
