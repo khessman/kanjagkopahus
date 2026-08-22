@@ -229,6 +229,9 @@
         <a href="jamfor.html">Jämför objekt</a>
         <hr>
         <p class="mlabel">Guider</p>
+        <a href="hur-mycket-lan-kan-jag-fa.html">Hur mycket lån kan jag få?</a>
+        <a href="kontantinsats.html">Kontantinsats</a>
+        <a href="amorteringskrav.html">Amorteringskrav</a>
         <a href="budgivning.html">Budgivning</a>
         <a href="lagfart-pantbrev.html">Lagfart &amp; pantbrev</a>
         <a href="besiktning.html">Besiktning</a>
@@ -793,7 +796,7 @@
       c("Månad ("+pct(r.ranta*100)+")",kr(r.boendeMan))+
       c("Månad (stress "+pct(r.stress*100)+")",kr(r.boendeStress))+
       c("Kvar att leva på",kr(r.kvarAttLeva),r.kvarAttLeva<0);
-    $("disc").textContent="Antaganden: kontantinsats "+pct(r.kontantAndel*100)+", lagfart 1,5 % + pantbrev 2 % på nya pantbrev, amortering enligt belåningsgrad och skuldkvot (eller egen nivå), ränteavdrag 30 % (21 % över "+kr(AVDRAG_TAK)+" ränta/år/person, "+_nLantagare+" låntagare). Renovering dras från kontanterna. Drift och pendling läggs på månadskostnaden. Grov modell.";
+    $("disc").textContent="Antaganden: kontantinsats "+pct(r.kontantAndel*100)+", lagfart 1,5 % + pantbrev 2 % på nya pantbrev, amortering enligt belåningsgrad (2 % över 70 %, 1 % vid 50-70 %; det skärpta skuldkvotskravet slopades 1 april 2026) eller egen nivå, ränteavdrag 30 % (21 % över "+kr(AVDRAG_TAK)+" ränta/år/person, "+_nLantagare+" låntagare). Renovering dras från kontanterna. Drift och pendling läggs på månadskostnaden. Grov modell.";
     saveState();
   }
 

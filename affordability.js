@@ -3,8 +3,11 @@
 // sidorna, så de aldrig kan driva isär.
 //
 // Svenska regler som modelleras:
-//  - Bolånetak: max 85 % belåning => minst 15 % kontantinsats.
-//  - Amorteringskrav: >70 % belåning => 2 %/år; + skuldkvot >4,5x => +1 %/år.
+//  - Bolånetak: max 90 % belåning => minst 10 % kontantinsats (from 1 apr 2026).
+//  - Amorteringskrav: >70 % belåning => 2 %/år, 50-70 % => 1 %/år. Det skärpta
+//    kravet (+1 % vid skuldkvot över 4,5x) slopades 1 april 2026 och räknas
+//    inte längre in. Skuldkvoten beräknas ändå - bankerna väger in den i sin
+//    egen kvar-att-leva-på-kalkyl.
 //  - Köpkostnader vid tillträde: lagfart 1,5 % + 825 kr, pantbrev 2 % på NYA
 //    pantbrev (lån − befintliga pantbrev) + 375 kr.
 //  - Ränteavdrag: 30 % upp till 100 000 kr ränta/år, 21 % däröver.
@@ -17,8 +20,7 @@
     KONTANT_MIN: 0.10,      // lägsta tillåtna kontantinsats (bolånetak from 2026: 90 %)
     AMORT_HOG: 0.02,        // belåningsgrad > 70 % => 2 %/år
     AMORT_MELLAN: 0.01,     // belåningsgrad 50–70 % => 1 %/år
-    AMORT_SKULD: 0.01,      // + lån > 4,5x bruttoårsinkomst => +1 %/år
-    SKULD_GRANS: 4.5,
+    SKULD_GRANS: 4.5,       // ingen lagstadgad effekt längre, men banker tittar på den
     RANTEAVDRAG: 0.30,      // upp till AVDRAG_TAK ränta/år
     RANTEAVDRAG2: 0.21,     // däröver
     AVDRAG_TAK: 100000,
@@ -179,11 +181,11 @@
     var bruttoAr = i.brutto * 12;
     var skuldkvot = bruttoAr > 0 ? lan / bruttoAr : 99;
     var nLantagare = i.nLantagare || 2;
-    // Amorteringskrav: >70 % => 2 %, 50–70 % => 1 %, <=50 % => 0 %; + skuldkvot >4,5 => +1 %.
-    // Egen nivå (amortOverride) ersätter hela beräkningen, inkl. skuldkvot-tillägget.
+    // Amorteringskrav: >70 % => 2 %, 50–70 % => 1 %, <=50 % => 0 %.
+    // Egen nivå (amortOverride) ersätter beräkningen.
     var amort;
     if (i.amortOverride != null) { amort = i.amortOverride; }
-    else { amort = amortRate(belaning) + (skuldkvot > C.SKULD_GRANS ? C.AMORT_SKULD : 0); }
+    else { amort = amortRate(belaning); }
     var amortMan = lan * amort / 12;
     var boendeMan    = ranteManad(lan, ranta, nLantagare)  + amortMan + dMan;
     var boendeStress = ranteManad(lan, stress, nLantagare) + amortMan + dMan;

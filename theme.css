@@ -260,6 +260,12 @@ button.tool.primary:hover,a.tool.primary:hover{background:var(--green-dk);color:
 .menupanel a:hover{background:var(--green-soft);color:var(--green-dk)}
 .menupanel hr{border:0;border-top:1px solid var(--line);margin:6px 4px}
 
+/* liten uppställning av poster med summa till höger, används i guiderna */
+.example{background:var(--fill);border:0;border-radius:var(--radius-sm);padding:8px 18px;margin:18px 0;font-size:14.5px}
+.example .row{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid var(--line)}
+.example .row:last-child{border-bottom:0;font-weight:700;color:var(--green-dk)}
+.example .row span:last-child{white-space:nowrap;font-weight:600}
+
 /* ---- annonsplatser ---- */
 .adzone{display:none;max-width:728px;margin:22px auto;text-align:center}
 .adzone .adlbl{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.09em;
