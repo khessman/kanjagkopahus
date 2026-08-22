@@ -26,6 +26,7 @@
   --red-soft:#F7E4E1;
   /* form */
   /* bakgrundsmönstret – egna färger, inte accentfärgerna */
+  --bg-amp:1;               /* rörelsens utslag, skruvas upp på smal skärm */
   --bg-c1:#0F6B57;          /* grönt, främre lagret */
   --bg-c2:#B08A2E;          /* varm sand, främre lagret */
   --bg-c3:#8FB9AC;          /* svalt grönt dis, bortre lagret */
@@ -141,16 +142,16 @@ body::after{
    samma parallax som ger djupet i mönstret. */
 @keyframes drift-far{
   0%  {transform:translate3d(0,0,0) scale(1)}
-  30% {transform:translate3d(3.4%,-2.6%,0) scale(1.05)}
-  65% {transform:translate3d(-2.2%,2.8%,0) scale(1.02)}
-  100%{transform:translate3d(-4%,-1.6%,0) scale(1.07)}
+  30% {transform:translate3d(calc(3.4% * var(--bg-amp)),calc(-2.6% * var(--bg-amp)),0) scale(1.05)}
+  65% {transform:translate3d(calc(-2.2% * var(--bg-amp)),calc(2.8% * var(--bg-amp)),0) scale(1.02)}
+  100%{transform:translate3d(calc(-4% * var(--bg-amp)),calc(-1.6% * var(--bg-amp)),0) scale(1.07)}
 }
 @keyframes drift-near{
   0%  {transform:translate3d(0,0,0) scale(1)}
-  28% {transform:translate3d(-7.5%,-4%,0) scale(1.1)}
-  55% {transform:translate3d(4%,5.5%,0) scale(1.04)}
-  80% {transform:translate3d(8.5%,-2%,0) scale(1.13)}
-  100%{transform:translate3d(-3%,3.5%,0) scale(1.06)}
+  28% {transform:translate3d(calc(-7.5% * var(--bg-amp)),calc(-4% * var(--bg-amp)),0) scale(1.1)}
+  55% {transform:translate3d(calc(4% * var(--bg-amp)),calc(5.5% * var(--bg-amp)),0) scale(1.04)}
+  80% {transform:translate3d(calc(8.5% * var(--bg-amp)),calc(-2% * var(--bg-amp)),0) scale(1.13)}
+  100%{transform:translate3d(calc(-3% * var(--bg-amp)),calc(3.5% * var(--bg-amp)),0) scale(1.06)}
 }
 /* Andningen: mönstret tonar sakta upp och ner, ur fas med driften. */
 @keyframes breathe-far{
@@ -164,6 +165,9 @@ body::after{
 /* Smal skärm: masken skalas efter höjden i stället, annars blir varje
    cirkel större än telefonen och mönstret läses som en jämn tonplatta. */
 @media(max-width:640px){
+  /* På telefon täcker korten det mesta av rutan, så mönstret behöver
+     både större utslag och mer styrka för att märkas i kanterna. */
+  :root{--bg-amp:1.9;--bg-opacity-far:.42;--bg-opacity-near:.62}
   body::before{-webkit-mask-size:190% auto;mask-size:190% auto}
   body::after{-webkit-mask-size:230% auto;mask-size:230% auto}
 }
