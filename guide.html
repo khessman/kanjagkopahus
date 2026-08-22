@@ -7,58 +7,53 @@
 <meta name="description" content="Klistra in en Booli- eller Hemnet-länk, eller fyll i siffrorna själv, och bli guidad steg för steg: objektet, driftkostnad, renovering, din ekonomi - och se direkt om du har råd.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--gold:#9a7b22;--gold-soft:#f3ecd4}
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  body{margin:0;background:transparent;color:var(--ink);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:900px;margin:0 auto;padding:32px 20px 90px}
   a{color:var(--green)}
   @view-transition{navigation:auto}
   .topbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;view-transition-name:sitehead}
-  .topbar a.logo{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:#fff;background:var(--green);border:0;border-radius:32px;padding:20px 34px 20px 26px;box-shadow:0 6px 20px -8px rgba(18,64,42,.6);transition:.15s}
-  .topbar a.logo:hover{background:var(--green-dk)}
-  .logo svg{flex:none;width:34px;height:34px}
-  .logo .lname{font-family:"Fraunces",serif;font-weight:600;font-size:28px;letter-spacing:-.01em;line-height:1}
-  .logo .lname b{color:#a6e6bd;font-weight:600}
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  button.tool,a.tool{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--paper-2);color:var(--ink);border:1.5px solid var(--line);padding:9px 14px;border-radius:10px;transition:.15s;text-decoration:none;display:inline-block}
+  button.tool,a.tool{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--fill);color:var(--ink);border:1.5px solid var(--line);padding:9px 14px;border-radius:10px;transition:.15s;text-decoration:none;display:inline-block}
   button.tool:hover,a.tool:hover{border-color:var(--ink);transform:translateY(-1px)}
   .menu{position:relative}
-  .menu summary{list-style:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:var(--paper-2);border:1.5px solid var(--line);border-radius:10px;padding:9px 14px;color:var(--ink);white-space:nowrap;transition:.15s}
+  .menu summary{list-style:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:var(--fill);border:1.5px solid var(--line);border-radius:10px;padding:9px 14px;color:var(--ink);white-space:nowrap;transition:.15s}
   .menu summary:hover{border-color:var(--ink);transform:translateY(-1px)}
   .menu summary::-webkit-details-marker{display:none}
   .menu[open] summary{border-color:var(--ink)}
-  .menupanel{position:absolute;right:0;top:calc(100% + 6px);background:var(--paper-2);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px -12px rgba(28,37,32,.25);padding:10px;min-width:220px;z-index:10}
+  .menupanel{position:absolute;right:0;top:calc(100% + 6px);background:var(--paper-2);border:0;border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:10px;min-width:220px;z-index:10}
   .menupanel .mlabel{font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--ink-soft);opacity:.7;padding:8px 8px 2px}
   .menupanel a{display:block;font-size:13px;font-weight:500;text-decoration:none;color:var(--ink);padding:7px 8px;border-radius:7px}
   .menupanel a:hover{background:var(--green-soft);color:var(--green-dk)}
   .menupanel hr{border:0;border-top:1px solid var(--line);margin:6px 2px}
-  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(24px,5vw,34px);letter-spacing:-.01em;margin:0 0 4px;line-height:1.1}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(24px,5vw,34px);letter-spacing:-.01em;margin:0 0 4px;line-height:1.1}
   .lead{color:var(--ink-soft);font-size:15px;margin:0 0 24px;max-width:60ch}
   /* Kort */
-  .card{display:flex;gap:22px;width:894px;max-width:100%;margin:0 auto 18px;background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:24px 26px;box-shadow:0 8px 24px -12px rgba(28,37,32,.18)}
+  .card{display:flex;gap:22px;width:894px;max-width:100%;margin:0 auto 18px;background:var(--paper-2);border:0;border-radius:16px;padding:24px 26px;box-shadow:var(--shadow)}
   .card.hidden{display:none}
   .card.on{animation:fade .28s ease}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   .cardmain{flex:1 1 520px;max-width:520px;min-width:0}
   .carddetail{flex:0 0 300px;display:block;border-left:1px solid var(--line);padding-left:22px}
   .chead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:4px}
-  .chead h2{font-family:"Fraunces",serif;font-weight:600;font-size:21px;margin:0}
+  .chead h2{font-family:var(--display);font-weight:700;font-size:21px;margin:0}
   .say{color:var(--ink-soft);font-size:13.5px;margin:0 0 16px;max-width:48ch}
   .dhead{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--ink-soft);margin:0 0 12px}
   .field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
   .field:last-child{margin-bottom:0}
   .field label{font-size:12.5px;font-weight:600;color:var(--ink-soft)}
   .field .hint{font-size:11px;color:var(--ink-soft);font-weight:400}
-  input[type=text],input[type=number],input[type=url],select{font-family:inherit;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%}
+  input[type=text],input[type=number],input[type=url],select{font-family:inherit;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--fill);color:var(--ink);width:100%}
   input:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .row2{display:flex;gap:10px}.row2 .field{flex:1;margin:0}.row2 .unit{width:100px;flex:none}
   .linkrow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:6px}
   .linkrow .field{flex:1;min-width:170px;margin:0}
   .btn{font-family:inherit;font-weight:700;cursor:pointer;border:0;border-radius:11px;transition:.15s}
-  .btn.go{font-size:15px;background:var(--green);color:#fff;padding:12px 22px}
+  .btn.go{font-size:15px;background:var(--green);color:var(--on-accent);padding:12px 22px}
   .btn.go:hover{background:var(--green-dk);transform:translateY(-1px)}
   .btn.go.sm{font-size:14px;padding:11px 18px}
   .btn.ghost{font-size:13.5px;font-weight:600;background:var(--paper-2);border:1.5px solid var(--line);color:var(--ink);padding:10px 15px}
@@ -73,7 +68,7 @@
   .antyder{display:flex;flex-direction:column;gap:9px;margin-top:6px}
   .antyder .it{border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:10px 13px;background:var(--paper)}
   .antyder .it.sak{border-left-color:var(--ink-soft)}
-  .antyder .cit{font-family:"Fraunces",serif;font-style:italic;font-size:13.5px;color:var(--gold);margin-bottom:3px}
+  .antyder .cit{font-family:var(--display);font-style:italic;font-size:13.5px;color:var(--gold);margin-bottom:3px}
   .antyder .it.sak .cit{color:var(--ink);font-style:normal;font-weight:600}
   .antyder .bet{font-size:13px;color:var(--ink)}
   .antyder .styrka{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin-left:6px}
@@ -83,42 +78,42 @@
   .adisc{margin-top:12px;font-size:11.5px;color:var(--ink-soft);line-height:1.6}
   .pastebox{display:none;margin-top:10px;padding:14px 16px;border:1.5px dashed var(--line);border-radius:12px;background:var(--paper)}
   .pastebox.on{display:block}
-  .pastebox textarea{font-family:inherit;font-size:14px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%;resize:vertical}
+  .pastebox textarea{font-family:inherit;font-size:14px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--fill);color:var(--ink);width:100%;resize:vertical}
   .pastebox textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
   .cfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:20px}
   .backlink{font-size:13px;font-weight:600;color:var(--ink-soft);background:none;border:0;cursor:pointer;font-family:inherit}
   .backlink:hover{color:var(--ink)}
   /* Val-knappar (renovering) */
   .picks{display:flex;flex-direction:column;gap:9px}
-  .pickbtn{text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:13px 15px;cursor:pointer;font-family:inherit;transition:.15s}
+  .pickbtn{text-align:left;background:var(--fill);border:1.5px solid var(--line);border-radius:11px;padding:13px 15px;cursor:pointer;font-family:inherit;transition:.15s}
   .pickbtn:hover{border-color:var(--green)}
   .pickbtn.sel{border-color:var(--green);background:var(--green-soft)}
   .pickbtn b{display:block;font-size:14.5px;margin-bottom:2px}
   .pickbtn span{font-size:12px;color:var(--ink-soft)}
   /* Verdict + slider */
   .verdict{border-radius:14px;padding:20px 22px;text-align:center;margin-bottom:18px}
-  .verdict .big{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,7vw,42px);line-height:1}
+  .verdict .big{font-family:var(--display);font-weight:700;font-size:clamp(28px,7vw,42px);line-height:1}
   .verdict .vsub{font-size:13.5px;margin-top:7px;opacity:.9}
   .verdict.ja{background:var(--green-soft);color:var(--green-dk);border:1px solid var(--green)}
   .verdict.tight{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold)}
   .verdict.nej{background:var(--terra-soft);color:var(--terra);border:1px solid var(--terra)}
   .budline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:10px}
   .budline .k{font-size:13px;color:var(--ink-soft)}
-  .budline .v{font-family:"Fraunces",serif;font-weight:600;font-size:24px}
-  input.budinput{font-family:"Fraunces",serif;font-weight:600;font-size:24px;text-align:right;border:1.5px solid transparent;background:transparent;padding:2px 6px;border-radius:8px;width:170px;color:var(--ink)}
+  .budline .v{font-family:var(--display);font-weight:700;font-size:24px}
+  input.budinput{font-family:var(--display);font-weight:700;font-size:24px;text-align:right;border:1.5px solid transparent;background:transparent;padding:2px 6px;border-radius:8px;width:170px;color:var(--ink)}
   input.budinput:hover{border-color:var(--line)}
-  input.budinput:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 2px var(--green-soft)}
+  input.budinput:focus{outline:none;border-color:var(--green);background:var(--fill);box-shadow:0 0 0 2px var(--green-soft)}
   .budtrack{position:relative;padding-top:5px}
   .budtrack .grad{position:absolute;left:0;right:0;top:16px;height:6px;border-radius:4px;pointer-events:none}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;position:relative;z-index:1;margin:0}
   input[type=range]::-webkit-slider-runnable-track{height:6px;background:transparent;border-radius:4px}
   input[type=range]::-moz-range-track{height:6px;background:transparent;border-radius:4px}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--ink);margin-top:-7px;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer}
-  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--fill);border:3px solid var(--ink);margin-top:-7px;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--fill);border:3px solid var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer}
   .field.picks2{display:flex;flex-direction:row;gap:8px}
-  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
+  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--paper-2)}
   .seg button{font-family:inherit;font-size:12.5px;font-weight:600;padding:9px 13px;border:0;background:transparent;color:var(--ink-soft);cursor:pointer;flex:1}
-  .seg button.on{background:var(--green);color:#fff}
+  .seg button.on{background:var(--green);color:var(--on-accent)}
   .calcbtn{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 10px}
   .subhead{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--green);margin:16px 0 8px;padding-top:14px;border-top:1px dashed var(--line)}
   .groupbox{border:1.5px solid var(--line);border-radius:12px;padding:16px 18px 4px;margin:4px 0 14px;background:var(--paper)}
@@ -126,7 +121,7 @@
   .groupbox .groupsay{font-size:12.5px;color:var(--ink-soft);margin:0 0 14px}
   .subhead:first-of-type{border-top:0;padding-top:0;margin-top:0}
   .sumline{display:flex;justify-content:space-between;align-items:baseline;background:var(--green-soft);color:var(--green-dk);padding:9px 12px;border-radius:9px;margin-top:8px;font-size:13px}
-  .sumline b{font-family:"Fraunces",serif;font-size:16px}
+  .sumline b{font-family:var(--display);font-size:16px}
   .marks{position:relative;height:32px;margin-top:2px;font-size:11px;color:var(--ink-soft)}
   .marks .mk{position:absolute;transform:translateX(-50%);text-align:center;white-space:nowrap}
   .marks .mk .tick{display:block;width:1.5px;height:8px;background:var(--ink-soft);margin:0 auto 3px;opacity:.5}
@@ -138,12 +133,12 @@
   .brk .c .v.neg{color:var(--terra)}
   .disc{margin-top:14px;font-size:11.5px;color:var(--ink-soft);line-height:1.6}
   /* Kort 8 · resultat i detalj */
-  .reshero{background:var(--green);color:#fff;border-radius:14px;padding:22px 24px;margin:6px 0 14px}
+  .reshero{background:var(--green);color:var(--on-accent);border-radius:14px;padding:22px 24px;margin:6px 0 14px}
   .reshero .reslbl{font-size:13px;opacity:.8}
-  .reshero .resbig{font-family:"Fraunces",serif;font-size:clamp(30px,6vw,46px);font-weight:600;line-height:1;margin:4px 0 2px;letter-spacing:-.02em}
+  .reshero .resbig{font-family:var(--display);font-size:clamp(30px,6vw,46px);font-weight:700;line-height:1;margin:4px 0 2px;letter-spacing:-.02em}
   .reshero .resbig span{font-size:.42em;font-weight:500;opacity:.75;margin-left:4px}
   .reshero .resnote{font-size:12.5px;opacity:.85;margin-top:6px}
-  .resrows{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:8px}
+  .resrows{background:var(--paper-2);border:0;border-radius:var(--radius);overflow:hidden;margin-bottom:8px}
   .resrows .rr{display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px}
   .resrows .rr:last-child{border-bottom:0}
   .resrows .rr .k{color:var(--ink-soft)}
@@ -163,7 +158,7 @@
   @media(max-width:600px){.bindrow{grid-template-columns:1fr 1fr}}
   .crosslink{margin:14px 0 0;padding:12px 16px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--terra);border-radius:12px;transition:.15s}
   .crosslink:hover{border-color:var(--terra)}
-  .crosslink .psst{font-family:"Fraunces",serif;font-style:italic;font-size:14px;color:var(--terra);font-weight:600}
+  .crosslink .psst{font-family:var(--display);font-style:italic;font-size:14px;color:var(--terra);font-weight:600}
   .crosslink a{color:var(--green);font-weight:600;text-decoration:none;border-bottom:1.5px solid var(--green-soft)}
   .crosslink a:hover{border-bottom-color:var(--green)}
   .footdisc{margin-top:20px;font-size:12.5px;color:var(--ink-soft);text-align:center}
@@ -177,14 +172,14 @@
     .bindrow{grid-template-columns:1fr 1fr}
     input.budinput{width:130px;font-size:20px}
   }
-  @media print{body{background:#fff}.toolbar,.menu,.footdisc{display:none}.card{box-shadow:none;break-inside:avoid}}
+  @media print{body{background:var(--paper-2)}.toolbar,.menu,.footdisc{display:none}.card{box-shadow:none;break-inside:avoid}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
     <a class="logo" href="index.html">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span class="lmark"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span>
       <span class="lname">kanjag<b>köpahus</b>.se</span>
     </a>
     <div class="toolbar">
@@ -482,7 +477,9 @@
   var ROUTE_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/route";
   var C = KJKH_AFF.C, AVDRAG_TAK = C.AVDRAG_TAK;
   var DEF_RANTA = C.DEF_RANTA, DEF_STRESS = C.DEF_STRESS, DEF_KONTANT = C.DEF_KONTANT * 100;
-  var BAND_COLOR = { ja:"#1f5c3d", tight:"#9a7b22", nej:"#b4561f" };
+  var CSS = getComputedStyle(document.documentElement);
+  var tok = function(n){ return CSS.getPropertyValue(n).trim(); };
+  var BAND_COLOR = { ja:tok("--green"), tight:tok("--gold"), nej:tok("--terra") };
 
   function $(id){ return document.getElementById(id); }
   function num(el){ var v=(typeof el==="string"?$(el):el); if(!v) return 0; var n=parseFloat(String(v.value).replace(/\s/g,"").replace(",",".")); return isFinite(n)?n:0; }

@@ -6,34 +6,32 @@
 <title>Renoveringsanalys - kanjagköpahus.se</title>
 <meta name="description" content="Ladda upp besiktning, energirapport, energideklaration och frågelista. Få en saklig överslagskalkyl över åtgärder och grova kostnader."><link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--gold:#9a7b22}
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  body{margin:0;background:transparent;color:var(--ink);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:820px;margin:0 auto;padding:40px 20px 80px}
   a{color:var(--green)}
-  .back{display:inline-block;margin-bottom:22px;font-size:14px;font-weight:600;text-decoration:none}
-  .back:hover{text-decoration:underline}
   .titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,5vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05}
-  .beta{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:var(--terra);padding:5px 11px;border-radius:20px;white-space:nowrap}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05}
+  .beta{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--on-accent);background:var(--terra);padding:5px 11px;border-radius:20px;white-space:nowrap}
   .lead{color:var(--ink-soft);font-size:15px;margin:10px 0 0;max-width:60ch}
   .betanote{background:var(--terra-soft);border-left:4px solid var(--terra);border-radius:10px;padding:13px 17px;margin:20px 0 26px;font-size:13.5px}
   .betanote b{display:block;margin-bottom:3px}
-  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:24px 26px;box-shadow:0 8px 24px -12px rgba(28,37,32,.18);margin-bottom:22px}
-  .card h2{font-family:"Fraunces",serif;font-weight:600;font-size:20px;margin:0 0 4px}
+  .card{background:var(--paper-2);border:0;border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-bottom:22px}
+  .card h2{font-family:var(--display);font-weight:700;font-size:20px;margin:0 0 4px}
   .card .sub{color:var(--ink-soft);font-size:13px;margin:0 0 16px}
-  .drop{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px dashed var(--line);border-radius:11px;background:#fff;margin-bottom:12px;transition:.15s}
+  .drop{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px dashed var(--line);border-radius:11px;background:var(--fill);margin-bottom:12px;transition:.15s}
   .drop:last-of-type{margin-bottom:0}
   .drop.filled{border-style:solid;border-color:var(--green);background:var(--green-soft)}
   .drop .meta{flex:1;min-width:0}
   .drop .meta .nm{font-weight:600;font-size:14.5px}
   .drop .meta .st{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .drop .pick{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--paper-2);border:1.5px solid var(--line);color:var(--ink);padding:8px 13px;border-radius:9px;transition:.15s;white-space:nowrap}
+  .drop .pick{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--fill);border:1.5px solid var(--line);color:var(--ink);padding:8px 13px;border-radius:9px;transition:.15s;white-space:nowrap}
   .drop .pick:hover{border-color:var(--ink)}
   .actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:6px}
-  .go{font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;background:var(--green);color:#fff;border:0;padding:13px 26px;border-radius:11px;transition:.15s}
+  .go{font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;background:var(--green);color:var(--on-accent);border:0;padding:13px 26px;border-radius:11px;transition:.15s}
   .go:hover:not(:disabled){background:var(--green-dk);transform:translateY(-1px)}
   .go:disabled{opacity:.5;cursor:not-allowed}
   .status{font-size:13.5px;color:var(--ink-soft)}
@@ -42,10 +40,10 @@
   @keyframes sp{to{transform:rotate(360deg)}}
   #result{display:none}
   .kallor{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-  .kpill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--ink-soft)}
+  .kpill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:20px;border:1px solid var(--line);background:var(--paper-2);color:var(--ink-soft)}
   .kpill.on{background:var(--green-soft);border-color:var(--green);color:var(--green-dk)}
   .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:20px}
-  .facts .f{background:var(--paper-2);padding:11px 14px}
+  .facts .f{background:var(--fill);padding:11px 14px}
   .facts .f .fl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:600}
   .facts .f .fv{font-size:16px;font-weight:600;margin-top:2px}
   table.at{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -57,31 +55,31 @@
   table.at .desc{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
   .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;white-space:nowrap}
   .tag.akut{background:var(--terra-soft);color:var(--terra)}
-  .tag.inom_nagra_ar{background:#f3ecd4;color:var(--gold)}
+  .tag.inom_nagra_ar{background:var(--gold-soft);color:var(--gold)}
   .tag.pa_sikt{background:var(--green-soft);color:var(--green-dk)}
-  .tag.na{background:#eee;color:var(--ink-soft)}
+  .tag.na{background:var(--fill);color:var(--ink-soft)}
   .sak{font-size:11px;color:var(--ink-soft)}
-  .kostinp{width:112px;text-align:right;font-family:inherit;font-weight:600;font-size:13.5px;border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff;color:var(--ink)}
+  .kostinp{width:112px;text-align:right;font-family:inherit;font-weight:600;font-size:13.5px;border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--fill);color:var(--ink)}
   .kostinp:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
   .kostinp.egen{border-color:var(--green);background:var(--green-soft)}
   .schab{font-size:10.5px;color:var(--ink-soft);margin-top:3px;white-space:nowrap}
-  .sumbar{display:flex;justify-content:space-between;align-items:baseline;background:var(--green);color:#fff;padding:16px 20px;border-radius:12px;margin-top:20px;gap:14px;flex-wrap:wrap}
+  .sumbar{display:flex;justify-content:space-between;align-items:baseline;background:var(--green);color:var(--on-accent);padding:16px 20px;border-radius:12px;margin-top:20px;gap:14px;flex-wrap:wrap}
   .sumbar .k{font-size:13px;opacity:.85}
-  .sumbar .v{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(22px,4vw,30px)}
+  .sumbar .v{font-family:var(--display);font-weight:700;font-size:clamp(22px,4vw,30px)}
   .disc{margin-top:22px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
   .footdisc{margin-top:30px;font-size:12.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:16px}
-  .histrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:8px;transition:.15s}
+  .histrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--fill);margin-bottom:8px;transition:.15s}
   .histrow:last-child{margin-bottom:0}
   .histrow:hover{border-color:var(--green)}
   .histrow .hmeta{min-width:0;flex:1}
   .histrow .hnamn{font-weight:600;font-size:14px;font-family:inherit;border:1px solid transparent;border-radius:7px;padding:4px 7px;margin:-4px 0 0 -7px;width:100%;max-width:340px;background:transparent;color:var(--ink)}
   .histrow .hnamn:hover{border-color:var(--line)}
-  .histrow .hnamn:focus{outline:none;border-color:var(--green);background:#fff}
+  .histrow .hnamn:focus{outline:none;border-color:var(--green);background:var(--paper-2)}
   .histrow .hs{font-size:12px;color:var(--ink-soft);margin-top:1px;padding-left:1px}
   .histrow .hbtns{flex:none;display:flex;gap:6px;align-items:center}
-  .histrow .hopen{font-size:12.5px;font-weight:700;color:#fff;background:var(--green);border:0;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
+  .histrow .hopen{font-size:12.5px;font-weight:700;color:var(--on-accent);background:var(--green);border:0;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
   .histrow .hopen:hover{background:var(--green-dk)}
-  .histrow .hdel{font-size:16px;line-height:1;color:var(--ink-soft);background:var(--paper-2);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;transition:.15s}
+  .histrow .hdel{font-size:16px;line-height:1;color:var(--ink-soft);background:var(--fill);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;transition:.15s}
   .histrow .hdel:hover{border-color:var(--terra);color:var(--terra)}
   @media(max-width:600px){.wrap{padding:28px 14px 60px}.card{padding:18px 16px}.drop{flex-wrap:wrap}table.at .hidesm{display:none}}
 </style>
@@ -109,7 +107,7 @@
     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px">
       <div style="flex:1;min-width:200px">
         <label for="booliDocUrl" style="font-size:12.5px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:5px">Booli- eller Hemnet-länk <span style="font-weight:400">- hämta dokument automatiskt från mäklaren (best-effort)</span></label>
-        <input type="url" id="booliDocUrl" placeholder="https://www.booli.se/... eller https://www.hemnet.se/..." style="font-family:inherit;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%">
+        <input type="url" id="booliDocUrl" placeholder="https://www.booli.se/... eller https://www.hemnet.se/..." style="font-family:inherit;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--fill);color:var(--ink);width:100%">
       </div>
       <button class="go" type="button" id="booliDocBtn" style="padding:11px 20px;font-size:14px">Hämta dokument</button>
     </div>
@@ -150,7 +148,7 @@
     <h2>Fyll i själv</h2>
     <p class="sub">Bygg listan manuellt gratis. Välj åtgärd så fylls en grov schablon i, eller välj "Annat" och skriv eget pris. Priset per rad kan du alltid ändra i resultatet nedan. Summan sparas i din webbläsare.</p>
     <div class="actions" style="margin-top:0">
-      <select id="manualCat" style="font-family:inherit;font-size:14px;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper-2);color:var(--ink);flex:1;min-width:180px"></select>
+      <select id="manualCat" style="font-family:inherit;font-size:14px;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--fill);color:var(--ink);flex:1;min-width:180px"></select>
       <button class="go" type="button" id="manualAdd" style="padding:11px 20px;font-size:14px">Lägg till</button>
     </div>
     <div id="manualList" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>

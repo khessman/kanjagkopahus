@@ -7,35 +7,33 @@
 <meta name="description" content="Jämför bostäder du sparat i kalkylatorn sida vid sida: pris, lån, månadskostnad, renoveringsbehov och skillnad mot ditt nuvarande boende.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
 <style>
-  :root{--paper:#f5f2ea;--paper-2:#fbf9f4;--ink:#1c2520;--ink-soft:#5a655d;--line:#dcd6c8;--green:#1f5c3d;--green-dk:#12402a;--green-soft:#e7efe7;--terra:#b4561f;--terra-soft:#f6e6da;--shadow:0 1px 2px rgba(28,37,32,.05),0 8px 24px -12px rgba(28,37,32,.18)}
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%, #efeadd 0%, transparent 60%),var(--paper);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  body{margin:0;background:transparent;color:var(--ink);font-family:var(--body);line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px}
   a{color:var(--green)}
-  .back{display:inline-block;margin-bottom:22px;font-size:14px;font-weight:600;text-decoration:none}
-  .back:hover{text-decoration:underline}
-  h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(28px,5vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05}
+  h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,40px);letter-spacing:-.01em;margin:0;line-height:1.05}
   .lead{color:var(--ink-soft);font-size:15px;margin:10px 0 22px;max-width:62ch}
-  .card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:22px}
+  .card{background:var(--paper-2);border:0;border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:22px}
   .picklbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--ink-soft);margin:0 0 10px}
   .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;padding:7px 13px;cursor:pointer;transition:.15s}
-  .chip.on{background:var(--green);color:#fff;border-color:var(--green)}
+  .chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;border:1.5px solid var(--line);background:var(--fill);color:var(--ink);border-radius:20px;padding:7px 13px;cursor:pointer;transition:.15s}
+  .chip.on{background:var(--green);color:var(--on-accent);border-color:var(--green)}
   .chip .x{opacity:.6;font-weight:700}
   .empty{color:var(--ink-soft);font-size:14.5px}
   .cmpwrap{overflow-x:auto}
   table.cmp{width:100%;border-collapse:collapse;font-size:14px;min-width:420px}
   table.cmp th,table.cmp td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
   table.cmp th:first-child,table.cmp td:first-child{text-align:left;color:var(--ink-soft);font-weight:500;white-space:normal}
-  table.cmp thead th{font-family:"Fraunces",serif;font-weight:600;font-size:15px;color:var(--ink);border-bottom:2px solid var(--line)}
+  table.cmp thead th{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink);border-bottom:2px solid var(--line)}
   table.cmp tr:last-child td{border-bottom:0}
   table.cmp td.best{color:var(--green-dk);font-weight:700;background:var(--green-soft)}
   table.cmp td.val{font-weight:600;font-feature-settings:"tnum" 1}
   table.cmp td.band{font-weight:700}
   table.cmp td.band.ja{color:var(--green-dk);background:var(--green-soft)}
-  table.cmp td.band.tight{color:#9a7b22;background:#f3ecd4}
+  table.cmp td.band.tight{color:var(--gold);background:var(--gold-soft)}
   table.cmp td.band.nej{color:var(--terra);background:var(--terra-soft)}
   .disc{margin-top:20px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
   @media(max-width:600px){.wrap{padding:28px 14px 60px}}
