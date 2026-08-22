@@ -3,7 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Husbudget - köp & löpande kostnader</title>
+<title>Huskalkylator - räkna ut husets månadskostnad - kanjagköpahus.se</title>
+<meta name="description" content="Räkna ut vad huset kostar i månaden: lån, ränta efter avdrag, amortering, uppvärmning, drift och pendling. Plus prisanalys mot sålda objekt och renoveringsbehov.">
+<link rel="canonical" href="https://xn--kanjagkpahus-bjb.se/kalkylator.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="sv_SE">
+<meta property="og:site_name" content="kanjagköpahus.se">
+<meta property="og:url" content="https://xn--kanjagkpahus-bjb.se/kalkylator.html">
+<meta property="og:title" content="Huskalkylator - räkna ut husets månadskostnad">
+<meta property="og:description" content="Räkna ut vad huset kostar i månaden: lån, ränta efter avdrag, amortering, uppvärmning, drift och pendling. Plus prisanalys mot sålda objekt och renoveringsbehov.">
+<meta property="og:image" content="https://xn--kanjagkpahus-bjb.se/og-bild.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -209,6 +221,27 @@
   }
   @media print{body{background:var(--paper-2)}.toolbar,.hint{display:none}.card,.res-rows,.res-hero{box-shadow:none}.results{position:static}}
 </style>
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "WebApplication",
+ "name": "Husbudget - köp & löpande kostnader",
+ "url": "https://xn--kanjagkpahus-bjb.se/kalkylator.html",
+ "applicationCategory": "FinanceApplication",
+ "operatingSystem": "Webbläsare",
+ "inLanguage": "sv-SE",
+ "description": "Räkna ut vad huset kostar i månaden: lån, ränta efter avdrag, amortering, uppvärmning, drift och pendling. Plus prisanalys mot sålda objekt och renoveringsbehov.",
+ "offers": {
+  "@type": "Offer",
+  "price": "0",
+  "priceCurrency": "SEK"
+ },
+ "publisher": {
+  "@type": "Person",
+  "name": "Snake Hessman"
+ }
+}
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -291,7 +324,7 @@
           <div class="field"><label>Taxeringsvärde<small>För fastighetsavgift (0,75 %, tak 10 425 kr)</small></label><div class="unit"><input class="inp" id="taxvarde" type="number" value="1400000"><span class="u">kr</span></div></div>
           <div class="field"><label>Boarea<small>Endast för nyckeltal kr/kvm</small></label><div class="unit"><input class="inp short" id="boarea" type="number" value="128"><span class="u">kvm</span></div></div>
           <div class="ctxad" id="ctxBolan" style="display:none"><span class="ctxlbl">Annons</span><a id="ctx_bolan" href="#" target="_blank" rel="sponsored noopener">Jämför bolåneräntor →</a></div>
-          <div id="adZoneRanta" class="adzone"><div class="adlbl">Annons</div></div>
+          <div class="adzone" data-annonsplats="kalk_ranta"><span class="adlbl">Annons</span></div>
         </div>
       </section>
 
@@ -355,7 +388,7 @@
             <a id="ctx_ved" href="#" target="_blank" rel="sponsored noopener" style="display:none">Ved</a>
             <a id="ctx_el" href="#" target="_blank" rel="sponsored noopener" style="display:none">Elavtal</a>
           </div>
-          <div id="adZoneVarme" class="adzone"><div class="adlbl">Annons</div></div>
+          <div class="adzone" data-annonsplats="kalk_varme"><span class="adlbl">Annons</span></div>
         </div>
       </section>
 
@@ -439,7 +472,7 @@
             <a href="https://skajagköpaelbil.nu" target="_blank" rel="noopener">skajagköpaelbil.nu</a>
             - liknande kalkyl fast för elbil.
           </div>
-          <div id="adZonePendling" class="adzone"><div class="adlbl">Annons</div></div>
+          <div class="adzone" data-annonsplats="kalk_pendling"><span class="adlbl">Annons</span></div>
         </div>
       </section>
 
@@ -553,7 +586,7 @@
     </div>
   </section>
 
-  <div id="adZone" class="adzone"><div class="adlbl">Annons</div></div>
+  <div class="adzone" data-annonsplats="kalk_fot"><span class="adlbl">Annons</span></div>
 
   <div class="foot">
     Beräkningsverktyg för eget bruk - inte rådgivning. Regler: bolånetak 90 % &middot; amorteringskrav 2 % (&gt;70 %), 1 % (50–70 %) &middot; skärpt krav slopat 1 apr 2026 &middot; ränteavdrag 30 % upp till 100 000 kr/person, 21 % däröver &middot; fastighetsavgift 0,75 %, tak 10 425 kr (inkomstår 2026) &middot; reseavdrag 25 kr/mil.
@@ -565,6 +598,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
 <script src="renoveringsanalys.js"></script>
+<script src="annonser.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const kr = n => Math.round(n).toLocaleString('sv-SE') + ' kr';
@@ -1024,44 +1058,23 @@ document.querySelectorAll('input, select').forEach(el=>{
 calc();
 </script>
 
-<script>
-(function initAds(){
-  const ADSENSE_CLIENT = "ca-pub-5066963191735028";
-  const SLOTS = { fot: "", ranta: "", varme: "", pendling: "" };
-  const ZONES = { fot: "adZone", ranta: "adZoneRanta", varme: "adZoneVarme", pendling: "adZonePendling" };
-  Object.keys(SLOTS).forEach(key => {
-    const slot = SLOTS[key];
-    if(!slot) return;
-    const zone = document.getElementById(ZONES[key]);
-    if(!zone) return;
-    const ins = document.createElement('ins');
-    ins.className = 'adsbygoogle';
-    ins.style.display = 'block';
-    ins.setAttribute('data-ad-client', ADSENSE_CLIENT);
-    ins.setAttribute('data-ad-slot', slot);
-    ins.setAttribute('data-ad-format', 'auto');
-    ins.setAttribute('data-full-width-responsive', 'true');
-    zone.appendChild(ins);
-    zone.style.display = 'block';
-    (window.adsbygoogle = window.adsbygoogle || []).push({});
-  });
-})();
-</script>
 
 <script>
-(function initAffiliate(){
-  const AFFILIATE = { bolan: "", forsakring: "", varmepump: "", pellets: "", ved: "", el: "" };
-  const wire = (id, url) => { const a = document.getElementById(id); if(a && url){ a.href = url; a.style.display = 'block'; return true; } return false; };
+/* Affiliatelänkarna hämtar sina adresser ur annonser.js (KJKH_ANNONS.affiliate).
+   Korten visas bara när respektive länk är ifylld där. */
+(function kopplaAffiliate(){
+  const A = (window.KJKH_ANNONS && window.KJKH_ANNONS.affiliate) || {};
+  const wire = (id, url) => { const a = document.getElementById(id); if(a && url){ a.href = url; a.target = '_blank'; a.rel = 'sponsored noopener'; a.style.display = 'block'; return true; } return false; };
   let cardAny = false;
-  cardAny = wire('aff_bolan', AFFILIATE.bolan) || cardAny;
-  cardAny = wire('aff_forsakring', AFFILIATE.forsakring) || cardAny;
+  cardAny = wire('aff_bolan', A.bolan) || cardAny;
+  cardAny = wire('aff_forsakring', A.forsakring) || cardAny;
   if(cardAny){ const c = document.getElementById('affCard'); if(c) c.style.display = 'block'; }
-  if(wire('ctx_bolan', AFFILIATE.bolan)){ const b=document.getElementById('ctxBolan'); if(b) b.style.display='flex'; }
+  if(wire('ctx_bolan', A.bolan)){ const b=document.getElementById('ctxBolan'); if(b) b.style.display='flex'; }
   let varmeAny = false;
-  varmeAny = wire('ctx_varmepump', AFFILIATE.varmepump) || varmeAny;
-  varmeAny = wire('ctx_pellets', AFFILIATE.pellets) || varmeAny;
-  varmeAny = wire('ctx_ved', AFFILIATE.ved) || varmeAny;
-  varmeAny = wire('ctx_el', AFFILIATE.el) || varmeAny;
+  varmeAny = wire('ctx_varmepump', A.varmepump) || varmeAny;
+  varmeAny = wire('ctx_pellets', A.pellets) || varmeAny;
+  varmeAny = wire('ctx_ved', A.ved) || varmeAny;
+  varmeAny = wire('ctx_el', A.el) || varmeAny;
   if(varmeAny){ const v=document.getElementById('ctxVarme'); if(v) v.style.display='flex'; }
 })();
 </script>
