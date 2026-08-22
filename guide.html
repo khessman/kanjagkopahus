@@ -81,6 +81,10 @@
   ol.qlist{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px}
   ol.qlist li{font-size:13px;color:var(--ink)}
   .adisc{margin-top:12px;font-size:11.5px;color:var(--ink-soft);line-height:1.6}
+  .pastebox{display:none;margin-top:10px;padding:14px 16px;border:1.5px dashed var(--line);border-radius:12px;background:var(--paper)}
+  .pastebox.on{display:block}
+  .pastebox textarea{font-family:inherit;font-size:14px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);width:100%;resize:vertical}
+  .pastebox textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
   .cfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:20px}
   .backlink{font-size:13px;font-weight:600;color:var(--ink-soft);background:none;border:0;cursor:pointer;font-family:inherit}
   .backlink:hover{color:var(--ink)}
@@ -246,6 +250,11 @@
         <button class="btn go sm" type="button" id="a_tolka">Tolka annonstexten</button>
       </div>
       <div class="status" id="a_status"></div>
+      <div class="pastebox" id="a_pastebox">
+        <p class="say" style="margin:0 0 8px">Vi kunde inte läsa beskrivningen automatiskt. Vill du kan du kopiera mäklarens text från annonsen och klistra in den här - annars hoppar du bara vidare.</p>
+        <textarea id="a_paste" rows="5" placeholder="Klistra in mäklarens beskrivning av bostaden"></textarea>
+        <div class="calcbtn"><button class="btn ghost" type="button" id="a_pasteGo">Tolka inklistrad text</button></div>
+      </div>
       <div id="a_ut"></div>
       <div class="cfoot"><button class="backlink" type="button" data-back>↑ Tillbaka</button><button class="btn go" type="button" data-next>Nästa →</button></div>
     </div>
@@ -782,6 +791,8 @@
     var harLank = !!$("o_url").value.trim() || !!_beskrivning;
     $("a_fragorsay").textContent = harLank ? "Kommer när du tolkat annonsen." : "Hämta en annons i steg 1 först.";
     $("a_status").textContent = harLank ? "" : "Klistra in en Booli- eller Hemnet-länk i steg 1 först.";
+    $("a_pastebox").classList.remove("on");
+    $("a_paste").value="";
   }
 
   function renderAnnons(d){
@@ -830,6 +841,30 @@
     return _beskrivning||null;
   }
 
+  var KALLTEXT = { maklarsida:"Texten är hämtad från mäklarens egen sida.", manuell:"Tolkning av texten du klistrade in." };
+
+  async function tolka(text){
+    var st=$("a_status");
+    st.textContent="Tolkar annonstexten...";
+    var r=await fetch(ANALYS_API, {
+      method:"POST",
+      headers:{ "content-type":"application/json" },
+      body:JSON.stringify({
+        action:"annons",
+        beskrivning:text,
+        byggar:_byggar||null,
+        boarea:num("o_boarea")||null,
+        pris:num("o_pris")||null,
+        uppvarmning:_fromAd.d_varmeform ? ($("d_varmeform").value||null) : null,
+        energiklass:_energiklass||null,
+      }),
+    });
+    var d=await r.json();
+    if(!r.ok) throw new Error(d.error||r.statusText);
+    renderAnnons(d);
+    st.textContent = KALLTEXT[_textkalla] || "";
+  }
+
   $("a_tolka").addEventListener("click", async function(){
     var st=$("a_status"), btn=this;
     if(!$("o_url").value.trim() && !_beskrivning){
@@ -841,28 +876,28 @@
         st.textContent="Hämtar annonstexten (kan ta en stund för Booli-länkar)...";
         var txt=await haemtaAnnonstext();
         if(!txt){
-          st.textContent="Hittade ingen mäklartext för den här annonsen. Prova Hemnet-länken till samma objekt om du har en.";
+          st.textContent="Vi kunde inte läsa beskrivningen från den här annonsen.";
+          $("a_pastebox").classList.add("on");
           return;
         }
       }
-      st.textContent="Tolkar annonstexten...";
-      var r=await fetch(ANALYS_API, {
-        method:"POST",
-        headers:{ "content-type":"application/json" },
-        body:JSON.stringify({
-          action:"annons",
-          beskrivning:_beskrivning,
-          byggar:_byggar||null,
-          boarea:num("o_boarea")||null,
-          pris:num("o_pris")||null,
-          uppvarmning:_fromAd.d_varmeform ? ($("d_varmeform").value||null) : null,
-          energiklass:_energiklass||null,
-        }),
-      });
-      var d=await r.json();
-      if(!r.ok) throw new Error(d.error||r.statusText);
-      renderAnnons(d);
-      st.textContent = _textkalla==="maklarsida" ? "Texten är hämtad från mäklarens egen sida." : "";
+      await tolka(_beskrivning);
+    }catch(e){
+      st.textContent="Kunde inte tolka: "+e.message;
+      if(!_beskrivning) $("a_pastebox").classList.add("on");
+    }finally{ btn.disabled=false; }
+  });
+
+  // Frivillig reservväg: användaren ser beskrivningen i annonsen även när vi
+  // inte kommer åt den, så låt dem klistra in den i stället för att fastna.
+  $("a_pasteGo").addEventListener("click", async function(){
+    var st=$("a_status"), btn=this, text=$("a_paste").value.trim();
+    if(text.length < 120){ st.textContent="Klistra in lite mer text - minst några meningar behövs för att det ska bli något vettigt."; return; }
+    btn.disabled=true;
+    try{
+      _beskrivning=text; _textkalla="manuell"; saveState();
+      await tolka(text);
+      $("a_pastebox").classList.remove("on");
     }catch(e){
       st.textContent="Kunde inte tolka: "+e.message;
     }finally{ btn.disabled=false; }
