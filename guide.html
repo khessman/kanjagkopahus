@@ -492,8 +492,9 @@
   // Vilka fält som fylldes automatiskt från annonsen, så användaren ser vad som återstår.
   var _fromAd={}, _energiklass="", _byggar=null;
   // Mäklarens fria beskrivningstext från parsern - underlag för annonstolkningen.
-  var _beskrivning="";
+  var _beskrivning="", _textkalla=null;
   var ANALYS_API = "https://kjkh-analys.kalle-hessman.workers.dev";
+  var TEXT_API = "https://kjkh-booliparser.kalle-hessman.workers.dev/annonstext";
   function loadState(){
     var p={}; try{ p=JSON.parse(localStorage.getItem("kjkh:profil")||"{}"); }catch(e){}
     PROFIL_IDS.forEach(function(id){ if(p[id]!=null) $(id).value=p[id]; });
@@ -507,6 +508,7 @@
     if(w.energiklass) _energiklass=w.energiklass;
     if(w.byggar) _byggar=w.byggar;
     if(w.beskrivning) _beskrivning=w.beskrivning;
+    if(w.textkalla) _textkalla=w.textkalla;
     if(w.fromAd) { _fromAd=w.fromAd; markFromAd(); }
     if(w.renovMode) setRenov(w.renovMode, true);
     if(w.amortMode) setAmortMode(w.amortMode, true);
@@ -525,7 +527,7 @@
     try{ localStorage.setItem("kjkh:profil", JSON.stringify(p)); }catch(e){}
     var w={}; OBJ_IDS.forEach(function(id){ w[id]=$(id).value; });
     w.driftunit=$("o_driftunit").value; w.adress=_adress; w.renovMode=_renovMode; w.revealed=revealed; w.bud=currentBud();
-    w.energiklass=_energiklass; w.fromAd=_fromAd; w.byggar=_byggar; w.beskrivning=_beskrivning;
+    w.energiklass=_energiklass; w.fromAd=_fromAd; w.byggar=_byggar; w.beskrivning=_beskrivning; w.textkalla=_textkalla;
     w.amortMode=_amortMode; w.nLantagare=_nLantagare; w.personer=_personer; w.driftMode=_driftMode;
     try{ localStorage.setItem("kjkh:wizard", JSON.stringify(w)); }catch(e){}
   }
@@ -777,8 +779,9 @@
 
   function resetAnnons(){
     $("a_ut").innerHTML=""; $("a_fragor").innerHTML="";
-    $("a_fragorsay").textContent = _beskrivning ? "Kommer när du tolkat annonsen." : "Hämta en annons i steg 1 först.";
-    $("a_status").textContent = _beskrivning ? "" : "Ingen annonstext hämtad än - klistra in en länk i steg 1.";
+    var harLank = !!$("o_url").value.trim() || !!_beskrivning;
+    $("a_fragorsay").textContent = harLank ? "Kommer när du tolkat annonsen." : "Hämta en annons i steg 1 först.";
+    $("a_status").textContent = harLank ? "" : "Klistra in en Booli- eller Hemnet-länk i steg 1 först.";
   }
 
   function renderAnnons(d){
@@ -813,11 +816,36 @@
       : "Inga särskilda frågor utöver det vanliga.";
   }
 
+  // Hämtar mäklartexten. Hemnet har den i annonsen (kommer med /parse), Booli
+  // inte alls - då går workern vidare till mäklarens egen sida, vilket tar
+  // längre tid. Därför hämtas den först när användaren faktiskt vill tolka.
+  async function haemtaAnnonstext(){
+    if(_beskrivning) return _beskrivning;
+    var url=$("o_url").value.trim();
+    if(!url) return null;
+    var r=await fetch(TEXT_API+"?url="+encodeURIComponent(url));
+    var d=await r.json();
+    if(!r.ok) throw new Error(d.detail||r.statusText);
+    if(d.beskrivning){ _beskrivning=d.beskrivning; _textkalla=d.kalla||null; saveState(); }
+    return _beskrivning||null;
+  }
+
   $("a_tolka").addEventListener("click", async function(){
     var st=$("a_status"), btn=this;
-    if(!_beskrivning){ st.textContent="Ingen annonstext hämtad - klistra in en Booli- eller Hemnet-länk i steg 1 först."; return; }
-    st.textContent="Tolkar annonstexten..."; btn.disabled=true;
+    if(!$("o_url").value.trim() && !_beskrivning){
+      st.textContent="Klistra in en Booli- eller Hemnet-länk i steg 1 först."; return;
+    }
+    btn.disabled=true;
     try{
+      if(!_beskrivning){
+        st.textContent="Hämtar annonstexten (kan ta en stund för Booli-länkar)...";
+        var txt=await haemtaAnnonstext();
+        if(!txt){
+          st.textContent="Hittade ingen mäklartext för den här annonsen. Prova Hemnet-länken till samma objekt om du har en.";
+          return;
+        }
+      }
+      st.textContent="Tolkar annonstexten...";
       var r=await fetch(ANALYS_API, {
         method:"POST",
         headers:{ "content-type":"application/json" },
@@ -834,7 +862,7 @@
       var d=await r.json();
       if(!r.ok) throw new Error(d.error||r.statusText);
       renderAnnons(d);
-      st.textContent="";
+      st.textContent = _textkalla==="maklarsida" ? "Texten är hämtad från mäklarens egen sida." : "";
     }catch(e){
       st.textContent="Kunde inte tolka: "+e.message;
     }finally{ btn.disabled=false; }
@@ -861,6 +889,7 @@
       if(f.byggar){ _byggar=f.byggar; fick.push("byggår"); }
       if(f.adress){ _adress=f.adress; if(!$("o_namn").value) $("o_namn").value=f.adress; if(!$("c_home").value) $("c_home").value=f.adress; }
       _beskrivning = typeof d.beskrivning==="string" ? d.beskrivning : "";
+      _textkalla = _beskrivning ? "annons" : null;
       resetAnnons();
       markFromAd();
       st.textContent=(_adress?_adress+" — ":"")+(fick.length?("hämtade "+fick.join(", ")+". Fälten är märkta \"från annonsen\" - du behöver bara fylla i resten."):"hittade inga fält - fyll i under Detaljerat.");
@@ -1008,6 +1037,8 @@
   OBJ_IDS.forEach(function(id){
     $(id).addEventListener("input", function(){ if(_fromAd[id]){ delete _fromAd[id]; markFromAd(); } });
   });
+  // Ny länk => den gamla mäklartexten hör till ett annat objekt.
+  $("o_url").addEventListener("input", function(){ _beskrivning=""; _textkalla=null; resetAnnons(); });
   $("o_driftunit").addEventListener("change", recompute);
   $("d_varmeform").addEventListener("change", function(){ updateVarmeRows(); recompute(); });
   ["d_tkarl","d_tfreq","d_tmat"].forEach(function(id){ $(id).addEventListener("change", recompute); });
