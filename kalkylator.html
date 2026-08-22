@@ -37,19 +37,24 @@
   .lead{color:var(--ink-soft);font-size:14px;margin:0 0 8px;max-width:56ch}
   .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:28px;align-items:start}
   @media(max-width:920px){.grid{grid-template-columns:1fr}}
-  .objektrad{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 2px}
-  .objlabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--ink-soft);opacity:.65}
-  .objkort{display:flex;flex-direction:column;background:var(--paper-2);border:1px solid var(--line);border-radius:11px;overflow:hidden;min-width:160px;box-shadow:var(--shadow)}
-  .objhead{background:var(--green);padding:7px 12px}
-  .objnamn{font-weight:600;font-size:13px;border:0;background:transparent;color:var(--on-accent);font-family:inherit;width:100%;padding:0}
-  .objnamn::placeholder{color:color-mix(in srgb, var(--on-accent) 55%, transparent)}
-  .objnamn:focus{outline:none}
-  .objbody{padding:8px 12px}
-  .objmeta{font-size:11.5px;color:var(--ink-soft)}
-  .objbtns{display:flex;gap:6px;margin-top:6px}
-  .objbtns button{font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--fill);color:var(--green);border-radius:7px;padding:3px 10px}
-  .objbtns button.del{color:var(--terra);padding:3px 8px}
-  .objmer{font-size:12.5px;font-weight:600;color:var(--green);text-decoration:none;white-space:nowrap;border-bottom:1.5px solid var(--green-soft)}
+  /* Sparade objekt: en egen panel i stället för lösa kort på raden */
+  .objektrad{display:none;background:var(--paper-2);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;margin:6px 0 4px}
+  .objektrad.pa{display:block}
+  .objtop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .objlabel{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--ink-soft)}
+  .objgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+  .objkort{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;background:var(--fill);border:0;border-radius:12px;padding:9px 12px;min-width:0}
+  .objkort .objnamn{grid-column:1/-1}
+  .objnamn{font-weight:700;font-size:14px;border:0;background:transparent;color:var(--ink);font-family:inherit;width:100%;padding:0;min-width:0}
+  .objnamn::placeholder{color:var(--ink-soft)}
+  .objnamn:focus{outline:none;color:var(--green-dk)}
+  .objmeta{font-size:13px;font-weight:600;color:var(--green);font-variant-numeric:tabular-nums}
+  .objbtns{display:flex;gap:6px;justify-self:end}
+  .objbtns button{font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:0;background:var(--paper-2);color:var(--green-dk);border-radius:999px;padding:5px 12px}
+  .objbtns button:hover{background:var(--green-soft)}
+  .objbtns button.del{color:var(--terra);padding:5px 10px}
+  .objmer{font-size:12.5px;font-weight:600;color:var(--green);text-decoration:none;white-space:nowrap}
+  @media(max-width:560px){.objgrid{grid-template-columns:1fr}}
   .betatip{display:flex;align-items:center;gap:12px;margin:14px 0 2px;padding:12px 16px;text-decoration:none;background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--terra);border-radius:12px;box-shadow:var(--shadow);transition:.15s}
   .betatip:hover{border-color:var(--terra);transform:translateY(-1px)}
   .betatip .bt-tag{flex:none;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--on-accent);background:var(--terra);padding:4px 10px;border-radius:20px}
@@ -134,6 +139,22 @@
   .mod-out .k{font-size:13px;opacity:.85}
   .mod-out .v{font-weight:700;font-size:18px}
   .lilbtn{font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;background:var(--green);color:var(--on-accent);border:0;padding:8px 12px;border-radius:9px;transition:.15s}
+  /* kort 9: renoveringsbehov */
+  .rv-intro{font-size:13px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5}
+  .rv-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .rv-add select.inp{flex:1 1 190px;min-width:0;width:auto}
+  .rv-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 0;border-bottom:1px dashed var(--line)}
+  .rv-row:last-child{border-bottom:0}
+  .rv-row .nm{flex:1 1 130px;font-size:14px;font-weight:500;min-width:0}
+  .rv-row .nm small{display:block;font-weight:400;font-size:11.5px;color:var(--ink-soft)}
+  .rv-row .egen{width:110px;text-align:right;font-family:inherit;font-weight:600;font-size:13.5px;border:1.5px solid var(--line);border-radius:8px;padding:6px 9px;background:var(--fill);color:var(--ink)}
+  .rv-row .egen:focus{outline:none;border-color:var(--green);background:var(--green-soft)}
+  .rv-row .egen.on{border-color:var(--green);color:var(--green-dk)}
+  .rv-row .rm{font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:0;background:transparent;color:var(--terra);padding:4px 2px}
+  .rv-empty{font-size:12.5px;color:var(--ink-soft);margin:2px 0 0}
+  .rv-sum{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:12px;padding:11px 14px;background:var(--green-soft);border-radius:10px}
+  .rv-sum .k{font-size:13px;color:var(--green-dk)}
+  .rv-sum .v{font-weight:700;font-size:15px;color:var(--green-dk);white-space:nowrap}
   .lilbtn:hover{filter:brightness(1.08);transform:translateY(-1px)}
   .lilbtn.alt{background:var(--ink);}
   .compt{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
@@ -240,7 +261,7 @@
     </div>
   </div>
 
-  <div id="objektRad" class="objektrad" style="display:none"></div>
+  <section id="objektRad" class="objektrad" aria-label="Sparade objekt"></section>
 
   <div class="grid">
 
@@ -461,9 +482,32 @@
             </tbody>
           </table>
           <div class="verdict line" id="op_verdict">Klistra in 1–5 Booli-länkar ovan och klicka "Hämta sålda från länkar", eller fyll i tabellen manuellt.</div>
-          <div class="field" style="margin-top:10px"><label>Renoveringsbehov<small>hämtas från Renoveringsanalysen - kan ändras</small></label><div class="unit"><input class="inp" id="op_renov" type="number" value="0"><span class="u">kr</span></div></div>
           <div class="verdict line" id="op_varde" style="display:none"></div>
           <div class="hint">Sök fram jämförbara sålda på <a href="https://www.booli.se/sok/slutpriser" target="_blank" rel="noopener">booli.se/sok/slutpriser</a>, kopiera länkarna och klistra in en per rad. Servern hämtar pris, boarea och försäljningsdatum för varje. Jämför sedan mot husets begärda pris (<span id="op_subj">–</span>) och boarea (kort 2).</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="num">9</span>Renoveringsbehov</h2>
+        <div class="body">
+          <p class="rv-intro">Vad behöver huset åtgärdas? Lägg till posterna du känner till - taket, badrummet, dräneringen - så räknas ett grovt kostnadsintervall fram. Har du en offert skriver du in ditt eget pris på raden.</p>
+
+          <div class="rv-add">
+            <select class="inp" id="rv_cat" aria-label="Välj åtgärd"></select>
+            <button class="lilbtn" type="button" id="rv_add">Lägg till åtgärd</button>
+          </div>
+
+          <div id="rv_list"></div>
+          <p class="rv-empty" id="rv_empty">Inga åtgärder tillagda. Behöver huset inget gjort lämnar du kortet tomt.</p>
+
+          <div class="rv-sum">
+            <span class="k">Grovt intervall</span>
+            <span class="v" id="rv_range">–</span>
+          </div>
+
+          <div class="field"><label>Räknas med i kalkylen<small>Mitten av intervallet - ändra fritt</small></label><div class="unit"><input class="inp" id="op_renov" type="number" value="0"><span class="u">kr</span></div></div>
+
+          <div class="hint" id="rv_hint">Har du besiktningsprotokoll, energideklaration eller frågelista? <a href="husanalys.html" id="rv_ai">Kör Renoveringsanalysen på dokumenten →</a> Den läser igenom underlaget, föreslår åtgärder och skickar tillbaka summan hit.</div>
         </div>
       </section>
     </div>
@@ -940,13 +984,20 @@ function deleteObjekt(id){ objektSave(objektArr().filter(x=>x.id!==id)); renderO
 function renameObjekt(id,namn){ const arr=objektArr(); const o=arr.find(x=>x.id===id); if(o){ o.namn=namn; objektSave(arr); } }
 function renderObjekt(){
   const arr=objektArr(); const box=$('objektRad'); if(!box) return;
-  if(!arr.length){ box.style.display='none'; return; }
-  box.style.display='flex';
-  box.innerHTML = '<span class="objlabel">Sparade objekt</span>' + arr.slice(0,3).map(o=>{
-    const m = (o.sum&&o.sum.manad)? kr0(Math.round(o.sum.manad))+' kr/mån' : '';
-    const nm=(o.namn||'').replace(/"/g,'&quot;');
-    return '<div class="objkort"><div class="objhead"><input class="objnamn" value="'+nm+'" placeholder="Namnge" onchange="renameObjekt('+o.id+',this.value)"></div><div class="objbody"><div class="objmeta">'+m+'</div><div class="objbtns"><button onclick="loadObjekt('+o.id+')">Ladda</button><button class="del" onclick="deleteObjekt('+o.id+')" title="Ta bort">×</button></div></div></div>';
-  }).join('') + '<a class="tool primary" href="jamfor.html">Jämför →</a>';
+  if(!arr.length){ box.classList.remove('pa'); return; }
+  box.classList.add('pa');
+  box.innerHTML =
+    '<div class="objtop"><span class="objlabel">Sparade objekt</span>' +
+      '<a class="objmer" href="jamfor.html">Jämför alla →</a></div>' +
+    '<div class="objgrid">' + arr.slice(0,3).map(o=>{
+      const m = (o.sum&&o.sum.manad)? kr0(Math.round(o.sum.manad))+' kr/mån' : 'ingen summa sparad';
+      const nm=(o.namn||'').replace(/"/g,'&quot;');
+      return '<div class="objkort">'+
+        '<input class="objnamn" value="'+nm+'" placeholder="Namnge objektet" aria-label="Namn på sparat objekt" onchange="renameObjekt('+o.id+',this.value)">'+
+        '<div class="objmeta">'+m+'</div>'+
+        '<div class="objbtns"><button onclick="loadObjekt('+o.id+')">Ladda</button>'+
+        '<button class="del" onclick="deleteObjekt('+o.id+')">Ta bort</button></div></div>';
+    }).join('') + '</div>';
 }
 
 function resetAll(){ if(confirm('Nollställa alla fält till noll?')){ document.querySelectorAll('input[type=number]').forEach(el=>el.value=0); calc(); } }
@@ -976,7 +1027,131 @@ function flyttCalc(ki, lagfart, pantKost, nyMan){
 buildMixTable();
 loadFlytt();
 renderObjekt();
-try{ const _rt=JSON.parse(localStorage.getItem('kjkh:renovtotal')||'null'); if(_rt && _rt.mid && $('op_renov')) $('op_renov').value=_rt.mid; }catch(e){}
+/* ---- Kort 9: renoveringsbehov -------------------------------------------
+   Samma schabloner som Renoveringsanalysen använder. Listan här är den
+   enkla vägen: välj åtgärd, få ett grovt intervall. Vill man ha den lästa
+   analysen av besiktningsprotokollet finns länken till husanalys.html,
+   som skickar tillbaka summan via kjkh:renovtotal. */
+const RENOV_API = "https://kjkh-analys.kalle-hessman.workers.dev";
+const RENOV_FALLBACK = [
+  {id:"dranering",namn:"Dränering",lag:150000,hog:200000},
+  {id:"fuktsanering_kallare",namn:"Fuktsanering källare",lag:25000,hog:70000},
+  {id:"tak_omlaggning",namn:"Takomläggning",lag:70000,hog:150000},
+  {id:"tak_rengoring",namn:"Takrengöring",lag:2000,hog:10000},
+  {id:"elcentral",namn:"Elcentral (byte)",lag:10000,hog:22000},
+  {id:"el_omdragning",namn:"Omdragning av el",lag:35000,hog:90000},
+  {id:"tillaggsisolering_vind",namn:"Tilläggsisolering vind",lag:15000,hog:40000},
+  {id:"fonsterbyte",namn:"Fönsterbyte",lag:40000,hog:100000},
+  {id:"fasadmalning",namn:"Fasadmålning",lag:30000,hog:70000},
+  {id:"fasad_omputs",namn:"Omputsning fasad",lag:70000,hog:160000},
+  {id:"stambyte",namn:"Stambyte",lag:120000,hog:300000},
+  {id:"badrum",namn:"Renovering badrum",lag:70000,hog:150000},
+  {id:"kok",namn:"Renovering kök",lag:70000,hog:170000},
+  {id:"varmepump_luftvatten",namn:"Värmepump (luft/vatten)",lag:80000,hog:150000},
+  {id:"varmepump_luftluft",namn:"Värmepump (luft/luft)",lag:12000,hog:28000},
+  {id:"ventilation_ftx",namn:"Ventilation (FTX)",lag:70000,hog:140000},
+  {id:"avlopp_relining",namn:"Relining avlopp",lag:35000,hog:80000},
+  {id:"ytterdorr",namn:"Ytterdörr (byte)",lag:10000,hog:25000},
+  {id:"radon",namn:"Radonåtgärd",lag:15000,hog:50000},
+  {id:"annat",namn:"Annat (eget pris)",lag:null,hog:null}
+];
+let renovPriser = RENOV_FALLBACK, renovRader = [], renovTs = 0;
+
+function renovSpara(){
+  try{ localStorage.setItem('kjkh:renovlista', JSON.stringify({rader:renovRader, ts:renovTs})); }catch(e){}
+}
+function renovLadda(){
+  try{
+    const d = JSON.parse(localStorage.getItem('kjkh:renovlista')||'null');
+    if(d && Array.isArray(d.rader)){ renovRader = d.rader; renovTs = d.ts||0; }
+  }catch(e){}
+}
+function renovFyllVal(){
+  $('rv_cat').innerHTML = renovPriser.map(p =>
+    '<option value="'+p.id+'">'+p.namn+'</option>').join('');
+}
+function renovRita(){
+  const lista = $('rv_list');
+  lista.innerHTML = renovRader.map((r,i) => {
+    const schab = (r.lag==null||r.hog==null) ? 'eget pris' : (kr0(r.lag)+' – '+kr0(r.hog)+' kr');
+    return '<div class="rv-row">'+
+      '<span class="nm">'+r.namn+'<small>schablon: '+schab+'</small></span>'+
+      '<input class="egen'+(r.egen?' on':'')+'" type="number" inputmode="numeric" data-i="'+i+'" '+
+        'value="'+(r.egen!=null?r.egen:'')+'" placeholder="eget pris" aria-label="Eget pris för '+r.namn+'">'+
+      '<button class="rm" type="button" data-rm="'+i+'">Ta bort</button></div>';
+  }).join('');
+  $('rv_empty').style.display = renovRader.length ? 'none' : 'block';
+
+  lista.querySelectorAll('.egen').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const v = parseFloat(inp.value);
+      renovRader[+inp.dataset.i].egen = isFinite(v) ? v : null;
+      inp.classList.toggle('on', inp.value.trim()!=='');
+      renovSumma();
+    });
+  });
+  lista.querySelectorAll('[data-rm]').forEach(b => {
+    b.addEventListener('click', () => { renovRader.splice(+b.dataset.rm,1); renovRita(); renovSumma(); });
+  });
+}
+function renovSumma(){
+  let lo = 0, hi = 0, med = false;
+  renovRader.forEach(r => {
+    if(r.egen != null){ lo += r.egen; hi += r.egen; med = true; }
+    else if(r.lag != null && r.hog != null){ lo += r.lag; hi += r.hog; med = true; }
+  });
+  $('rv_range').textContent = med ? (kr0(lo)+' – '+kr0(hi)+' kr') : '–';
+  const mitt = med ? Math.round((lo+hi)/2) : 0;
+  $('op_renov').value = mitt;
+  renovTs = Date.now();
+  renovSpara();
+  try{ localStorage.setItem('kjkh:renovtotal', JSON.stringify({lo:lo, hi:hi, mid:mitt, ts:renovTs, kalla:'kalkylator'})); }catch(e){}
+  calc();
+}
+
+(function initRenov(){
+  renovLadda();
+  renovFyllVal();
+  renovRita();
+
+  // Kom en färskare summa från Renoveringsanalysen används den i stället.
+  let rt = null;
+  try{ rt = JSON.parse(localStorage.getItem('kjkh:renovtotal')||'null'); }catch(e){}
+  if(rt && rt.mid && (rt.ts||0) > renovTs){
+    $('op_renov').value = rt.mid;
+    if(rt.lo != null && rt.hi != null) $('rv_range').textContent = kr0(rt.lo)+' – '+kr0(rt.hi)+' kr';
+    $('rv_empty').textContent = 'Summan kommer från Renoveringsanalysen. Lägg till rader här om du hellre räknar själv - då ersätts den.';
+  } else if(renovRader.length){
+    renovSumma();
+  }
+
+  $('rv_add').addEventListener('click', () => {
+    const p = renovPriser.filter(x => x.id === $('rv_cat').value)[0];
+    if(!p) return;
+    renovRader.push({id:p.id, namn:p.namn, lag:p.lag, hog:p.hog, egen:null});
+    renovRita(); renovSumma();
+  });
+
+  // Låt Renoveringsanalysen veta var användaren kom ifrån.
+  $('rv_ai').addEventListener('click', () => {
+    try{ localStorage.setItem('kjkh:renovReturn', JSON.stringify({url:'kalkylator.html', label:'kalkylatorn', ts:Date.now()})); }catch(e){}
+  });
+
+  // Hämta aktuella schabloner från analys-workern, med fallback ovan.
+  fetch(RENOV_API, {method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({action:'prices'})})
+    .then(r => r.json())
+    .then(d => {
+      if(d && d.kategorier && d.kategorier.length){
+        renovPriser = d.kategorier.map(p => ({
+          id:p.id, namn:p.namn,
+          lag:(p.lag==='n/a'?null:p.lag), hog:(p.hog==='n/a'?null:p.hog)
+        }));
+        renovFyllVal();
+      }
+    })
+    .catch(() => {});
+})();
 document.querySelectorAll('input, select').forEach(el=>{
   if(el.type==='file') return;
   el.addEventListener('input', calc);
