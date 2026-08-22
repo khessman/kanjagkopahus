@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="renoveringsanalys.css">
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5066963191735028" crossorigin="anonymous"></script>
 <style>
@@ -141,20 +142,6 @@
   .lilbtn{font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;background:var(--green);color:var(--on-accent);border:0;padding:8px 12px;border-radius:9px;transition:.15s}
   /* kort 9: renoveringsbehov */
   .rv-intro{font-size:13px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5}
-  .rv-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-  .rv-add select.inp{flex:1 1 190px;min-width:0;width:auto}
-  .rv-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 0;border-bottom:1px dashed var(--line)}
-  .rv-row:last-child{border-bottom:0}
-  .rv-row .nm{flex:1 1 130px;font-size:14px;font-weight:500;min-width:0}
-  .rv-row .nm small{display:block;font-weight:400;font-size:11.5px;color:var(--ink-soft)}
-  .rv-row .egen{width:110px;text-align:right;font-family:inherit;font-weight:600;font-size:13.5px;border:1.5px solid var(--line);border-radius:8px;padding:6px 9px;background:var(--fill);color:var(--ink)}
-  .rv-row .egen:focus{outline:none;border-color:var(--green);background:var(--green-soft)}
-  .rv-row .egen.on{border-color:var(--green);color:var(--green-dk)}
-  .rv-row .rm{font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:0;background:transparent;color:var(--terra);padding:4px 2px}
-  .rv-empty{font-size:12.5px;color:var(--ink-soft);margin:2px 0 0}
-  .rv-sum{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:12px;padding:11px 14px;background:var(--green-soft);border-radius:10px}
-  .rv-sum .k{font-size:13px;color:var(--green-dk)}
-  .rv-sum .v{font-weight:700;font-size:15px;color:var(--green-dk);white-space:nowrap}
   .lilbtn:hover{filter:brightness(1.08);transform:translateY(-1px)}
   .lilbtn.alt{background:var(--ink);}
   .compt{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
@@ -490,24 +477,9 @@
       <section class="card">
         <h2><span class="num">9</span>Renoveringsbehov</h2>
         <div class="body">
-          <p class="rv-intro">Vad behöver huset åtgärdas? Lägg till posterna du känner till - taket, badrummet, dräneringen - så räknas ett grovt kostnadsintervall fram. Har du en offert skriver du in ditt eget pris på raden.</p>
-
-          <div class="rv-add">
-            <select class="inp" id="rv_cat" aria-label="Välj åtgärd"></select>
-            <button class="lilbtn" type="button" id="rv_add">Lägg till åtgärd</button>
-          </div>
-
-          <div id="rv_list"></div>
-          <p class="rv-empty" id="rv_empty">Inga åtgärder tillagda. Behöver huset inget gjort lämnar du kortet tomt.</p>
-
-          <div class="rv-sum">
-            <span class="k">Grovt intervall</span>
-            <span class="v" id="rv_range">–</span>
-          </div>
-
-          <div class="field"><label>Räknas med i kalkylen<small>Mitten av intervallet - ändra fritt</small></label><div class="unit"><input class="inp" id="op_renov" type="number" value="0"><span class="u">kr</span></div></div>
-
-          <div class="hint" id="rv_hint">Har du besiktningsprotokoll, energideklaration eller frågelista? <a href="husanalys.html" id="rv_ai">Kör Renoveringsanalysen på dokumenten →</a> Den läser igenom underlaget, föreslår åtgärder och skickar tillbaka summan hit.</div>
+          <p class="rv-intro">Vad behöver huset åtgärdas? Ladda upp besiktningsprotokoll, energideklaration eller frågelista - eller hämta dokumenten från annonslänken du klistrade in i kort 1 - så föreslås åtgärder med grova kostnadsintervall. Vill du hellre bygga listan själv finns "Fyll i själv".</p>
+          <div id="renovAnalys"></div>
+          <div class="field" style="margin-top:16px"><label>Räknas med i kalkylen<small>Mitten av intervallet - ändra fritt</small></label><div class="unit"><input class="inp" id="op_renov" type="number" value="0"><span class="u">kr</span></div></div>
         </div>
       </section>
     </div>
@@ -589,6 +561,10 @@
     <div class="copyright">© Snake Hessman 2026 &middot; <a href="om.html">Om sidan</a> &middot; <a href="integritetspolicy.html">Integritetspolicy</a></div>
   </div>
 </div>
+<!-- pdf.js läser text ur PDF:er, Stripe sköter betalningen i Renoveringsanalysen -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="renoveringsanalys.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const kr = n => Math.round(n).toLocaleString('sv-SE') + ' kr';
@@ -1027,131 +1003,19 @@ function flyttCalc(ki, lagfart, pantKost, nyMan){
 buildMixTable();
 loadFlytt();
 renderObjekt();
-/* ---- Kort 9: renoveringsbehov -------------------------------------------
-   Samma schabloner som Renoveringsanalysen använder. Listan här är den
-   enkla vägen: välj åtgärd, få ett grovt intervall. Vill man ha den lästa
-   analysen av besiktningsprotokollet finns länken till husanalys.html,
-   som skickar tillbaka summan via kjkh:renovtotal. */
-const RENOV_API = "https://kjkh-analys.kalle-hessman.workers.dev";
-const RENOV_FALLBACK = [
-  {id:"dranering",namn:"Dränering",lag:150000,hog:200000},
-  {id:"fuktsanering_kallare",namn:"Fuktsanering källare",lag:25000,hog:70000},
-  {id:"tak_omlaggning",namn:"Takomläggning",lag:70000,hog:150000},
-  {id:"tak_rengoring",namn:"Takrengöring",lag:2000,hog:10000},
-  {id:"elcentral",namn:"Elcentral (byte)",lag:10000,hog:22000},
-  {id:"el_omdragning",namn:"Omdragning av el",lag:35000,hog:90000},
-  {id:"tillaggsisolering_vind",namn:"Tilläggsisolering vind",lag:15000,hog:40000},
-  {id:"fonsterbyte",namn:"Fönsterbyte",lag:40000,hog:100000},
-  {id:"fasadmalning",namn:"Fasadmålning",lag:30000,hog:70000},
-  {id:"fasad_omputs",namn:"Omputsning fasad",lag:70000,hog:160000},
-  {id:"stambyte",namn:"Stambyte",lag:120000,hog:300000},
-  {id:"badrum",namn:"Renovering badrum",lag:70000,hog:150000},
-  {id:"kok",namn:"Renovering kök",lag:70000,hog:170000},
-  {id:"varmepump_luftvatten",namn:"Värmepump (luft/vatten)",lag:80000,hog:150000},
-  {id:"varmepump_luftluft",namn:"Värmepump (luft/luft)",lag:12000,hog:28000},
-  {id:"ventilation_ftx",namn:"Ventilation (FTX)",lag:70000,hog:140000},
-  {id:"avlopp_relining",namn:"Relining avlopp",lag:35000,hog:80000},
-  {id:"ytterdorr",namn:"Ytterdörr (byte)",lag:10000,hog:25000},
-  {id:"radon",namn:"Radonåtgärd",lag:15000,hog:50000},
-  {id:"annat",namn:"Annat (eget pris)",lag:null,hog:null}
-];
-let renovPriser = RENOV_FALLBACK, renovRader = [], renovTs = 0;
+/* ---- Kort 9: Renoveringsanalysen, samma komponent som husanalys.html ----
+   Annonslänken från kort 1 förifylls, och varje gång summan ändras skrivs
+   mitten av intervallet in i fältet som kalkylen räknar på. */
+Renoveringsanalys.mount({
+  host: 'renovAnalys',
+  compact: true,
+  returnFlow: false,
+  hamtaLank: () => ($('booliUrl') ? $('booliUrl').value : ''),
+  onTotal: t => { $('op_renov').value = t.any ? t.mid : 0; calc(); }
+});
+// Kom summan från ett tidigare besök på husanalys.html används den direkt.
+try{ const _rt=JSON.parse(localStorage.getItem('kjkh:renovtotal')||'null'); if(_rt && _rt.mid && $('op_renov')) $('op_renov').value=_rt.mid; }catch(e){}
 
-function renovSpara(){
-  try{ localStorage.setItem('kjkh:renovlista', JSON.stringify({rader:renovRader, ts:renovTs})); }catch(e){}
-}
-function renovLadda(){
-  try{
-    const d = JSON.parse(localStorage.getItem('kjkh:renovlista')||'null');
-    if(d && Array.isArray(d.rader)){ renovRader = d.rader; renovTs = d.ts||0; }
-  }catch(e){}
-}
-function renovFyllVal(){
-  $('rv_cat').innerHTML = renovPriser.map(p =>
-    '<option value="'+p.id+'">'+p.namn+'</option>').join('');
-}
-function renovRita(){
-  const lista = $('rv_list');
-  lista.innerHTML = renovRader.map((r,i) => {
-    const schab = (r.lag==null||r.hog==null) ? 'eget pris' : (kr0(r.lag)+' – '+kr0(r.hog)+' kr');
-    return '<div class="rv-row">'+
-      '<span class="nm">'+r.namn+'<small>schablon: '+schab+'</small></span>'+
-      '<input class="egen'+(r.egen?' on':'')+'" type="number" inputmode="numeric" data-i="'+i+'" '+
-        'value="'+(r.egen!=null?r.egen:'')+'" placeholder="eget pris" aria-label="Eget pris för '+r.namn+'">'+
-      '<button class="rm" type="button" data-rm="'+i+'">Ta bort</button></div>';
-  }).join('');
-  $('rv_empty').style.display = renovRader.length ? 'none' : 'block';
-
-  lista.querySelectorAll('.egen').forEach(inp => {
-    inp.addEventListener('input', () => {
-      const v = parseFloat(inp.value);
-      renovRader[+inp.dataset.i].egen = isFinite(v) ? v : null;
-      inp.classList.toggle('on', inp.value.trim()!=='');
-      renovSumma();
-    });
-  });
-  lista.querySelectorAll('[data-rm]').forEach(b => {
-    b.addEventListener('click', () => { renovRader.splice(+b.dataset.rm,1); renovRita(); renovSumma(); });
-  });
-}
-function renovSumma(){
-  let lo = 0, hi = 0, med = false;
-  renovRader.forEach(r => {
-    if(r.egen != null){ lo += r.egen; hi += r.egen; med = true; }
-    else if(r.lag != null && r.hog != null){ lo += r.lag; hi += r.hog; med = true; }
-  });
-  $('rv_range').textContent = med ? (kr0(lo)+' – '+kr0(hi)+' kr') : '–';
-  const mitt = med ? Math.round((lo+hi)/2) : 0;
-  $('op_renov').value = mitt;
-  renovTs = Date.now();
-  renovSpara();
-  try{ localStorage.setItem('kjkh:renovtotal', JSON.stringify({lo:lo, hi:hi, mid:mitt, ts:renovTs, kalla:'kalkylator'})); }catch(e){}
-  calc();
-}
-
-(function initRenov(){
-  renovLadda();
-  renovFyllVal();
-  renovRita();
-
-  // Kom en färskare summa från Renoveringsanalysen används den i stället.
-  let rt = null;
-  try{ rt = JSON.parse(localStorage.getItem('kjkh:renovtotal')||'null'); }catch(e){}
-  if(rt && rt.mid && (rt.ts||0) > renovTs){
-    $('op_renov').value = rt.mid;
-    if(rt.lo != null && rt.hi != null) $('rv_range').textContent = kr0(rt.lo)+' – '+kr0(rt.hi)+' kr';
-    $('rv_empty').textContent = 'Summan kommer från Renoveringsanalysen. Lägg till rader här om du hellre räknar själv - då ersätts den.';
-  } else if(renovRader.length){
-    renovSumma();
-  }
-
-  $('rv_add').addEventListener('click', () => {
-    const p = renovPriser.filter(x => x.id === $('rv_cat').value)[0];
-    if(!p) return;
-    renovRader.push({id:p.id, namn:p.namn, lag:p.lag, hog:p.hog, egen:null});
-    renovRita(); renovSumma();
-  });
-
-  // Låt Renoveringsanalysen veta var användaren kom ifrån.
-  $('rv_ai').addEventListener('click', () => {
-    try{ localStorage.setItem('kjkh:renovReturn', JSON.stringify({url:'kalkylator.html', label:'kalkylatorn', ts:Date.now()})); }catch(e){}
-  });
-
-  // Hämta aktuella schabloner från analys-workern, med fallback ovan.
-  fetch(RENOV_API, {method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({action:'prices'})})
-    .then(r => r.json())
-    .then(d => {
-      if(d && d.kategorier && d.kategorier.length){
-        renovPriser = d.kategorier.map(p => ({
-          id:p.id, namn:p.namn,
-          lag:(p.lag==='n/a'?null:p.lag), hog:(p.hog==='n/a'?null:p.hog)
-        }));
-        renovFyllVal();
-      }
-    })
-    .catch(() => {});
-})();
 document.querySelectorAll('input, select').forEach(el=>{
   if(el.type==='file') return;
   el.addEventListener('input', calc);

@@ -1,0 +1,77 @@
+/* Renoveringsanalysen som delad komponent.
+   Används av husanalys.html (hel sida) och av kalkylatorns kort 9 (kompakt).
+   Allt är scopat under .rva så att sidornas egna .card-regler inte krockar. */
+.rva .betanote{background:var(--terra-soft);border-left:4px solid var(--terra);border-radius:10px;padding:13px 17px;margin:20px 0 26px;font-size:13.5px}
+.rva .betanote b{display:block;margin-bottom:3px}
+.rva .card{background:var(--paper-2);border:0;border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-bottom:22px}
+.rva .card h2{font-family:var(--display);font-weight:700;font-size:20px;margin:0 0 4px}
+.rva .card .sub{color:var(--ink-soft);font-size:13px;margin:0 0 16px}
+.rva .drop{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px dashed var(--line);border-radius:11px;background:var(--fill);margin-bottom:12px;transition:.15s}
+.rva .drop:last-of-type{margin-bottom:0}
+.rva .drop.filled{border-style:solid;border-color:var(--green);background:var(--green-soft)}
+.rva .drop .meta{flex:1;min-width:0}
+.rva .drop .meta .nm{font-weight:600;font-size:14.5px}
+.rva .drop .meta .st{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rva .drop .pick{font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--fill);border:1.5px solid var(--line);color:var(--ink);padding:8px 13px;border-radius:9px;transition:.15s;white-space:nowrap}
+.rva .drop .pick:hover{border-color:var(--ink)}
+.rva .actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.rva .go{font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;background:var(--green);color:var(--on-accent);border:0;padding:13px 26px;border-radius:11px;transition:.15s}
+.rva .go:hover:not(:disabled){background:var(--green-dk);transform:translateY(-1px)}
+.rva .go:disabled{opacity:.5;cursor:not-allowed}
+.rva .status{font-size:13.5px;color:var(--ink-soft)}
+.rva .status.err{color:var(--terra);font-weight:600}
+.rva .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:rva-sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes rva-sp{to{transform:rotate(360deg)}}
+.rva #result{display:none}
+.rva .kallor{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.rva .kpill{font-size:12px;font-weight:600;padding:5px 11px;border-radius:20px;border:1px solid var(--line);background:var(--paper-2);color:var(--ink-soft)}
+.rva .kpill.on{background:var(--green-soft);border-color:var(--green);color:var(--green-dk)}
+.rva .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:20px}
+.rva .facts .f{background:var(--fill);padding:11px 14px}
+.rva .facts .f .fl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:600}
+.rva .facts .f .fv{font-size:16px;font-weight:600;margin-top:2px}
+.rva table.at{width:100%;border-collapse:collapse;font-size:13.5px}
+.rva table.at th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;padding:8px 10px;border-bottom:2px solid var(--line)}
+.rva table.at th.r,.rva table.at td.r{text-align:right;white-space:nowrap}
+.rva table.at td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.rva table.at tr:last-child td{border-bottom:0}
+.rva table.at .rub{font-weight:600}
+.rva table.at .desc{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+.rva .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;white-space:nowrap}
+.rva .tag.akut{background:var(--terra-soft);color:var(--terra)}
+.rva .tag.inom_nagra_ar{background:var(--gold-soft);color:var(--gold)}
+.rva .tag.pa_sikt{background:var(--green-soft);color:var(--green-dk)}
+.rva .tag.na{background:var(--fill);color:var(--ink-soft)}
+.rva .sak{font-size:11px;color:var(--ink-soft)}
+.rva .kostinp{width:112px;text-align:right;font-family:inherit;font-weight:600;font-size:13.5px;border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;background:var(--fill);color:var(--ink)}
+.rva .kostinp:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-soft)}
+.rva .kostinp.egen{border-color:var(--green);background:var(--green-soft)}
+.rva .schab{font-size:10.5px;color:var(--ink-soft);margin-top:3px;white-space:nowrap}
+.rva .sumbar{display:flex;justify-content:space-between;align-items:baseline;background:var(--green);color:var(--on-accent);padding:16px 20px;border-radius:12px;margin-top:20px;gap:14px;flex-wrap:wrap}
+.rva .sumbar .k{font-size:13px;opacity:.85}
+.rva .sumbar .v{font-family:var(--display);font-weight:700;font-size:clamp(22px,4vw,30px)}
+.rva .disc{margin-top:22px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:14px;line-height:1.6}
+.rva .histrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--fill);margin-bottom:8px;transition:.15s}
+.rva .histrow:last-child{margin-bottom:0}
+.rva .histrow:hover{border-color:var(--green)}
+.rva .histrow .hmeta{min-width:0;flex:1}
+.rva .histrow .hnamn{font-weight:600;font-size:14px;font-family:inherit;border:1px solid transparent;border-radius:7px;padding:4px 7px;margin:-4px 0 0 -7px;width:100%;max-width:340px;background:transparent;color:var(--ink)}
+.rva .histrow .hnamn:hover{border-color:var(--line)}
+.rva .histrow .hnamn:focus{outline:none;border-color:var(--green);background:var(--paper-2)}
+.rva .histrow .hs{font-size:12px;color:var(--ink-soft);margin-top:1px;padding-left:1px}
+.rva .histrow .hbtns{flex:none;display:flex;gap:6px;align-items:center}
+.rva .histrow .hopen{font-size:12.5px;font-weight:700;color:var(--on-accent);background:var(--green);border:0;border-radius:8px;padding:7px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.15s}
+.rva .histrow .hopen:hover{background:var(--green-dk)}
+.rva .histrow .hdel{font-size:16px;line-height:1;color:var(--ink-soft);background:var(--fill);border:1.5px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;font-family:inherit;transition:.15s}
+.rva .histrow .hdel:hover{border-color:var(--terra);color:var(--terra)}
+@media(max-width:600px){.rva .card{padding:18px 16px}.rva .drop{flex-wrap:wrap}}
+
+/* Kompakt läge: komponenten ligger redan i ett kort, så inga kort i kortet. */
+.rva.compact .card{background:transparent;box-shadow:none;padding:0;margin:0 0 20px;border-radius:0}
+.rva.compact .card:last-child{margin-bottom:0}
+.rva.compact .card h2{font-size:15px;margin-bottom:2px}
+.rva.compact .card .sub{font-size:12.5px;margin-bottom:12px}
+.rva.compact .go{font-size:13.5px;padding:10px 18px}
+.rva.compact .sumbar{padding:13px 16px}
+.rva.compact .sumbar .v{font-size:clamp(19px,3.4vw,24px)}
+.rva.compact .betanote{margin:0 0 16px;font-size:12.5px}
