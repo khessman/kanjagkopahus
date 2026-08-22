@@ -105,8 +105,12 @@ body::before,body::after{
   inset:-30%;              /* tilltaget så driften aldrig blottar en kant */
   z-index:-1;
   pointer-events:none;
-  -webkit-mask-size:100% 100%;
-  mask-size:100% 100%;
+  /* cover behåller cirklarnas proportioner; 100% 100% plattade ut dem
+     till ellipser på smala skärmar, och då syntes ingen rörelse. */
+  -webkit-mask-size:cover;
+  mask-size:cover;
+  -webkit-mask-position:center bottom;
+  mask-position:center bottom;
   -webkit-mask-repeat:no-repeat;
   mask-repeat:no-repeat;
   will-change:transform;
@@ -156,6 +160,12 @@ body::after{
 @keyframes breathe-near{
   0%,100%{opacity:calc(var(--bg-opacity-near) * .68)}
   50%    {opacity:calc(var(--bg-opacity-near) * 1.2)}
+}
+/* Smal skärm: masken skalas efter höjden i stället, annars blir varje
+   cirkel större än telefonen och mönstret läses som en jämn tonplatta. */
+@media(max-width:640px){
+  body::before{-webkit-mask-size:190% auto;mask-size:190% auto}
+  body::after{-webkit-mask-size:230% auto;mask-size:230% auto}
 }
 @media (prefers-reduced-motion:reduce){
   body::before,body::after{animation:none}
